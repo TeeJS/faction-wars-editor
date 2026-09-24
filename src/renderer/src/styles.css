@@ -311,7 +311,8 @@ ul.plain {
 }
 .intro {
   background: var(--panel);
-  border-left: 3px solid var(--accent);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
   padding: 8px 12px;
   margin: 0 0 12px;
   color: var(--muted);
@@ -871,14 +872,24 @@ tr.bad td {
   box-shadow: 0 6px 18px #0006;
   white-space: pre-wrap;
 }
+.notice {
+  --status: var(--focus);
+  border-color: color-mix(in srgb, var(--status) 45%, var(--line));
+}
+.notice::before {
+  content: '';
+  flex: none;
+  width: 8px;
+  height: 8px;
+  margin-top: 6px;
+  border-radius: 50%;
+  background: var(--status);
+}
 .notice.success {
-  border-left: 4px solid var(--good);
+  --status: var(--good);
 }
 .notice.error {
-  border-left: 4px solid var(--bad);
-}
-.notice.info {
-  border-left: 4px solid var(--focus);
+  --status: var(--bad);
 }
 .notice span {
   flex: 1;
