@@ -59,6 +59,8 @@ export type FieldDef =
   | (Base & { kind: 'ratings' })
   | (Base & { kind: 'unitWeapons' })
   | (Base & { kind: 'rect'; float?: boolean })
+  /** Four [x, y] corners: top-left, top-right, bottom-right, bottom-left. Optional; starts from the record's rect. */
+  | (Base & { kind: 'quad' })
   | (Base & { kind: 'art'; artKind: string })
   | (Base & { kind: 'file'; extensions: string[]; allowArtSet?: boolean })
   | (Base & { kind: 'id'; refKind?: RefKind; numeric?: boolean; readonly?: boolean })
@@ -93,6 +95,8 @@ export interface ListPageDef {
   orderNote?: string
   /** Show the Pictures panel (pictures + Encyclopedia text) for this kind of row. */
   pictures?: PictureKind
+  /** A note above the form, for this record. */
+  note?: (c: Ctx, rec: Dict, index: number | string) => ReactNode
   /** Extra panel under the form. */
   extra?: (c: Ctx, rec: Dict, index: number | string) => ReactNode
 }

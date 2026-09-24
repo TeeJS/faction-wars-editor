@@ -21,6 +21,19 @@ export function ci(d: unknown, key: string): unknown {
   return undefined
 }
 
+/** JsonUtil.data_keys: a keyed map's keys without its comments. A key starting with
+ * '_' ("_comment", "_note") is the pack author's, never data, in every keyed map. */
+export function dataKeys(d: Dict): string[] {
+  return Object.keys(d).filter((k) => !k.startsWith('_'))
+}
+
+/** A keyed map minus its comment keys. */
+function dataOf(d: Dict): Dict {
+  const out: Dict = {}
+  for (const k of dataKeys(d)) out[k] = d[k]
+  return out
+}
+
 /** Godot's str() of a JSON value. */
 export function gdStr(v: unknown): string {
   if (typeof v === 'string') return v
@@ -114,7 +127,13 @@ class Reader {
 
 export interface NeutralDef { id: string; displayName: string; color: string }
 export interface PackSetupDef { difficultyDefault: string; galaxySizes: string[]; galaxySizeDefault: string }
-export interface MenuRegionDef { action: string; value: string; rect: number[]; tooltip: string; selectedColor: string; index: number }
+export interface MenuRegionDef {
+  action: string; value: string; rect: number[]; tooltip: string; selectedColor: string; index: number
+  /** The screen's four corners [x, y] (top-left, top-right, bottom-right, bottom-left), or null. */
+  quad: number[][] | null
+  /** The key was there, whatever its shape (the validator checks it). */
+  quadGiven: boolean
+}
 export interface MenuReadoutDef { rect: number[]; standard: string; hqOnly: string; color: string }
 export interface MenuDef { image: string; selectedColor: string; regions: MenuRegionDef[]; readout: MenuReadoutDef | null; credits: string[] }
 export interface VictoryTipsDef { standard: string; hqOnly: string }
@@ -133,6 +152,8 @@ export interface PackManifest {
   menu: MenuDef | null
   victoryTips: VictoryTipsDef | null
   artSets: string[]
+  /** Top-level credits; menu.credits wins when it has any (menu.gd). */
+  credits: string[]
 }
 
 // ---- factions.json ----
@@ -274,7 +295,8 @@ export function readManifest(d: unknown): PackManifest {
                   rect: rect(ci(e, 'rect'), true),
                   tooltip: strOr(e, 'tooltip'),
                   selectedColor: strOr(e, 'selected_color'),
-                  index
+                  index,
+                  ...readQuad(ci(e, 'quad'))
                 }))
               : [],
             readout:
@@ -289,8 +311,18 @@ export function readManifest(d: unknown): PackManifest {
             credits: Array.isArray(ci(menuD, 'credits')) ? (ci(menuD, 'credits') as unknown[]).map(gdStr) : []
           },
     victoryTips: tipsD == null ? null : { standard: strOr(tipsD, 'standard'), hqOnly: strOr(tipsD, 'hq_only') },
-    artSets: Array.isArray(ci(d, 'art_sets')) ? (ci(d, 'art_sets') as unknown[]).map(gdStr) : []
+    artSets: Array.isArray(ci(d, 'art_sets')) ? (ci(d, 'art_sets') as unknown[]).map(gdStr) : [],
+    credits: Array.isArray(ci(d, 'credits')) ? (ci(d, 'credits') as unknown[]).map(gdStr) : []
   }
+}
+
+/** MenuRegionDef.from_dict's quad: four [x, y] pairs, or nothing usable. */
+function readQuad(q: unknown): { quad: number[][] | null; quadGiven: boolean } {
+  if (q === null || q === undefined) return { quad: null, quadGiven: false }
+  const pts: number[][] = []
+  if (Array.isArray(q) && q.length === 4)
+    for (const p of q) if (Array.isArray(p) && p.length === 2) pts.push([gdFloat(p[0]), gdFloat(p[1])])
+  return { quad: pts.length === 4 ? pts : null, quadGiven: true }
 }
 
 /** Hydrates every file the way the game does. `problems` lists shape faults (a list that
@@ -375,7 +407,7 @@ export function hydrate(doc: PackDocument): { pack: LoadedPack; problems: ShapeP
     const ratingsD = ci(d, 'ratings')
     const ratings: Record<string, RatingDef> = {}
     if (isDict(ratingsD))
-      for (const k of Object.keys(ratingsD)) {
+      for (const k of dataKeys(ratingsD)) {
         const r = ratingsD[k]
         ratings[k] = isDict(r) ? { base: intOr(r, 'base'), var: intOr(r, 'var') } : { base: 0, var: 0 }
       }
@@ -422,7 +454,7 @@ export function hydrate(doc: PackDocument): { pack: LoadedPack; problems: ShapeP
       maintenanceCost: intOr(d, 'maintenance_cost'),
       researchOrder: intOr(d, 'research_order'),
       researchCost: intOr(d, 'research_cost'),
-      stats: isDict(st) ? { ...st } : {},
+      stats: isDict(st) ? dataOf(st) : {},
       sourceFamilyId: intOr(d, 'source_family_id')
     }
   })
@@ -443,7 +475,7 @@ export function hydrate(doc: PackDocument): { pack: LoadedPack; problems: ShapeP
     const w = ci(d, 'weapons')
     const weaponsOut: Record<string, UnitWeaponDef> = {}
     if (isDict(w))
-      for (const k of Object.keys(w)) {
+      for (const k of dataKeys(w)) {
         const wd = w[k]
         const a = ci(wd, 'arcs')
         weaponsOut[k] = {
@@ -466,7 +498,7 @@ export function hydrate(doc: PackDocument): { pack: LoadedPack; problems: ShapeP
       researchOrder: intOr(d, 'research_order'),
       researchCost: intOr(d, 'research_cost'),
       weapons: weaponsOut,
-      stats: isDict(st) ? { ...st } : {},
+      stats: isDict(st) ? dataOf(st) : {},
       sourceFamilyId: intOr(d, 'source_family_id'),
       sourceId: intOr(d, 'source_id'),
       stringId: intOr(d, 'string_id')
@@ -480,9 +512,9 @@ export function hydrate(doc: PackDocument): { pack: LoadedPack; problems: ShapeP
     const fl = ci(d, 'flags')
     const tg = ci(d, 'targets')
     const flags: Record<string, boolean> = {}
-    if (isDict(fl)) for (const k of Object.keys(fl)) flags[k] = gdBool(fl[k])
+    if (isDict(fl)) for (const k of dataKeys(fl)) flags[k] = gdBool(fl[k])
     const targets: Record<string, boolean> = {}
-    if (isDict(tg)) for (const k of Object.keys(tg)) targets[k] = gdBool(tg[k])
+    if (isDict(tg)) for (const k of dataKeys(tg)) targets[k] = gdBool(tg[k])
     return {
       index: i,
       art: strOr(d, 'art'),
@@ -504,7 +536,7 @@ export function hydrate(doc: PackDocument): { pack: LoadedPack; problems: ShapeP
   const missionTables: Record<string, MissionTableDef> = {}
   const tablesV = ci(doc.value('mission_tables.json'), 'tables')
   if (isDict(tablesV)) {
-    for (const k of Object.keys(tablesV)) {
+    for (const k of dataKeys(tablesV)) {
       const t = tablesV[k]
       if (!isDict(t)) {
         tr.problems.push({ file: 'mission_tables.json', message: `mission_tables.json: table '${k}' is not an object.` })
@@ -529,19 +561,19 @@ export function hydrate(doc: PackDocument): { pack: LoadedPack; problems: ShapeP
   const setupV = doc.value('setup.json')
   const sl = ci(setupV, 'side_lottery')
   const lg = ci(setupV, 'logistics')
-  const setup: SetupFile = { sideLottery: Array.isArray(sl) ? sl : [], logistics: isDict(lg) ? { ...lg } : {} }
+  const setup: SetupFile = { sideLottery: Array.isArray(sl) ? sl : [], logistics: isDict(lg) ? dataOf(lg) : {} }
 
   const dv = doc.value('display.json')
   const dr = new Reader('display.json')
   const icons: Record<string, string> = {}
   const ic = ci(dv, 'icons')
-  if (isDict(ic)) for (const k of Object.keys(ic)) if (!k.startsWith('_')) icons[k] = gdStr(ic[k])
+  if (isDict(ic)) for (const k of dataKeys(ic)) icons[k] = gdStr(ic[k])
   const terms: Record<string, string> = {}
   const tm = ci(dv, 'terms')
-  if (isDict(tm)) for (const k of Object.keys(tm)) if (!k.startsWith('_')) terms[k] = gdStr(tm[k])
+  if (isDict(tm)) for (const k of dataKeys(tm)) terms[k] = gdStr(tm[k])
   const ranks: Record<string, string> = {}
   const rk = ci(dv, 'special_power_ranks')
-  if (isDict(rk)) for (const k of Object.keys(rk)) ranks[k] = gdStr(rk[k])
+  if (isDict(rk)) for (const k of dataKeys(rk)) ranks[k] = gdStr(rk[k])
   const categories: GidCategoryDef[] = dr.dicts(ci(dv, 'categories'), 'categories').map(({ d, i }) => ({
     index: i,
     id: strOr(d, 'id'),
@@ -549,7 +581,7 @@ export function hydrate(doc: PackDocument): { pack: LoadedPack; problems: ShapeP
     modes: dr.dicts(ci(d, 'modes'), `categories[${i}].modes`).map(({ d: m, i: mi }) => {
       const q = ci(m, 'quantity')
       const args: Record<string, unknown> = {}
-      if (isDict(q)) for (const k of Object.keys(q)) if (k !== 'kind') args[k] = q[k]
+      if (isDict(q)) for (const k of dataKeys(q)) if (k !== 'kind') args[k] = q[k]
       return {
         id: strOr(m, 'id'),
         label: strOr(m, 'label'),

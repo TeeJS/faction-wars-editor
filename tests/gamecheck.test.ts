@@ -11,7 +11,7 @@ import { findUsages, renameUsages } from '../src/core/refs'
 import { clonePack, createStarterPack } from '../src/core/starter'
 import { validatePack } from '../src/core/validate'
 import { buildPackZip, checkImportable, openPackZip } from '../src/core/zip'
-import { haveGameRepo, loadShipped } from './helpers'
+import { commentedCopy, haveGameRepo, loadShipped } from './helpers'
 
 const out = process.env.FWE_GAMECHECK_DIR
 const suite = out ? describe : describe.skip
@@ -67,5 +67,80 @@ suite('packs for the game to check', () => {
     expect(findUsages(doc, 'faction', 'axis')).toEqual([])
     expect(validatePack(doc).map((e) => e.message)).toEqual([])
     await throughZip(doc, out!)
+  })
+})
+
+// Broken on purpose: the game's own validator (its tests/validate_pack.gd) must print
+// exactly these errors, in this order. Each folder gets <id>.expected.txt beside it,
+// one error per line; an empty file means the pack must load.
+function writeParity(doc: PackDocument, expectErrors: boolean): void {
+  const dir = join(out!, 'parity')
+  const target = join(dir, doc.packId)
+  rmSync(target, { recursive: true, force: true })
+  for (const f of doc.allFiles()) {
+    mkdirSync(dirname(join(target, f.path)), { recursive: true })
+    writeFileSync(join(target, f.path), f.bytes)
+  }
+  // The game prints the folder as it was given, with '/' separators.
+  const errors = validatePack(doc, { packDirLabel: target.replace(/\\/g, '/') }).map((e) => e.message)
+  expect(errors.length > 0, errors.join('\n')).toBe(expectErrors)
+  writeFileSync(join(dir, `${doc.packId}.expected.txt`), errors.map((e) => e + '\n').join(''))
+}
+
+function starter(id: string): PackDocument {
+  return createStarterPack({
+    id,
+    displayName: id,
+    sides: [
+      { id: 'rome', displayName: 'Rome' },
+      { id: 'carthage', displayName: 'Carthage' }
+    ]
+  })
+}
+
+suite("the game's validator says what the editor's says, word for word", () => {
+  it('fewer than three galaxy sizes', () => {
+    const doc = starter('parity-sizes')
+    doc.edit('two sizes', (e) => e.set('pack.json', ['setup', 'galaxy_sizes'], ['standard', 'large']))
+    writeParity(doc, true)
+  })
+
+  it('empty seeds, and a hidden headquarters with no placement', () => {
+    const doc = starter('parity-seed')
+    doc.edit('break seeds', (e) => {
+      e.set('factions.json', ['factions', 0, 'seed', 'fleet'], '')
+      e.set('factions.json', ['factions', 0, 'seed', 'hq_garrison'], '')
+      e.set('factions.json', ['factions', 1, 'hq'], { kind: 'hidden' })
+    })
+    writeParity(doc, true)
+  })
+
+  it('logistics: a missing Core table, a Rim table that is not an object, and comment keys', () => {
+    const doc = starter('parity-logistics')
+    doc.edit('break logistics', (e) => {
+      e.remove('setup.json', ['logistics', 'core_system_facilities'])
+      e.set('setup.json', ['logistics', 'rim_system_facilities'], 5)
+      e.set('setup.json', ['logistics', '_comment'], 'a note, not a table')
+      e.set('mission_tables.json', ['tables', '_comment'], 'a note, not a table')
+    })
+    writeParity(doc, true)
+  })
+
+  it.runIf(haveGameRepo)('Cockpit screen corners that are not four [x, y] pairs', () => {
+    const doc = clonePack(loadShipped('star-wars-rebellion'), 'parity-quad', 'Parity quad')
+    doc.edit('break quads', (e) => {
+      e.set('pack.json', ['menu', 'regions', 0, 'quad'], [
+        [0, 0],
+        [10, 0],
+        [10, 10]
+      ])
+      e.set('pack.json', ['menu', 'regions', 1, 'quad'], 'none')
+    })
+    writeParity(doc, true)
+  })
+
+  it.runIf(haveGameRepo)('WW2 with a comment in every JSON object loads clean', () => {
+    const { doc } = commentedCopy(clonePack(loadShipped('ww2'), 'parity-comments', 'Parity comments'), 'parity-comments')
+    writeParity(doc, false)
   })
 })

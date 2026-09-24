@@ -18,12 +18,21 @@ describe('buildPackZip', () => {
     { path: 'manifest.json', bytes: strToU8('{}') }
   ]
 
-  it('builds a zip the game would import', async () => {
+  it('builds a zip in the game format', async () => {
     const r = await buildPackZip(files, { id: 'mine', title: 'Mine', exporter: 'faction-wars-editor 0.1.0', artSetHashes: null, now: new Date(Date.UTC(2026, 8, 23, 12, 0, 0)) })
     expect(r.ok).toBe(true)
     expect(Object.keys(r.manifest!.files)).toEqual(['art/units/x.png', 'pack.json'])
     expect(r.manifest!.created_utc).toBe('2026-09-23T12:00:00Z')
-    expect(await checkImportable(r.bytes!)).toBe('')
+  })
+
+  it("the importer check runs the game's loader, as the importer does, and lists 8 reasons", async () => {
+    const r = await buildPackZip(files, { id: 'mine', title: 'Mine', exporter: 'x', artSetHashes: null })
+    const refusal = await checkImportable(r.bytes!)
+    const lines = refusal.split('\n')
+    expect(lines[0]).toBe('Not imported: the game would refuse to load it.')
+    expect(lines[1]).toBe('  factions.json: missing or empty.')
+    expect(lines).toHaveLength(10)
+    expect(lines[9]).toBe('  ... and 3 more')
   })
 
   it('refuses anything under original/', async () => {
@@ -41,7 +50,7 @@ describe('buildPackZip', () => {
 
   it('the importer check catches an id mismatch and a shipped id', async () => {
     const bad = await buildPackZip(files, { id: 'other', title: 'x', exporter: 'x', artSetHashes: null })
-    expect(await checkImportable(bad.bytes!)).toContain("differs from pack.json id 'mine'")
+    expect(await checkImportable(bad.bytes!)).toBe("Its pack.json names the pack 'mine' but its manifest 'other'; they must be the same.")
     const shipped = await buildPackZip([{ path: 'pack.json', bytes: strToU8('{"id":"ww2"}') }], { id: 'ww2', title: 'x', exporter: 'x', artSetHashes: null })
     expect(await checkImportable(shipped.bytes!)).toContain('comes with the game')
   })

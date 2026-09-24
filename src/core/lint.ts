@@ -6,7 +6,6 @@ import type { PackDocument } from './document'
 import { ci, hydrate, isDict, type LoadedPack } from './model'
 import type { Issue } from './validate'
 import {
-  ENGINE_LOGISTICS_TABLES,
   ENGINE_MISSION_TABLES,
   FACILITY_STAT_KEYS,
   KNOWN_DIFFICULTIES,
@@ -45,21 +44,11 @@ export function lintLoaded(pack: LoadedPack, doc?: PackDocument): Issue[] {
   if (m.neutral && m.neutral.displayName.trim() === '') warn('pack.json: neutral.display_name is empty.', 'pack')
   if (m.schemaVersion !== 1) warn(`pack.json: schema_version is ${m.schemaVersion}; write 1 (a missing or 0 version passes today but is not the contract).`, 'pack')
 
-  // Galaxy sizes: Enums.GalaxySize {Standard, Large, Huge} indexes this list by position.
-  const sizes = m.setup?.galaxySizes ?? []
-  if (m.setup === null) warn("pack.json: no 'setup' - the game needs setup.galaxy_sizes (three sizes, smallest first).", 'pack')
-  else if (sizes.length !== 3)
-    warn(`pack.json: setup.galaxy_sizes lists ${sizes.length}; the engine indexes it as exactly three sizes (standard, large, huge), smallest first.`, 'pack')
-
   // Faction count: day zero places only the first two sides (day_zero_generator.gd:172-256).
   if (pack.factions.length > 2)
     warn(`factions.json: ${pack.factions.length} factions - the engine's day zero still places characters only for the first two sides; a third or fourth side passes validation but plays wrong.`, 'factions')
 
   for (const f of pack.factions) {
-    // seed present -> day zero indexes hq_facilities, hq_garrison and fleet unconditionally.
-    if (f.seed !== null)
-      for (const [k, v] of [['hq_facilities', f.seed.hqFacilities], ['hq_garrison', f.seed.hqGarrison], ['fleet', f.seed.fleet]] as const)
-        if (v === '') warn(`factions.json[${f.id}]: seed.${k} is empty - when 'seed' is present, day zero reads hq_facilities, hq_garrison and fleet.`, 'factions', f.index)
     if (f.startingPlanets.length === 0 && f.hq?.kind !== 'fixed')
       warn(`factions.json[${f.id}]: no starting_planets and no fixed hq - characters placed at the "first world" have nowhere to go.`, 'factions', f.index)
     for (const sp of f.startingPlanets)
@@ -67,10 +56,6 @@ export function lintLoaded(pack: LoadedPack, doc?: PackDocument): Issue[] {
     if (!ID_RE.test(f.id)) warn(`factions.json[${f.id}]: id should be lower_snake_case.`, 'factions', f.index)
   }
 
-  // Logistics tables the engine reads by name.
-  for (const t of ENGINE_LOGISTICS_TABLES)
-    if (!Object.prototype.hasOwnProperty.call(pack.setup.logistics, t))
-      warn(`setup.json: logistics has no '${t}' table - day zero reads it by name to furnish systems.`, 'logistics')
   for (const [tid, table] of Object.entries(pack.setup.logistics)) {
     if (!isDict(table)) continue
     const fr = ci(table, 'fixed_range')
@@ -79,7 +64,6 @@ export function lintLoaded(pack: LoadedPack, doc?: PackDocument): Issue[] {
       if (!Array.isArray(fr) || fr.length !== 2) warn(`setup.json logistics[${tid}]: fixed_range must be [first rule EntryId, max rule EntryId].`, 'logistics', undefined, tid)
       else for (const id of fr) if (!ruleIds.has(Number(id))) warn(`setup.json logistics[${tid}]: fixed_range names rule ${id}, which rules.json does not have.`, 'logistics', undefined, tid)
     }
-    commentKeys(table, `setup.json logistics[${tid}]`, 'logistics', warn, tid)
   }
 
   // Mission tables the engine reads by name. (A mission with no outcome table of its
@@ -138,14 +122,12 @@ export function lintLoaded(pack: LoadedPack, doc?: PackDocument): Issue[] {
   for (const u of pack.units) {
     const known = UNIT_STAT_KEYS[u.kind] ?? []
     for (const k of Object.keys(u.stats))
-      if (!k.startsWith('_') && known.length && !known.includes(k)) warn(`units.json[${u.id}]: stat '${k}' is not one the engine reads for a ${u.kind}.`, 'units', u.index)
-    commentKeys(u.stats, `units.json[${u.id}] stats`, 'units', warn, undefined, u.index)
+      if (known.length && !known.includes(k)) warn(`units.json[${u.id}]: stat '${k}' is not one the engine reads for a ${u.kind}.`, 'units', u.index)
     if (!ID_RE.test(u.id)) warn(`units.json[${u.id}]: id should be lower_snake_case (no '.' or ':').`, 'units', u.index)
   }
   for (const fd of pack.facilities) {
     for (const k of Object.keys(fd.stats))
-      if (!k.startsWith('_') && !FACILITY_STAT_KEYS.includes(k)) warn(`facilities.json[${fd.id}]: stat '${k}' is not one the engine reads.`, 'facilities', fd.index)
-    commentKeys(fd.stats, `facilities.json[${fd.id}] stats`, 'facilities', warn, undefined, fd.index)
+      if (!FACILITY_STAT_KEYS.includes(k)) warn(`facilities.json[${fd.id}]: stat '${k}' is not one the engine reads.`, 'facilities', fd.index)
   }
   for (const ch of pack.characters) {
     for (const k of Object.keys(ch.ratings))
@@ -178,32 +160,12 @@ export function lintLoaded(pack: LoadedPack, doc?: PackDocument): Issue[] {
           fix: { label: 'Remove it', action: 'removeFile', arg: f }
         })
 
-  // Menu credits live under menu; a top-level 'credits' is never read.
-  if (doc) {
-    const pv = doc.value('pack.json')
-    if (isDict(pv) && ci(pv, 'credits') !== undefined && m.menu === null)
-      warn("pack.json: top-level 'credits' is never read - the game reads only menu.credits.", 'pack')
-  }
-
   // Hyperdrive 0 on something that must jump.
   for (const u of pack.units)
     if ((u.kind === 'capital_ship') && typeof u.stats['hyperdrive'] === 'number' && u.stats['hyperdrive'] === 0)
       warn(`units.json[${u.id}]: hyperdrive 0 means the ship can never jump.`, 'units', u.index)
 
   return out
-}
-
-function commentKeys(
-  d: unknown,
-  ctx: string,
-  page: string,
-  warn: (m: string, p: string, i?: number, k?: string) => void,
-  key?: string,
-  index?: number
-): void {
-  if (!isDict(d)) return
-  for (const k of Object.keys(d))
-    if (k.startsWith('_')) warn(`${ctx}: '${k}' is read as data here - '_' keys are skipped only in display.json terms and icons.`, page, index, key)
 }
 
 function dupNames(list: { displayName: string; id: string; index: number }[], ctx: string, page: string, warn: (m: string, p: string, i?: number) => void): void {

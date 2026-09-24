@@ -1,5 +1,45 @@
 # Handoff: changes the `TeeJS/faction-wars` repo needs
 
+## Status: all done (2026-09-24)
+
+The game agent did every item below, and the editor has caught up with each one (game main `d4c01e2`).
+
+| Item | Game PR | In the editor |
+|---|---|---|
+| 1. Headless validator | #165 | `scripts/gamecheck.ps1` runs the game's `tests/validate_pack.gd` on editor packs, and on broken ones, where it must print the editor's errors word for word |
+| 2. Importer checks | #161 | `checkImportable` refuses an id mismatch and runs the validator, as the importer does |
+| 3. WW2 credits | #168 | The Pack page has a Credits field; the "never read" warning is gone |
+| 4. `_comment` keys | #162 | Hydration skips `_` keys in every keyed map; the warning is gone |
+| 5. SCHEMA.md | #164 | Nothing to do |
+| 6. Loader message nits | #167 | The reworded hq message is copied |
+| 7. Line endings | #166 | Nothing to do: the editor already keeps each file's bytes |
+| Unwritten engine requirements | #163 | Now validator errors (rules 19–22), ported word for word; the matching warnings are gone |
+| Cockpit screen corners (`quad`, game-side) | #171 | Validated, editable in the form, draggable on the Cockpit picture |
+
+One correction to item 5 below: `troop_decoy` is **not** read by the engine. It is one of four tables (with `character_search`, `resource_event` and `uprising_end`) that no game code reads yet, and the editor now says so on those tables.
+
+## New, 2026-09-24: found by the editor's game check (game main `d4c01e2`)
+
+For another agent, as before. Confirm each against current main, and get TeeJ's go-ahead per item.
+
+### 8. A player's first faction-pack import fails (a regression from #161)
+
+- **Where:** `src/ui/pack_import.gd`, `_import`. A faction pack is now staged in `user://import-staging/<id>` (`:195`), then moved with `DirAccess.rename_absolute(staging, dest)` (`:220`), where `dest` is `user://packs/<id>`.
+- **Bug:** when `user://packs` doesn't exist yet, the rename fails. That is a fresh install, or any player who has never imported a faction pack. The import is refused with `Could not move the import into place at user://packs/<id>.` Before #161, the staging folder was `dest + ".importing"`, and creating it made `user://packs` too.
+- **Seen:** the editor's `scripts\gamecheck.ps1` runs with a throwaway `user://`, and both of its imports failed. With `user://packs` created first, both imported, passed the loader check, and appeared in the picker.
+- **Fix:** `DirAccess.make_dir_recursive_absolute(dest.get_base_dir())` before the rename.
+- **Why the game's test missed it:** `tests/pack_import.gd` runs in a user folder that already has `user://packs` (it removes only `user://packs/<its id>`, `:38-40`). Starting from a missing `user://packs` would cover a player's first import.
+
+### 9. `tests/soak.gd` passes when its pack does not load
+
+- With `--pack=<id>` naming a pack that isn't installed, `FactionRegistry.EnsureLoaded` logs `ERROR: [Pack] '<id>' failed to load`, but `GameSession.new_game` (`game_session.gd:74-76`) goes on. The soak then plays an empty galaxy (`Faction: <null>`, `Planets: 0`) and exits 0.
+- **Fix:** have `new_game` return null when `EnsureLoaded()` returns false. `soak.gd` already quits with 2 on a null engine.
+- The editor's game check now looks for this itself, so this matters for the game's own soak gate.
+
+The rest of this file is the original request, kept as a record.
+
+---
+
 **Written:** 2026-09-23, by the agent building `TeeJS/faction-wars-editor`. That agent may not change `faction-wars` (TeeJ's rule), so everything below is for another agent.
 
 **Before starting:** confirm each item against the current code; line numbers are as of `29ef088`. Get TeeJ's go-ahead per item. Use your own worktree, stage paths explicitly with `git add`, and put no session links anywhere.

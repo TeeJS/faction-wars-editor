@@ -22,7 +22,7 @@ It follows the tradition of [REBED](https://swrebellion.net/files/file/2-rebed/)
   - The pack's picture is drawn at `map_image_rect`, with sectors and planets on top.
   - Drag a planet to move it. Drag a sector to move it along with all its planets.
   - Shift-click a second planet to see the travel days between them, calculated the way the engine does.
-- **Cockpit menu editor:** draw and resize the clickable regions on the menu picture.
+- **Cockpit menu editor:** draw and resize the clickable regions on the menu picture, and drag the four corners of a screen seen at an angle so the selection brackets follow it.
 - **Modding the built-in packs:** "Make my own copy" copies the open pack under an id of your own and saves it as a new folder. The copy sits beside the original in the game's pack picker and exports as a zip anyone can import. (The game always uses its built-in pack when two share an id, so a mod needs its own.)
 - **Pictures on every character, unit, facility, mission and planet**
   - Each picture slot (Encyclopedia, portrait, miniature, mission pictures per side, planet sprite) shows the picture the game would use and whether it comes from this pack or from your art set.
@@ -32,7 +32,8 @@ It follows the tradition of [REBED](https://swrebellion.net/files/file/2-rebed/)
 - **Rename with references:** renaming an id (a faction, planet, unit, weapon, logistics table and so on) updates every place that uses it. Deleting a record first shows where it is used.
 - **The game's own validator, ported line for line**
   - Errors read exactly as the game's pack picker would show them.
-  - Warnings cover engine requirements the validator does not check, such as named tables, galaxy sizes, missing matrix cells, and ids the importer refuses.
+  - Warnings cover things the game accepts but that play wrong, such as missing mission tables, missing matrix cells, and ids the importer refuses.
+  - Keys starting with `_` (`"_comment"`) are notes, never data, anywhere in a pack, as in the game.
 - **Lossless editing**
   - An untouched file is written back **byte for byte**, and an edit changes only the edited text.
   - Key order, number spelling, unknown fields and line endings are all kept.
@@ -40,7 +41,7 @@ It follows the tradition of [REBED](https://swrebellion.net/files/file/2-rebed/)
 - **Order-aware:** weapon, planet, sector, character and faction order affect the game (combat sums, day-zero random draws), so moving one of them warns you.
 - **Safe export**
   - Uses the game's zip layout, with a `manifest.json` that lists a SHA-256 for every file.
-  - Checks the result against a copy of the game's importer before writing it.
+  - Checks the result against a copy of the game's importer before writing it, including the validator pass the importer runs.
   - Refuses anything under `original/`, and any file identical to a picture in your art set, so the original game's art never ships in a pack.
 - **Backups:** before the editor first overwrites a pack folder in a session, it saves a zip copy to `Documents/Faction Wars/editor-backups/`.
 
@@ -72,7 +73,7 @@ Packages for your operating system are written to `dist/`:
 npm run dist:win
 ```
 
-**The game itself checks the editor's output.** This script has the real game validate, import and play (headless, AI on both sides) packs the editor wrote. It works on a temporary copy of the game project and never touches your checkout; `tests/gamecheck/README.md` has the details. CI runs it too.
+**The game itself checks the editor's output.** This script has the real game validate, import and play (headless, AI on both sides) packs the editor wrote. It also has the game's validator check deliberately broken packs and print exactly the errors the editor shows. It works on a temporary copy of the game project and never touches your checkout; `tests/gamecheck/README.md` has the details. CI runs it too.
 
 ```powershell
 .\scripts\gamecheck.ps1
@@ -80,14 +81,10 @@ npm run dist:win
 
 ## Releases
 
-1. Bump `version` in `package.json`, then push a tag with the same number, e.g. `v0.2.0`. The Release workflow builds the Linux packages and the macOS ones (signed and notarized), then creates a **draft** release.
-2. Build, verify and upload the signed Windows installer and portable exe. This runs locally because Azure Trusted Signing uses your `Connect-AzAccount` session (see `sign.js`):
+1. Bump `version` in `package.json`, then push a tag with the same number, e.g. `v0.2.0`. The Release workflow builds and signs all three platforms (macOS notarized, Windows with Azure Artifact Signing), then creates a **draft** release.
+2. Review the draft on GitHub and publish it.
 
-   ```powershell
-   .\scripts\release-win.ps1 -Tag v0.2.0
-   ```
-
-3. Review the draft on GitHub and publish it.
+`docs/RELEASING.md` has the details, including the one-time setup and a fallback for signing Windows on a PC.
 
 ## Layout
 

@@ -83,10 +83,12 @@ export const KNOWN_BEHAVIOURS = [
 
 // ---- Editor-only knowledge: engine requirements the loader does not check. ----
 
-/** Mission-table ids the engine looks up by name (mission_table_manager.gd:14-21, uprising_table.gd). */
-export const ENGINE_MISSION_TABLES = ['foil', 'decoy', 'troop_decoy', 'evasion', 'escape', 'informants', 'uprising_start']
-/** Logistics tables day zero reads by name (day_zero_generator.gd:165). */
-export const ENGINE_LOGISTICS_TABLES = ['core_system_facilities', 'rim_system_facilities']
+/** Mission-table ids the engine looks up by name (mission_manager.gd, captivity_manager.gd,
+ * informant_manager.gd, story_manager.gd via mission_table_manager.gd; uprising_table.gd). */
+export const ENGINE_MISSION_TABLES = ['foil', 'decoy', 'evasion', 'escape', 'informants', 'uprising_start']
+/** Tables both shipped packs carry that no game code reads yet (the game agent's research,
+ * 2026-09-24): editing them changes nothing in play. */
+export const UNUSED_MISSION_TABLES = ['troop_decoy', 'character_search', 'resource_event', 'uprising_end']
 /** Packs that ship with the game; the importer refuses a zip that reuses their id. */
 export const SHIPPED_PACK_IDS = ['star-wars-rebellion', 'ww2']
 /** The hidden-HQ sentinel: a random planet in a sector with ring > 1. */

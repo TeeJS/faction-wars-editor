@@ -2,7 +2,7 @@
 // pack. Native dialogs are replaced in the main process with canned answers.
 
 import { _electron as electron, expect, test, type ElectronApplication, type Page } from '@playwright/test'
-import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { unzipSync, strFromU8 } from 'fflate'
 import { starfieldPng } from '../../src/core/png'
@@ -135,4 +135,34 @@ test('make my own copy of the built-in pack, then give a character a portrait an
   const first = JSON.parse(readFileSync(join(mod, 'characters.json'), 'utf8')).characters[0].id
   expect(existsSync(join(mod, 'art', 'portraits', 'characters', `${first}.png`))).toBe(true)
   expect(JSON.parse(readFileSync(join(mod, 'art', 'descriptions.json'), 'utf8')).characters[first]).toBe('Written for the E2E mod.')
+})
+
+test("the Cockpit's screen corners: drawn, and a corner drags", async () => {
+  const sw = join(FW, 'packs', 'star-wars-rebellion')
+  test.skip(!existsSync(join(sw, 'pack.json')), 'needs a faction-wars checkout')
+  // A copy, so nothing can ever write to the game checkout.
+  const copy = join(scratch, 'star-wars-rebellion')
+  cpSync(sw, copy, { recursive: true, filter: (p) => !/[\\/]original([\\/]|$)/i.test(p) })
+  await answerDialogs({ open: [copy] })
+  await page.getByRole('button', { name: 'Open Folder' }).click()
+  await expect(page.locator('.toolbar .pack-name')).toContainText('star-wars-rebellion')
+  await page.getByRole('button', { name: 'Cockpit Menu' }).click()
+  // The pack gives corners for 7 screens: 3 difficulties, 3 galaxy sizes, the victory monitor.
+  await expect(page.locator('.quad-outline')).toHaveCount(7)
+  // Select difficulty:easy (the first region after the readout), then drag its top-left corner.
+  await page.locator('.region').nth(1).locator('rect').first().click()
+  const corners = page.locator('.quad-outline.on .corner')
+  await expect(corners).toHaveCount(4)
+  const polygon = page.locator('.quad-outline.on polygon')
+  const before = await polygon.getAttribute('points')
+  const box = (await corners.first().boundingBox())!
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2)
+  await page.mouse.down()
+  await page.mouse.move(box.x + box.width / 2 + 30, box.y + box.height / 2 + 15, { steps: 5 })
+  await page.mouse.up()
+  const after = await polygon.getAttribute('points')
+  expect(after).not.toBe(before)
+  expect(Number(after!.split(' ')[0].split(',')[0])).toBeGreaterThan(Number(before!.split(' ')[0].split(',')[0]))
+  await expect(page.locator('.toolbar .status')).toContainText('Valid')
+  await page.screenshot({ path: join(scratch, '09-cockpit-corners.png') })
 })

@@ -1,6 +1,7 @@
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
 import { join, relative, resolve } from 'node:path'
 import { PackDocument } from '../src/core/document'
+import { PACK_JSON_FILES } from '../src/core/vocab'
 
 /** A read-only checkout of TeeJS/faction-wars (CI clones it; locally it sits beside this repo). */
 export const FACTION_WARS_DIR = resolve(process.env.FACTION_WARS_DIR ?? join(__dirname, '..', '..', 'faction-wars'))
@@ -39,4 +40,29 @@ export function bytesEqual(a: Uint8Array, b: Uint8Array): boolean {
   if (a.length !== b.length) return false
   for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return false
   return true
+}
+
+/** Puts a "_comment" into every JSON object under `v` (as the game's tests/pack_comments.gd does). */
+export function commentEverywhere(v: unknown, note = "a pack author's note"): number {
+  let n = 0
+  if (Array.isArray(v)) for (const x of v) n += commentEverywhere(x, note)
+  else if (v !== null && typeof v === 'object') {
+    const o = v as Record<string, unknown>
+    for (const k of Object.keys(o)) n += commentEverywhere(o[k], note)
+    o._comment = note
+    n++
+  }
+  return n
+}
+
+/** A copy of `doc` with a "_comment" in every object of its 12 JSON files. */
+export function commentedCopy(doc: PackDocument, folder: string): { doc: PackDocument; added: number } {
+  const files = new Map(doc.allFiles().map((f) => [f.path, f.bytes]))
+  let added = 0
+  for (const f of PACK_JSON_FILES) {
+    const data = JSON.parse(new TextDecoder().decode(files.get(f)!))
+    added += commentEverywhere(data)
+    files.set(f, new TextEncoder().encode(JSON.stringify(data, null, 2) + '\n'))
+  }
+  return { doc: new PackDocument(files, folder), added }
 }

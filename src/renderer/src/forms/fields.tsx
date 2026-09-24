@@ -238,6 +238,8 @@ function renderControl(p: FieldProps): ReactNode {
       return <UnitWeapons {...p} />
     case 'rect':
       return <RectField {...p} />
+    case 'quad':
+      return <QuadField {...p} />
     case 'art':
       return <ArtField {...p} />
     case 'file':
@@ -735,6 +737,64 @@ function RectField(p: FieldProps): ReactNode {
         </button>
       )}
     </span>
+  )
+}
+
+const CORNERS = ['top-left', 'top-right', 'bottom-right', 'bottom-left']
+
+/** A rect's four corners, in quad order. */
+export function quadFromRect(rect: unknown): number[][] {
+  const r = Array.isArray(rect) && rect.length === 4 ? rect.map((v) => Number(v) || 0) : [0, 0, 0, 0]
+  const [x, y, w, h] = r
+  return [
+    [x, y],
+    [x + w, y],
+    [x + w, y + h],
+    [x, y + h]
+  ]
+}
+
+/** The corners a quad value holds, falling back to the rect's for any it lacks. */
+export function quadPoints(raw: unknown, rect: unknown): number[][] {
+  const base = quadFromRect(rect)
+  return base.map((b, i) => {
+    const pt = Array.isArray(raw) ? raw[i] : undefined
+    return Array.isArray(pt) && pt.length === 2 ? [Number(pt[0]) || 0, Number(pt[1]) || 0] : b
+  })
+}
+
+function QuadField(p: FieldProps): ReactNode {
+  const { def, rec } = p
+  const raw = ci(rec, def.key)
+  if (raw === undefined || raw === null)
+    return (
+      <button className="link" onClick={() => commit(p, quadFromRect(ci(rec, 'rect')), false)}>
+        Add corners (start from the rect)
+      </button>
+    )
+  const pts = quadPoints(raw, ci(rec, 'rect'))
+  const set = (i: number, axis: 0 | 1, t: string) => {
+    const next = pts.map((pt) => [...pt])
+    next[i][axis] = Number(t || '0')
+    commit(p, next, false)
+  }
+  return (
+    <div className="quad">
+      {CORNERS.map((name, i) => (
+        <span key={name} className="rect">
+          <span className="muted quad-corner">{name}</span>
+          <label>
+            x <CommitInput className="num" value={String(pts[i][0])} invalid={floatProblem} ariaLabel={`${name} x`} onCommit={(t) => set(i, 0, t)} />
+          </label>
+          <label>
+            y <CommitInput className="num" value={String(pts[i][1])} invalid={floatProblem} ariaLabel={`${name} y`} onCommit={(t) => set(i, 1, t)} />
+          </label>
+        </span>
+      ))}
+      <button className="link" onClick={() => commit(p, undefined, true)}>
+        clear
+      </button>
+    </div>
   )
 }
 

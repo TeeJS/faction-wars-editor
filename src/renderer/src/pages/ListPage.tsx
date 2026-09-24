@@ -235,6 +235,7 @@ export function ListPage({ def }: { def: ListPageDef }): ReactNode {
             {tab === 'form' ? (
               isDict(current.rec) ? (
                 <>
+                  {def.note?.(c, current.rec, current.key)}
                   {def.pictures && <PicturesPanel c={c} kind={def.pictures} rec={current.rec} />}
                   <FieldGroup c={c} file={def.file} path={recPath} rec={current.rec} fields={def.fields} />
                   {def.extra?.(c, current.rec, current.key)}

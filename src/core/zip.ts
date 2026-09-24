@@ -4,13 +4,19 @@
 // so every export can be proven importable before it is written.
 
 import { Zip, ZipDeflate, ZipPassThrough, unzipSync, strFromU8, strToU8 } from 'fflate'
-import { normalizePath } from './document'
+import { PackDocument, normalizePath } from './document'
+import { gdStr } from './model'
+import { validatePack } from './validate'
 import { SHIPPED_PACK_IDS } from './vocab'
 
 export const MANIFEST = 'manifest.json'
 export const MANIFEST_FORMAT = 1
 export const KIND_FACTION_PACK = 'faction_pack'
 export const KIND_ART_SET = 'art_set'
+/** Where the game's importer unpacks a faction pack to run its loader on it. */
+export const PACK_STAGING = 'user://import-staging'
+/** How many of the loader's reasons the importer's refusal lists. */
+export const REASONS_SHOWN = 8
 
 export async function sha256Hex(bytes: Uint8Array): Promise<string> {
   const digest = await globalThis.crypto.subtle.digest('SHA-256', bytes as unknown as ArrayBuffer)
@@ -232,9 +238,10 @@ export function safePath(p: string): boolean {
 }
 
 /**
- * Runs pack_import.gd's checks on a built zip. Returns '' when the game would
- * import it, or the reason it would refuse. `artSetHashes`: the player's installed
- * art set, for the leak check.
+ * Runs pack_import.gd's checks on a built zip, including the loader pass it makes
+ * on a faction pack before installing it. Returns '' when the game would import
+ * it, or the reason it would refuse. `artSetHashes`: the player's installed art
+ * set, for the leak check.
  */
 export async function checkImportable(bytes: Uint8Array, artSetHashes: Set<string> | null = null): Promise<string> {
   let entries: Record<string, Uint8Array>
@@ -243,13 +250,14 @@ export async function checkImportable(bytes: Uint8Array, artSetHashes: Set<strin
   } catch {
     return 'That is not a Faction Wars file (it could not be opened as a .zip).'
   }
-  if (!entries[MANIFEST]) return 'That file has no manifest.json.'
+  if (!entries[MANIFEST]) return 'That file has no manifest.json - export it with the Faction Wars Exporter, or build it with its Build faction pack.'
   let manifest: Record<string, unknown>
   try {
     manifest = JSON.parse(strFromU8(entries[MANIFEST]))
   } catch {
     return 'Its manifest.json is not valid JSON.'
   }
+  if (manifest === null || typeof manifest !== 'object' || Array.isArray(manifest)) return 'Its manifest.json is not valid JSON.'
   const kind = String(manifest.kind ?? '')
   const id = String(manifest.id ?? '')
   if (Number(manifest.format ?? 0) !== MANIFEST_FORMAT) return `It is format ${String(manifest.format ?? '?')}; the game reads format ${MANIFEST_FORMAT}.`
@@ -267,17 +275,25 @@ export async function checkImportable(bytes: Uint8Array, artSetHashes: Set<strin
   }
   if (kind === KIND_FACTION_PACK) {
     const leaked = await findLeaks([...contents].map(([path, b]) => ({ path, bytes: b })), artSetHashes)
-    // The importer's own prefix check is case-sensitive; findLeaks is stricter, like the builder.
-    if (leaked.length) return 'Not imported: a faction pack must not carry the original\'s art. These files are the original\'s:\n  ' + leaked.join('\n  ')
+    if (leaked.length)
+      return "Not imported: a faction pack must not carry the original's art (refer to the art set instead). These files are the original's:\n  " + leaked.join('\n  ')
     if (!contents.has('pack.json')) return 'It is a faction pack with no pack.json.'
     if (SHIPPED_PACK_IDS.includes(id)) return `'${id}' is a pack that comes with the game; an imported copy would never be used.`
-    // Beyond the importer: it installs to user://packs/<manifest id>, and the loader then
-    // requires pack.json's id to equal that folder name.
+    let pj: unknown
     try {
-      const pj = JSON.parse(strFromU8(contents.get('pack.json')!)) as { id?: unknown }
-      if (pj.id !== id) return `manifest id '${id}' differs from pack.json id '${String(pj.id)}'; the game would install it and then refuse to load it.`
+      pj = JSON.parse(strFromU8(contents.get('pack.json')!))
     } catch {
       return 'Its pack.json is not valid JSON.'
+    }
+    if (pj === null || typeof pj !== 'object' || Array.isArray(pj)) return 'Its pack.json is not valid JSON.'
+    const named = gdStr((pj as { id?: unknown }).id)
+    if (named !== id) return `Its pack.json names the pack '${named}' but its manifest '${id}'; they must be the same.`
+    // The importer unpacks to user://import-staging/<id> and runs PackLoader.Load there;
+    // any error refuses the pack, listing the first few.
+    const errors = validatePack(new PackDocument(contents, id), { packDirLabel: `${PACK_STAGING}/${id}` }).map((e) => e.message)
+    if (errors.length > 0) {
+      const more = errors.length > REASONS_SHOWN ? `\n  ... and ${errors.length - REASONS_SHOWN} more` : ''
+      return `Not imported: the game would refuse to load it.\n  ${errors.slice(0, REASONS_SHOWN).join('\n  ')}${more}`
     }
   }
   return ''

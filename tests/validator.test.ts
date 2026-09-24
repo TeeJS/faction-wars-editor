@@ -55,6 +55,19 @@ function menu(over: O): O {
   }
   if (over.flat_rect) regions[0].rect = [0, 0, 10, 0]
   if (over.bad_color) regions[0].selected_color = 'red'
+  if (over.bad_quad)
+    regions[0].quad = [
+      [0, 0],
+      [10, 0],
+      [10, 10]
+    ]
+  if (over.good_quad)
+    regions[0].quad = [
+      [0, 0],
+      [10, 1],
+      [10, 9],
+      [0, 10]
+    ]
   const m: O = {
     image: over.image ?? 'galaxyShaded.bmp',
     selected_color: '#ffd23c',
@@ -78,7 +91,7 @@ function pack(sectorOver: O, planetOver: O, other: O): PackDocument {
     unexplored_color: '#cccccc',
     map_image: g('map_image', 'galaxyShaded.bmp'),
     art_sets: g('art_sets', []),
-    setup: { difficulty_default: 'medium', galaxy_sizes: ['standard', 'large', 'huge'], galaxy_size_default: g('size_default', 'standard') }
+    setup: { difficulty_default: 'medium', galaxy_sizes: g('sizes', ['standard', 'large', 'huge']), galaxy_size_default: g('size_default', 'standard') }
   }
   if ('menu' in other) manifest.menu = other.menu
   if ('victory_tips' in other) manifest.victory_tips = other.victory_tips
@@ -97,6 +110,7 @@ function pack(sectorOver: O, planetOver: O, other: O): PackDocument {
     victory: { capture_characters: [g('victory', 'second_person')] },
     skin: g('skin', '')
   }
+  if ('seed' in other) faction.seed = other.seed
   const c1: O = {
     id: g('char_id', 'first_person'),
     display_name: 'First Person',
@@ -173,12 +187,12 @@ function pack(sectorOver: O, planetOver: O, other: O): PackDocument {
       'rules.json': [{ EntryId: 1 }],
       'setup.json': {
         side_lottery: [{ EntryId: 1 }],
-        logistics: {
+        logistics: g('logistics', {
           garrison: {
             Type: 'CMUN/FACL (Hierarchical)',
             Entries: [{ ParentId: 1, ProbabilityThreshold: 1, Multiplier: 1, Assets: [g('setup_asset', { unit: 'scout' })] }]
           }
-        }
+        })
       },
       'display.json': {
         categories: [
@@ -223,11 +237,24 @@ function expectCase(doc: PackDocument, expect_: string): void {
   expect(errors.some((e) => e.includes(expect_)), `expected an error containing: ${expect_}\n got: ${errors.join('\n')}`).toBe(true)
 }
 
+const FULL_SEED = { hq_facilities: 'garrison', hq_garrison: 'garrison', fleet: 'garrison' }
+
 const cases: [string, PackDocument, string][] = [
   // Rule 10
   ['sector min_size not offered by pack.json', pack({ min_size: 'enormous' }, {}, {}), "min_size 'enormous' is not one of"],
   ['no sector in the smallest offered size', pack({ min_size: 'huge' }, {}, {}), 'that menu option would start an empty galaxy'],
   ['sector missing min_size', pack({ min_size: '' }, {}, {}), 'missing min_size'],
+  // What day zero reads without asking (rules 19-22)
+  ['a seeded side with a headquarters and no hq_garrison', pack({}, {}, { seed: { ...FULL_SEED, hq_garrison: '' } }), 'seed.hq_garrison is empty'],
+  ['a seeded side with a headquarters and no fleet', pack({}, {}, { seed: { ...FULL_SEED, fleet: '' } }), 'seed.fleet is empty'],
+  ['no core_system_facilities table for a Core sector', pack({}, {}, {}), "logistics has no 'core_system_facilities'"],
+  ['no rim_system_facilities table for a Rim sector', pack({}, {}, {}), "logistics has no 'rim_system_facilities'"],
+  [
+    'a logistics table that is not an object',
+    pack({}, {}, { logistics: { core_system_facilities: 'see the notes' } }),
+    "logistics['core_system_facilities'] is not an object"
+  ],
+  ['two galaxy sizes where the game offers three', pack({ min_size: 'standard' }, {}, { sizes: ['standard', 'large'] }), 'setup.galaxy_sizes has 2'],
   // Rule 11
   ['menu region with an unknown action', pack({}, {}, { menu: menu({ bad_action: true }) }), "action 'launch' is not one of"],
   ['menu start region for a faction the pack does not have', pack({}, {}, { menu: menu({ start_value: 'nobody' }) }), "start value 'nobody' is not a faction id"],
@@ -236,6 +263,7 @@ const cases: [string, PackDocument, string][] = [
   ['menu with two regions for one difficulty', pack({}, {}, { menu: menu({ dup: 'difficulty:easy' }) }), "'difficulty:easy' has 2 regions"],
   ['menu image the pack does not ship', pack({}, {}, { menu: menu({ image: 'no-such-cockpit.png' }) }), 'is not in res://packs'],
   ['menu region rect with no height', pack({}, {}, { menu: menu({ flat_rect: true }) }), 'rect must be [x, y, w, h]'],
+  ['menu region with a quad of three corners', pack({}, {}, { menu: menu({ bad_quad: true }) }), 'quad must be four [x, y] corners'],
   ['menu region with a bad selected_color', pack({}, {}, { menu: menu({ bad_color: true }) }), "selected_color: 'red' is not a #rrggbb color"],
   ['victory_tips missing a text', pack({}, {}, { victory_tips: { standard: 'Win.', hq_only: '' } }), "victory_tips: 'standard' and 'hq_only' texts are both required"],
   ['menu with no readout', pack({}, {}, { menu: menu({ no_readout: true }) }), "'readout' is required"],
@@ -352,5 +380,59 @@ describe('load-stage errors', () => {
     doc.folderName = 'elsewhere'
     const errors = validatePack(doc).map((e) => e.message)
     expect(errors).toContain("pack.json: id 'test' does not match folder name 'elsewhere'.")
+  })
+})
+
+// The game's rules 19-22, the quad check and the reworded hq message, word for word
+// (pack_loader.gd at game main d4c01e2).
+describe('new rules, word for word', () => {
+  const ok = { core_system_facilities: {}, rim_system_facilities: {}, garrison: {} }
+  // The game's minimal test pack has one faction, which is itself an error; leave it out.
+  const baseline = new Set(errorsOf(pack({}, {}, { logistics: ok })))
+  const errorsOfNew = (doc: PackDocument) => errorsOf(doc).filter((e) => !baseline.has(e))
+  it('rule 19: a seeded side with a headquarters', () => {
+    expect(errorsOfNew(pack({}, {}, { logistics: ok, seed: { ...FULL_SEED, hq_garrison: '' } }))).toEqual([
+      'factions.json[test_side]: seed.hq_garrison is empty; day zero seeds the headquarters from it.'
+    ])
+  })
+  it('rule 19: a seeded side with no headquarters and a garrisoned starting world', () => {
+    const doc = pack({}, {}, { logistics: ok, seed: { hq_facilities: '', hq_garrison: '', fleet: '' } })
+    doc.edit('no hq, a garrison', (e) => {
+      e.remove('factions.json', ['factions', 0, 'hq'])
+      e.set('factions.json', ['factions', 0, 'starting_planets', 0, 'garrison'], 'garrison')
+    })
+    expect(errorsOfNew(doc)).toContain('factions.json[test_side]: seed.fleet is empty; day zero seeds each garrisoned starting world from it.')
+    expect(errorsOfNew(doc).filter((e) => e.includes('seed.'))).toHaveLength(1)
+  })
+  it('rule 19: no seed, nothing to report', () => {
+    expect(errorsOfNew(pack({}, {}, { logistics: ok }))).toEqual([])
+  })
+  it('rule 20: a table per ring the map uses', () => {
+    expect(errorsOfNew(pack({}, {}, { logistics: { garrison: {} } }))).toEqual([
+      "setup.json: logistics has no 'core_system_facilities'; day zero seeds every Core world from it.",
+      "setup.json: logistics has no 'rim_system_facilities'; day zero seeds every Rim world from it."
+    ])
+  })
+  it('rule 21: a logistics table that is not an object', () => {
+    expect(errorsOfNew(pack({}, {}, { logistics: { ...ok, rim_system_facilities: 5 } }))).toEqual([
+      "setup.json: logistics['rim_system_facilities'] is not an object."
+    ])
+  })
+  it('rule 22: fewer than three galaxy sizes; more are allowed', () => {
+    expect(errorsOfNew(pack({ min_size: 'standard' }, {}, { logistics: ok, sizes: ['standard', 'large'] }))).toEqual([
+      'pack.json: setup.galaxy_sizes has 2; the game offers three sizes, so it needs at least 3.'
+    ])
+    expect(errorsOfNew(pack({}, {}, { logistics: ok, sizes: ['standard', 'large', 'huge', 'vast'] }))).toEqual([])
+  })
+  it('quad: four corners pass, three do not', () => {
+    expect(errorsOfNew(pack({}, {}, { logistics: ok, menu: menu({ good_quad: true }) }))).toEqual([])
+    expect(errorsOfNew(pack({}, {}, { logistics: ok, menu: menu({ bad_quad: true }) }))).toEqual([
+      'pack.json menu.regions[0] (difficulty): quad must be four [x, y] corners - top-left, top-right, bottom-right, bottom-left.'
+    ])
+  })
+  it("hq.kind 'hidden' with no placement", () => {
+    const doc = pack({}, {}, { logistics: ok })
+    doc.edit('hidden hq', (e) => e.set('factions.json', ['factions', 0, 'hq'], { kind: 'hidden' }))
+    expect(errorsOfNew(doc)).toContain("factions.json[test_side]: hq.kind 'hidden' requires hq.placement (a planet id or 'random_rim').")
   })
 })

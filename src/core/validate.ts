@@ -173,7 +173,7 @@ export function runValidate(
     else if (!KNOWN_HQ_KINDS.includes(f.hq.kind)) c.err(`${ctx}: unknown hq.kind '${f.hq.kind}'. Known: ${join(KNOWN_HQ_KINDS)}.`, T)
     else if (f.hq.kind === 'fixed' && blank(f.hq.planet)) c.err(`${ctx}: hq.kind 'fixed' requires hq.planet.`, T)
     else if (f.hq.kind === 'hidden' && blank(f.hq.placement))
-      c.err(`${ctx}: hq.kind 'hidden' requires hq.placement (a planet name or 'random_rim').`, T)
+      c.err(`${ctx}: hq.kind 'hidden' requires hq.placement (a planet id or 'random_rim').`, T)
   }
 
   validateMap(pack, packDir, hasFile, c)
@@ -239,6 +239,9 @@ export function validateMenu(pack: LoadedPack, packDir: string, hasFile: (p: str
   const sizes = setup !== null ? setup.galaxySizes : []
   const P = { page: 'pack' }
   const M = { page: 'menu' }
+  // The game offers three galaxy sizes (the menu's buttons, a multiplayer room's
+  // settings); a pack with fewer gives an empty galaxy for the ones it lacks. More are allowed.
+  if (sizes.length < 3) c.err(`pack.json: setup.galaxy_sizes has ${sizes.length}; the game offers three sizes, so it needs at least 3.`, P)
   if (setup !== null && setup.galaxySizeDefault !== '' && !sizes.includes(setup.galaxySizeDefault))
     c.err(`pack.json: setup.galaxy_size_default '${setup.galaxySizeDefault}' is not one of setup.galaxy_sizes (${join(sizes)}).`, P)
   if (setup !== null && setup.difficultyDefault !== '' && !KNOWN_DIFFICULTIES.includes(setup.difficultyDefault))
@@ -273,6 +276,8 @@ export function validateMenu(pack: LoadedPack, packDir: string, hasFile: (p: str
     }
     if (r.rect.length !== 4 || r.rect[2] <= 0 || r.rect[3] <= 0) c.err(`${ctx} (${r.action}): rect must be [x, y, w, h] with w and h > 0.`, T)
     if (r.selectedColor !== '') requireColor(r.selectedColor, `${ctx} (${r.action}) selected_color`, c, T)
+    if (r.quadGiven && r.quad === null)
+      c.err(`${ctx} (${r.action}): quad must be four [x, y] corners - top-left, top-right, bottom-right, bottom-left.`, T)
     let key = r.action
     if (r.action === 'difficulty') {
       if (!KNOWN_DIFFICULTIES.includes(r.value)) c.err(`${ctx}: difficulty value '${r.value}' is not one of ${join(KNOWN_DIFFICULTIES)}.`, T)
@@ -359,20 +364,51 @@ export function validateSetup(pack: LoadedPack, c: Collector): void {
   if (pack.rules.length === 0) c.err('rules.json: no rule entries.', { page: 'rules' })
   if (pack.setup.sideLottery.length === 0) c.err("setup.json: 'side_lottery' is empty.", { page: 'sideLottery' })
   for (const f of pack.factions) {
+    const T = { page: 'factions', index: f.index }
     const named: string[] = []
-    if (f.seed !== null)
+    if (f.seed !== null) {
       for (const v of [f.seed.hqFacilities, f.seed.hqGarrison, f.seed.fleet, f.seed.proceduralFleet]) if (v !== '') named.push(v)
+      // What day zero reads without asking: a seeded side's headquarters takes
+      // hq_facilities, hq_garrison and fleet, and a starting world with a garrison takes fleet.
+      const garrisoned = f.startingPlanets.some((sp) => sp.garrison !== '')
+      let needs: [string, string][] = []
+      if (f.hq !== null)
+        needs = [
+          ['hq_facilities', f.seed.hqFacilities],
+          ['hq_garrison', f.seed.hqGarrison],
+          ['fleet', f.seed.fleet]
+        ]
+      else if (garrisoned) needs = [['fleet', f.seed.fleet]]
+      for (const [k, v] of needs)
+        if (v === '')
+          c.err(
+            `factions.json[${f.id}]: seed.${k} is empty; day zero seeds ${k !== 'fleet' || f.hq !== null ? 'the headquarters' : 'each garrisoned starting world'} from it.`,
+            T
+          )
+    }
     for (const sp of f.startingPlanets) if (sp.garrison !== '') named.push(sp.garrison)
     for (const id of named)
       if (!Object.prototype.hasOwnProperty.call(pack.setup.logistics, id))
-        c.err(`factions.json[${f.id}]: names logistics table '${id}', which setup.json does not declare.`, { page: 'factions', index: f.index })
+        c.err(`factions.json[${f.id}]: names logistics table '${id}', which setup.json does not declare.`, T)
   }
+
+  // Every inhabited world is seeded from core_system_facilities (a Core sector,
+  // ring 1) or rim_system_facilities (any other), by those names.
+  const rings = new Set<string>()
+  for (const s of pack.sectors) rings.add(s.ring === 1 ? 'core_system_facilities' : 'rim_system_facilities')
+  for (const table of rings)
+    if (!Object.prototype.hasOwnProperty.call(pack.setup.logistics, table))
+      c.err(`setup.json: logistics has no '${table}'; day zero seeds every ${table.startsWith('core') ? 'Core' : 'Rim'} world from it.`, { page: 'logistics' })
 
   const unitIds = new Set(pack.units.map((u) => u.id))
   const facilityIds = new Set(pack.facilities.map((f) => f.id))
   for (const tableId of Object.keys(pack.setup.logistics)) {
     const table = pack.setup.logistics[tableId]
-    if (!isDict(table)) continue
+    if (!isDict(table)) {
+      // The seeder reads every table as an object and stops the game when one is not.
+      c.err(`setup.json: logistics['${tableId}'] is not an object.`, { page: 'logistics', key: tableId })
+      continue
+    }
     const entries = ci(table, 'Entries')
     if (!Array.isArray(entries)) continue
     entries.forEach((e, i) => {

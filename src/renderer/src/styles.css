@@ -572,6 +572,15 @@ tr.bad td {
   align-items: center;
   color: var(--muted);
 }
+.quad {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+.quad-corner {
+  min-width: 7.5em;
+}
 .inline {
   display: inline-flex;
   gap: 6px;
@@ -781,6 +790,24 @@ tr.bad td {
 .region .handle {
   fill: #ffd23c;
   cursor: nwse-resize;
+}
+/* A region's screen corners: an outline that never takes the rect's clicks. */
+.quad-outline polygon {
+  fill: none;
+  stroke: #ff8a3c;
+  stroke-width: 1;
+  stroke-dasharray: 4 3;
+  pointer-events: none;
+}
+.quad-outline.on polygon {
+  stroke-width: 2;
+  stroke-dasharray: none;
+}
+.quad-outline .corner {
+  fill: #ff8a3c;
+  stroke: #000;
+  stroke-width: 1;
+  cursor: move;
 }
 .menu-form {
   flex: 1;

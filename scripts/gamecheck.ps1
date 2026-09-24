@@ -8,12 +8,14 @@
 #   2. points that copy's user:// at a throwaway folder (use_custom_user_dir)
 #   3. has the editor write its test packs (the starter with renamed sides, and a
 #      WW2 clone with a planet moved and a unit and a faction renamed), each through
-#      a zip export and back (tests/gamecheck.test.ts)
-#   4. runs the game's own PackLoader on them (tests/gamecheck/validate_pack.gd)
-#   5. imports the zips with the game's own importer and loads them from
+#      a zip export and back, plus deliberately broken packs with the errors the
+#      editor reports for each (tests/gamecheck.test.ts)
+#   4. runs the game's own validator on the good packs (the game's tests/validate_pack.gd)
+#   5. runs it on the broken packs: it must print exactly the editor's errors, in order
+#   6. imports the zips with the game's own importer and loads them from
 #      user://packs, as the pack picker does (tests/gamecheck/import_check.gd)
-#   6. plays each imported pack headless with the AI on both sides (tests/soak.gd)
-#   7. deletes the throwaway user folder
+#   7. plays each imported pack headless with the AI on both sides (tests/soak.gd)
+#   8. deletes the throwaway user folder
 # Exit code 0 = every step passed.
 
 param(
@@ -41,6 +43,14 @@ function Run-Godot([string[]]$GodotArgs, [string]$Log) {
     if (-not $p.WaitForExit(900 * 1000)) { $p.Kill(); return 124 }
     return $p.ExitCode
 }
+# The game's tests/validate_pack.gd on one folder: its exit code and the errors it printed.
+function Validate-Pack([string]$Dir, [string]$Log) {
+    $code = Run-Godot @('--headless', '--path', $copy, '-s', 'tests/validate_pack.gd', '--', ('--dir=' + ($Dir -replace '\\', '/'))) $Log
+    $prefix = '[validate_pack] '
+    $printed = @(Get-Content -Encoding UTF8 $Log | Where-Object { $_.StartsWith($prefix) } | ForEach-Object { $_.Substring($prefix.Length) })
+    $errors = @($printed | Where-Object { -not ($_.StartsWith('PASS: ') -or $_.StartsWith('FAIL: ')) })
+    return @{ Code = $code; Printed = $printed; Errors = $errors }
+}
 
 try {
     Step "Copying the game project to $copy"
@@ -62,16 +72,34 @@ try {
     Push-Location $editor
     try { npx vitest run tests/gamecheck.test.ts } finally { Pop-Location }
     if ($LASTEXITCODE -ne 0) { throw 'the editor could not write its test packs' }
-    $packs = Get-ChildItem -Directory $zips | ForEach-Object { $_.Name }
+    $packs = Get-ChildItem -Directory $zips | Where-Object { $_.Name -ne 'parity' } | ForEach-Object { $_.Name }
 
     Step 'Importing the project (class cache)'
     Run-Godot @('--headless', '--path', $copy, '--import') (Join-Path $work 'import.log') | Out-Null
 
-    Step "The game's PackLoader on the written folders"
-    $dirArgs = $packs | ForEach-Object { '--dir=' + ((Join-Path $zips $_) -replace '\\', '/') }
-    $code = Run-Godot (@('--headless', '--path', $copy, '-s', 'tests/validate_pack.gd', '--') + $dirArgs) (Join-Path $work 'validate.log')
-    Get-Content (Join-Path $work 'validate.log') | Select-String '\[validate_pack\]|^    ' | ForEach-Object { $_.Line }
-    if ($code -ne 0) { $failed++ }
+    Step "The game's validator on the written folders"
+    foreach ($id in $packs) {
+        $r = Validate-Pack (Join-Path $zips $id) (Join-Path $work "validate-$id.log")
+        $r.Printed | ForEach-Object { "  $_" }
+        if ($r.Code -ne 0) { $failed++ }
+    }
+
+    Step "The game's validator on the broken packs: word for word what the editor says"
+    $parity = Join-Path $zips 'parity'
+    foreach ($dir in Get-ChildItem -Directory $parity) {
+        $expected = @(Get-Content -Encoding UTF8 (Join-Path $parity "$($dir.Name).expected.txt") | Where-Object { $_ -ne '' })
+        $r = Validate-Pack $dir.FullName (Join-Path $work "parity-$($dir.Name).log")
+        $same = ($r.Errors.Count -eq $expected.Count) -and ($r.Code -eq $(if ($expected.Count -gt 0) { 1 } else { 0 }))
+        for ($i = 0; $same -and $i -lt $expected.Count; $i++) { if ($r.Errors[$i] -cne $expected[$i]) { $same = $false } }
+        if ($same) {
+            Write-Host "  same  $($dir.Name): $($expected.Count) error(s)"
+        } else {
+            $failed++
+            Write-Host "  DIFFERENT  $($dir.Name) (game exit $($r.Code))" -ForegroundColor Red
+            Write-Host '    the editor:'; $expected | ForEach-Object { "      $_" }
+            Write-Host '    the game:'; $r.Errors | ForEach-Object { "      $_" }
+        }
+    }
 
     Step "The game's importer on the zips, then loading from user://packs"
     $zipArgs = $packs | ForEach-Object { '--zip=' + (Join-Path $zips "$_.zip") }
@@ -85,9 +113,16 @@ try {
         $log = Join-Path $work "soak-$id.log"
         $code = Run-Godot @('--headless', '--path', $copy, '-s', 'tests/soak.gd', '--', "--pack=$id", "--faction=$side", "--days=$Days", "--seed=$Seed") $log
         $errors = (Select-String -Path $log -Pattern 'SCRIPT ERROR').Count
+        # soak.gd plays on with an empty galaxy when the pack does not load, and exits 0,
+        # so check that the pack loaded and day zero placed its planets.
+        $packErrors = @(Select-String -Path ($log + '.err') -Pattern 'ERROR: \[Pack\]' | ForEach-Object { $_.Line })
+        $planets = 0
+        $m = Select-String -Path $log -Pattern '^Planets:\s+(\d+)' | Select-Object -First 1
+        if ($m) { $planets = [int]$m.Matches[0].Groups[1].Value }
         Get-Content $log | Select-String 'SOAK COMPLETE|worlds   ' | ForEach-Object { $_.Line }
-        Write-Host "exit $code, script errors $errors"
-        if ($code -ne 0 -or $errors -gt 0) { $failed++ }
+        $packErrors | Select-Object -First 3 | ForEach-Object { "  $_" }
+        Write-Host "exit $code, script errors $errors, pack load errors $($packErrors.Count), planets $planets"
+        if ($code -ne 0 -or $errors -gt 0 -or $packErrors.Count -gt 0 -or $planets -eq 0) { $failed++ }
     }
 }
 finally {

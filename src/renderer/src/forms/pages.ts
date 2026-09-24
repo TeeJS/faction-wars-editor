@@ -25,7 +25,8 @@ import {
   MISSION_TARGET_KEYS,
   RANDOM_RIM,
   SPECIAL_POWER_RANK_KEYS,
-  UNIT_STAT_KEYS
+  UNIT_STAT_KEYS,
+  UNUSED_MISSION_TABLES
 } from '../../../core/vocab'
 import { KNOWN_ART_SETS } from '../../../core/vocab'
 import { createElement } from 'react'
@@ -120,7 +121,7 @@ export const packFields: FieldDef[] = [
         key: 'galaxy_sizes',
         label: 'Galaxy sizes',
         kind: 'strings',
-        help: 'Exactly three, smallest first: the engine indexes them as Standard, Large, Huge. Renaming one here does not rename sector min_size values.'
+        help: 'At least three, smallest first: the game offers three sizes (Standard, Large, Huge); more are allowed. Renaming one here does not rename sector min_size values.'
       },
       { key: 'galaxy_size_default', label: 'Default galaxy size', kind: 'select', options: (c) => sizeOpts(c), allowEmpty: true }
     ]
@@ -136,6 +137,12 @@ export const packFields: FieldDef[] = [
       { key: 'standard', label: 'Standard game', kind: 'text', multiline: true, required: true },
       { key: 'hq_only', label: 'Headquarters only', kind: 'text', multiline: true, required: true }
     ]
+  },
+  {
+    key: 'credits',
+    label: 'Credits',
+    kind: 'strings',
+    help: "Who made the setting, one line each; the game's credits screen shows them. A Cockpit menu's own credits (Cockpit page) replace these when it has any."
   }
 ]
 
@@ -535,7 +542,7 @@ export const missionsPage: ListPageDef = {
 export const missionTablesPage: ListPageDef = {
   page: 'missionTables',
   title: 'Mission Tables',
-  intro: 'Outcome step functions: entries must ascend by Threshold. The engine reads foil, decoy, troop_decoy, evasion, escape, informants and uprising_start by name, and each mission by its own id (a mission without one uses the fitted formula).',
+  intro: 'Outcome step functions: entries must ascend by Threshold. The engine reads foil, decoy, evasion, escape, informants and uprising_start by name, and each mission by its own id (a mission without one uses the fitted formula). troop_decoy, character_search, resource_event and uprising_end are carried over from the original, but the game does not use them yet.',
   file: 'mission_tables.json',
   listPath: ['tables'],
   mode: 'map',
@@ -543,6 +550,10 @@ export const missionTablesPage: ListPageDef = {
   refKind: 'missionTable',
   newId: (c) => nextId('new_table', Object.keys(c.pack.missionTables)),
   newItem: () => ({ description: '', entries: [{ id: 1, field2: 0, threshold: 0, value: 0 }] }),
+  note: (_c, _rec, key) =>
+    UNUSED_MISSION_TABLES.includes(String(key))
+      ? createElement('div', { className: 'callout' }, "No effect in the game yet: no game code reads this table. It is kept from the original's data, so editing it changes nothing in play.")
+      : null,
   fields: [
     { key: 'description', label: 'Description', kind: 'text' },
     { key: 'source_file', label: 'Source file', kind: 'text', help: 'Provenance only.' },
@@ -813,11 +824,17 @@ export const menuFields: FieldDef[] = [
         showIf: (r) => ['difficulty', 'galaxy_size', 'start'].includes(String(ci(r, 'action')))
       },
       { key: 'rect', label: 'Rect', kind: 'rect', float: true, required: true, help: "In the picture's own pixels; the game truncates to whole pixels." },
+      {
+        key: 'quad',
+        label: 'Screen corners',
+        kind: 'quad',
+        help: "Optional: the screen this region shows, as four corners in the picture's pixels, for a screen seen at an angle. The selection brackets follow them; clicks still use the rect. Drag the corners on the picture."
+      },
       { key: 'tooltip', label: 'Tooltip', kind: 'text' },
       { key: 'selected_color', label: 'Selection colour', kind: 'color' }
     ]
   },
-  { key: 'credits', label: 'Credits', kind: 'strings', help: 'The only credits the game reads.' }
+  { key: 'credits', label: 'Credits', kind: 'strings', help: "The Cockpit's credits. When this has any lines, the game shows them instead of the pack's own credits (Pack page)." }
 ]
 
 export const LIST_PAGES: ListPageDef[] = [
