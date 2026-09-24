@@ -1,0 +1,636 @@
+{
+  "categories": [
+    {
+      "id": "loyalty",
+      "display_name": "Loyalty",
+      "modes": [
+        {
+          "id": "popular_support",
+          "label": "Popular Support",
+          "title_from": "loyalty_label",
+          "quantity": {
+            "kind": "support"
+          },
+          "tiers": [
+            {
+              "min": 75,
+              "label": "Loyal",
+              "flare": "big"
+            },
+            {
+              "min": 50,
+              "label": "Obedient",
+              "flare": "mid"
+            },
+            {
+              "min": 25,
+              "label": "Disloyal",
+              "flare": "low"
+            },
+            {
+              "min": 0,
+              "label": "Hostile",
+              "flare": "none"
+            }
+          ],
+          "title": ""
+        },
+        {
+          "id": "uprisings",
+          "label": "Uprisings",
+          "title": "Uprisings",
+          "quantity": {
+            "kind": "uprising"
+          },
+          "tiers": [
+            {
+              "min": 1,
+              "label": "Currently in Resistance",
+              "flare": "big"
+            },
+            {
+              "min": 0,
+              "label": "Not in Resistance",
+              "flare": "none"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "fleets",
+      "display_name": "Fleets",
+      "modes": [
+        {
+          "id": "idle_fleets",
+          "label": "Idle Fleets",
+          "quantity": {
+            "kind": "my_fleets",
+            "status": "awaiting_orders"
+          },
+          "tiers": [
+            {
+              "min": 3,
+              "label": "3+ fleets",
+              "flare": "big"
+            },
+            {
+              "min": 2,
+              "label": "2 fleets",
+              "flare": "mid"
+            },
+            {
+              "min": 1,
+              "label": "1 fleet",
+              "flare": "low"
+            },
+            {
+              "min": 0,
+              "label": "No fleets",
+              "flare": "none"
+            }
+          ],
+          "title": ""
+        },
+        {
+          "id": "fleets_enroute",
+          "label": "Fleets En Route",
+          "quantity": {
+            "kind": "my_fleets",
+            "status": "enroute"
+          },
+          "tiers": [
+            {
+              "min": 3,
+              "label": "3+ fleets",
+              "flare": "big"
+            },
+            {
+              "min": 2,
+              "label": "2 fleets",
+              "flare": "mid"
+            },
+            {
+              "min": 1,
+              "label": "1 fleet",
+              "flare": "low"
+            },
+            {
+              "min": 0,
+              "label": "No fleets",
+              "flare": "none"
+            }
+          ],
+          "title": ""
+        }
+      ]
+    },
+    {
+      "id": "personnel",
+      "display_name": "Personnel",
+      "modes": [
+        {
+          "id": "idle_personnel",
+          "label": "Idle Personnel",
+          "quantity": {
+            "kind": "personnel",
+            "busy": false
+          },
+          "tiers": [
+            {
+              "min": 1,
+              "label": "Idle",
+              "flare": "big"
+            },
+            {
+              "min": 0,
+              "label": "None",
+              "flare": "none"
+            }
+          ]
+        },
+        {
+          "id": "active_personnel",
+          "label": "Active Personnel",
+          "quantity": {
+            "kind": "personnel",
+            "busy": true
+          },
+          "tiers": [
+            {
+              "min": 1,
+              "label": "Active",
+              "flare": "big"
+            },
+            {
+              "min": 0,
+              "label": "None",
+              "flare": "none"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "resources",
+      "display_name": "Resources",
+      "modes": [
+        {
+          "id": "available_energy",
+          "label": "Available Energy",
+          "quantity": {
+            "kind": "status_figure",
+            "key": "energy"
+          },
+          "tiers": [
+            {
+              "min": 6,
+              "label": "6+ Points Available",
+              "flare": "big"
+            },
+            {
+              "min": 3,
+              "label": "3-5 Points Available",
+              "flare": "mid"
+            },
+            {
+              "min": 1,
+              "label": "1-2 Points Available",
+              "flare": "low"
+            },
+            {
+              "min": 0,
+              "label": "0 Points Available",
+              "flare": "none"
+            }
+          ],
+          "title": ""
+        },
+        {
+          "id": "available_raw_materials",
+          "label": "Available Raw Materials",
+          "quantity": {
+            "kind": "status_figure",
+            "key": "materials"
+          },
+          "tiers": [
+            {
+              "min": 3,
+              "label": "3+ Points Available",
+              "flare": "big"
+            },
+            {
+              "min": 2,
+              "label": "2 Points Available",
+              "flare": "mid"
+            },
+            {
+              "min": 1,
+              "label": "1 Points Available",
+              "flare": "low"
+            },
+            {
+              "min": 0,
+              "label": "0 Points Available",
+              "flare": "none"
+            }
+          ],
+          "title": ""
+        },
+        {
+          "id": "mines",
+          "label": "Mines",
+          "quantity": {
+            "kind": "facility_count",
+            "family": "mine"
+          },
+          "tiers": [
+            {
+              "min": 6,
+              "label": "6+ Mines",
+              "flare": "big"
+            },
+            {
+              "min": 3,
+              "label": "3-5 Mines",
+              "flare": "mid"
+            },
+            {
+              "min": 1,
+              "label": "1-2 Mines",
+              "flare": "low"
+            },
+            {
+              "min": 0,
+              "label": "No Mines",
+              "flare": "none"
+            }
+          ],
+          "title": ""
+        },
+        {
+          "id": "refineries",
+          "label": "Refineries",
+          "quantity": {
+            "kind": "facility_count",
+            "family": "refinery"
+          },
+          "tiers": [
+            {
+              "min": 6,
+              "label": "6+ Refineries",
+              "flare": "big"
+            },
+            {
+              "min": 3,
+              "label": "3-5 Refineries",
+              "flare": "mid"
+            },
+            {
+              "min": 1,
+              "label": "1-2 Refineries",
+              "flare": "low"
+            },
+            {
+              "min": 0,
+              "label": "No Refineries",
+              "flare": "none"
+            }
+          ],
+          "title": ""
+        }
+      ]
+    },
+    {
+      "id": "manufacturing",
+      "display_name": "Manufacturing",
+      "modes": [
+        {
+          "id": "shipyards",
+          "label": "Shipyards",
+          "quantity": {
+            "kind": "facility_count",
+            "family": "shipyard"
+          },
+          "tiers": [
+            {
+              "min": 5,
+              "label": "5+ Naval Yards",
+              "flare": "big"
+            },
+            {
+              "min": 2,
+              "label": "2-4 Naval Yards",
+              "flare": "mid"
+            },
+            {
+              "min": 1,
+              "label": "1 Naval Yards",
+              "flare": "low"
+            },
+            {
+              "min": 0,
+              "label": "No Naval Yards",
+              "flare": "none"
+            }
+          ],
+          "title": ""
+        },
+        {
+          "id": "idle_shipyards",
+          "label": "Idle Shipyards",
+          "quantity": {
+            "kind": "idle_producer",
+            "role": "produces_unit"
+          },
+          "tiers": [
+            {
+              "min": 1,
+              "label": "Idle",
+              "flare": "big"
+            },
+            {
+              "min": 0,
+              "label": "Active",
+              "flare": "none"
+            }
+          ],
+          "title": ""
+        },
+        {
+          "id": "training_facilities",
+          "label": "Training Facilities",
+          "quantity": {
+            "kind": "facility_count",
+            "family": "training_facility"
+          },
+          "tiers": [
+            {
+              "min": 5,
+              "label": "5+ Training Depots",
+              "flare": "big"
+            },
+            {
+              "min": 2,
+              "label": "2-4 Training Depots",
+              "flare": "mid"
+            },
+            {
+              "min": 1,
+              "label": "1 Training Depots",
+              "flare": "low"
+            },
+            {
+              "min": 0,
+              "label": "No Training Depots",
+              "flare": "none"
+            }
+          ],
+          "title": ""
+        },
+        {
+          "id": "idle_training_facilities",
+          "label": "Idle Training Facilities",
+          "quantity": {
+            "kind": "idle_producer",
+            "role": "produces_troop"
+          },
+          "tiers": [
+            {
+              "min": 1,
+              "label": "Idle",
+              "flare": "big"
+            },
+            {
+              "min": 0,
+              "label": "Active",
+              "flare": "none"
+            }
+          ],
+          "title": ""
+        },
+        {
+          "id": "construction_yards",
+          "label": "Construction Yards",
+          "quantity": {
+            "kind": "facility_count",
+            "family": "construction_yard"
+          },
+          "tiers": [
+            {
+              "min": 5,
+              "label": "5+ Engineer Corps",
+              "flare": "big"
+            },
+            {
+              "min": 2,
+              "label": "2-4 Engineer Corps",
+              "flare": "mid"
+            },
+            {
+              "min": 1,
+              "label": "1 Engineer Corps",
+              "flare": "low"
+            },
+            {
+              "min": 0,
+              "label": "No Engineer Corps",
+              "flare": "none"
+            }
+          ],
+          "title": ""
+        },
+        {
+          "id": "idle_construction_yards",
+          "label": "Idle Construction Yards",
+          "quantity": {
+            "kind": "idle_producer",
+            "role": "produces_facility"
+          },
+          "tiers": [
+            {
+              "min": 1,
+              "label": "Idle",
+              "flare": "big"
+            },
+            {
+              "min": 0,
+              "label": "Active",
+              "flare": "none"
+            }
+          ],
+          "title": ""
+        }
+      ]
+    },
+    {
+      "id": "defense",
+      "display_name": "Defense",
+      "modes": [
+        {
+          "id": "defense_batteries",
+          "label": "Defense Batteries",
+          "title": "Defense Batteries",
+          "quantity": {
+            "kind": "defence_figure",
+            "key": "batteries"
+          },
+          "tiers": [
+            {
+              "min": 6,
+              "label": "6+ Batteries",
+              "flare": "big"
+            },
+            {
+              "min": 3,
+              "label": "3-5 Batteries",
+              "flare": "mid"
+            },
+            {
+              "min": 1,
+              "label": "1-2 Batteries",
+              "flare": "low"
+            },
+            {
+              "min": 0,
+              "label": "No Batteries",
+              "flare": "none"
+            }
+          ]
+        },
+        {
+          "id": "shield_generators",
+          "label": "Shields",
+          "quantity": {
+            "kind": "defence_figure",
+            "key": "shields"
+          },
+          "tiers": [
+            {
+              "min": 6,
+              "label": "6+ Generators",
+              "flare": "big"
+            },
+            {
+              "min": 3,
+              "label": "3-5 Generators",
+              "flare": "mid"
+            },
+            {
+              "min": 1,
+              "label": "1-2 Generators",
+              "flare": "low"
+            },
+            {
+              "min": 0,
+              "label": "No Generators",
+              "flare": "none"
+            }
+          ],
+          "title": ""
+        },
+        {
+          "id": "fighter_squadrons",
+          "label": "Fighter Squadrons",
+          "quantity": {
+            "kind": "intel_line_count",
+            "section": "fighters"
+          },
+          "tiers": [
+            {
+              "min": 6,
+              "label": "6+ Fighter Squadrons",
+              "flare": "big"
+            },
+            {
+              "min": 3,
+              "label": "3-5 Fighter Squadrons",
+              "flare": "mid"
+            },
+            {
+              "min": 1,
+              "label": "1-2 Fighter Squadrons",
+              "flare": "low"
+            },
+            {
+              "min": 0,
+              "label": "No Fighter Squadrons",
+              "flare": "none"
+            }
+          ],
+          "title": ""
+        },
+        {
+          "id": "trooper_regiments",
+          "label": "Regiments",
+          "quantity": {
+            "kind": "intel_line_count",
+            "section": "troopers"
+          },
+          "tiers": [
+            {
+              "min": 6,
+              "label": "6+ Trooper Divisions",
+              "flare": "big"
+            },
+            {
+              "min": 3,
+              "label": "3-5 Trooper Divisions",
+              "flare": "mid"
+            },
+            {
+              "min": 1,
+              "label": "1-2 Trooper Divisions",
+              "flare": "low"
+            },
+            {
+              "min": 0,
+              "label": "No Trooper Divisions",
+              "flare": "none"
+            }
+          ],
+          "title": ""
+        },
+        {
+          "id": "hardened_airbases",
+          "label": "Hardened Bunkers",
+          "quantity": {
+            "kind": "constant_zero"
+          },
+          "tiers": [
+            {
+              "min": 1,
+              "label": "Death Star Shield",
+              "flare": "big"
+            },
+            {
+              "min": 0,
+              "label": "No Death Star Shield",
+              "flare": "none"
+            }
+          ],
+          "title": ""
+        }
+      ]
+    }
+  ],
+  "galaxy_display_modes": [
+    "popular_support",
+    "uprisings",
+    "idle_fleets",
+    "fleets_enroute",
+    "idle_personnel",
+    "active_personnel",
+    "idle_shipyards",
+    "idle_training_facilities",
+    "idle_construction_yards"
+  ],
+  "special_power_ranks": {
+    "none": "None",
+    "novice": "Novice",
+    "trainee": "Trainee",
+    "student": "Adept",
+    "knight": "Expert",
+    "master": "Master"
+  }
+}

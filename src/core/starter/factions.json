@@ -1,0 +1,78 @@
+{
+  "factions": [
+    {
+      "id": "faction_a",
+      "display_name": "Faction A",
+      "color": "#3d7be0",
+      "loyalty_label": "Support for Faction A",
+      "agent_name": "Agent",
+      "hq": {
+        "kind": "fixed",
+        "planet": "alpha_prime"
+      },
+      "occupation_support_policy": "garrison_bonus",
+      "starting_planets": [
+        {
+          "planet": "alpha_prime",
+          "support": 100,
+          "explored": true,
+          "garrison": "faction_a_start_garrison"
+        },
+        {
+          "planet": "alpha_minor",
+          "support": 80,
+          "explored": true
+        }
+      ],
+      "seed": {
+        "hq_facilities": "faction_a_hq_facilities",
+        "hq_garrison": "faction_a_hq_garrison",
+        "fleet": "faction_a_fleet",
+        "procedural_fleet": "faction_a_procedural_fleet"
+      },
+      "victory": {
+        "capture_characters": [
+          "b_leader",
+          "b_commander"
+        ]
+      }
+    },
+    {
+      "id": "faction_b",
+      "display_name": "Faction B",
+      "color": "#d23a3a",
+      "loyalty_label": "Support for Faction B",
+      "agent_name": "Agent",
+      "hq": {
+        "kind": "fixed",
+        "planet": "beta_prime"
+      },
+      "occupation_support_policy": "garrison_bonus",
+      "starting_planets": [
+        {
+          "planet": "beta_prime",
+          "support": 100,
+          "explored": true,
+          "garrison": "faction_b_start_garrison"
+        },
+        {
+          "planet": "beta_minor",
+          "support": 80,
+          "explored": true
+        }
+      ],
+      "seed": {
+        "hq_facilities": "faction_b_hq_facilities",
+        "hq_garrison": "faction_b_hq_garrison",
+        "fleet": "faction_b_fleet",
+        "procedural_fleet": "faction_b_procedural_fleet"
+      },
+      "victory": {
+        "capture_characters": [
+          "a_leader",
+          "a_commander"
+        ]
+      }
+    }
+  ]
+}

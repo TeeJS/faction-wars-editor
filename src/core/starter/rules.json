@@ -1,0 +1,4049 @@
+[
+  {
+    "EntryId": 1,
+    "Name": "Space Travel Time: Base (%, lower=faster)",
+    "ParameterId": 1,
+    "Development": 100,
+    "Multiplayer": 100,
+    "by_faction": {
+      "faction_a": {
+        "easy": 100,
+        "medium": 100,
+        "hard": 100
+      },
+      "faction_b": {
+        "easy": 100,
+        "medium": 100,
+        "hard": 100
+      }
+    }
+  },
+  {
+    "EntryId": 2,
+    "Name": "Defense Facility Response Chance: Divisor",
+    "ParameterId": 512,
+    "Development": 5,
+    "Multiplayer": 5,
+    "by_faction": {
+      "faction_a": {
+        "easy": 5,
+        "medium": 5,
+        "hard": 5
+      },
+      "faction_b": {
+        "easy": 5,
+        "medium": 5,
+        "hard": 5
+      }
+    }
+  },
+  {
+    "EntryId": 3,
+    "Name": "Troop Kill Contest: Commander Rating Divisor",
+    "ParameterId": 513,
+    "Development": 30,
+    "Multiplayer": 30,
+    "by_faction": {
+      "faction_a": {
+        "easy": 30,
+        "medium": 30,
+        "hard": 30
+      },
+      "faction_b": {
+        "easy": 30,
+        "medium": 30,
+        "hard": 30
+      }
+    }
+  },
+  {
+    "EntryId": 4,
+    "Name": "Troop Kill Contest: Random Width",
+    "ParameterId": 514,
+    "Development": 10,
+    "Multiplayer": 10,
+    "by_faction": {
+      "faction_a": {
+        "easy": 10,
+        "medium": 10,
+        "hard": 10
+      },
+      "faction_b": {
+        "easy": 10,
+        "medium": 10,
+        "hard": 10
+      }
+    }
+  },
+  {
+    "EntryId": 5,
+    "Name": "Troop Kill Contest Defender: Win Max Score",
+    "ParameterId": 515,
+    "Development": 4,
+    "Multiplayer": 4,
+    "by_faction": {
+      "faction_a": {
+        "easy": 4,
+        "medium": 4,
+        "hard": 4
+      },
+      "faction_b": {
+        "easy": 4,
+        "medium": 4,
+        "hard": 4
+      }
+    }
+  },
+  {
+    "EntryId": 6,
+    "Name": "Troop Kill Contest Attacker: Win Min Score",
+    "ParameterId": 516,
+    "Development": 6,
+    "Multiplayer": 6,
+    "by_faction": {
+      "faction_a": {
+        "easy": 6,
+        "medium": 6,
+        "hard": 6
+      },
+      "faction_b": {
+        "easy": 6,
+        "medium": 6,
+        "hard": 6
+      }
+    }
+  },
+  {
+    "EntryId": 7,
+    "Name": "Planetary Defense: Repeat Trial Success Chance",
+    "ParameterId": 517,
+    "Development": 8,
+    "Multiplayer": 8,
+    "by_faction": {
+      "faction_a": {
+        "easy": 8,
+        "medium": 8,
+        "hard": 8
+      },
+      "faction_b": {
+        "easy": 8,
+        "medium": 8,
+        "hard": 8
+      }
+    }
+  },
+  {
+    "EntryId": 8,
+    "Name": "Capital Ship KDY_LNR Contribution: Officer Divisor",
+    "ParameterId": 1536,
+    "Development": 40,
+    "Multiplayer": 40,
+    "by_faction": {
+      "faction_a": {
+        "easy": 40,
+        "medium": 40,
+        "hard": 40
+      },
+      "faction_b": {
+        "easy": 40,
+        "medium": 40,
+        "hard": 40
+      }
+    }
+  },
+  {
+    "EntryId": 9,
+    "Name": "Capital Ship Assault: Officer Divisor",
+    "ParameterId": 1537,
+    "Development": 40,
+    "Multiplayer": 40,
+    "by_faction": {
+      "faction_a": {
+        "easy": 40,
+        "medium": 40,
+        "hard": 40
+      },
+      "faction_b": {
+        "easy": 40,
+        "medium": 40,
+        "hard": 40
+      }
+    }
+  },
+  {
+    "EntryId": 10,
+    "Name": "Capital Strike Permission Threshold: Min",
+    "ParameterId": 1538,
+    "Development": 1,
+    "Multiplayer": 1,
+    "by_faction": {
+      "faction_a": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      },
+      "faction_b": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      }
+    }
+  },
+  {
+    "EntryId": 11,
+    "Name": "Capital Strike Permission Threshold: Max",
+    "ParameterId": 1539,
+    "Development": 10,
+    "Multiplayer": 10,
+    "by_faction": {
+      "faction_a": {
+        "easy": 10,
+        "medium": 10,
+        "hard": 10
+      },
+      "faction_b": {
+        "easy": 10,
+        "medium": 10,
+        "hard": 10
+      }
+    }
+  },
+  {
+    "EntryId": 12,
+    "Name": "Plain System Energy Strike Resistance",
+    "ParameterId": 1540,
+    "Development": 9,
+    "Multiplayer": 9,
+    "by_faction": {
+      "faction_a": {
+        "easy": 9,
+        "medium": 9,
+        "hard": 9
+      },
+      "faction_b": {
+        "easy": 9,
+        "medium": 9,
+        "hard": 9
+      }
+    }
+  },
+  {
+    "EntryId": 13,
+    "Name": "Allocated System Energy Strike Resistance",
+    "ParameterId": 1541,
+    "Development": 9,
+    "Multiplayer": 9,
+    "by_faction": {
+      "faction_a": {
+        "easy": 9,
+        "medium": 9,
+        "hard": 9
+      },
+      "faction_b": {
+        "easy": 9,
+        "medium": 9,
+        "hard": 9
+      }
+    }
+  },
+  {
+    "EntryId": 14,
+    "Name": "Capital Planning: Minor Character Injury Chance",
+    "ParameterId": 1542,
+    "Development": 50,
+    "Multiplayer": 50,
+    "by_faction": {
+      "faction_a": {
+        "easy": 50,
+        "medium": 50,
+        "hard": 50
+      },
+      "faction_b": {
+        "easy": 50,
+        "medium": 50,
+        "hard": 50
+      }
+    }
+  },
+  {
+    "EntryId": 15,
+    "Name": "Capital Ship Production: Progress Scale",
+    "ParameterId": 2048,
+    "Development": 4,
+    "Multiplayer": 4,
+    "by_faction": {
+      "faction_a": {
+        "easy": 4,
+        "medium": 4,
+        "hard": 4
+      },
+      "faction_b": {
+        "easy": 4,
+        "medium": 4,
+        "hard": 4
+      }
+    }
+  },
+  {
+    "EntryId": 16,
+    "Name": "Capital Ship Production: Progress Gate Random Width",
+    "ParameterId": 2049,
+    "Development": 50,
+    "Multiplayer": 50,
+    "by_faction": {
+      "faction_a": {
+        "easy": 50,
+        "medium": 50,
+        "hard": 50
+      },
+      "faction_b": {
+        "easy": 50,
+        "medium": 50,
+        "hard": 50
+      }
+    }
+  },
+  {
+    "EntryId": 17,
+    "Name": "Capital Ship Production: Progress Gate Threshold",
+    "ParameterId": 2050,
+    "Development": 50,
+    "Multiplayer": 50,
+    "by_faction": {
+      "faction_a": {
+        "easy": 50,
+        "medium": 50,
+        "hard": 50
+      },
+      "faction_b": {
+        "easy": 50,
+        "medium": 50,
+        "hard": 50
+      }
+    }
+  },
+  {
+    "EntryId": 18,
+    "Name": "Capital Ship Production: Progress Outcome Selector Random Width",
+    "ParameterId": 2051,
+    "Development": 50,
+    "Multiplayer": 50,
+    "by_faction": {
+      "faction_a": {
+        "easy": 50,
+        "medium": 50,
+        "hard": 50
+      },
+      "faction_b": {
+        "easy": 50,
+        "medium": 50,
+        "hard": 50
+      }
+    }
+  },
+  {
+    "EntryId": 19,
+    "Name": "Capital Ship Fast Repair: Delay (ticks)",
+    "ParameterId": 2052,
+    "Development": 2,
+    "Multiplayer": 2,
+    "by_faction": {
+      "faction_a": {
+        "easy": 2,
+        "medium": 2,
+        "hard": 2
+      },
+      "faction_b": {
+        "easy": 2,
+        "medium": 2,
+        "hard": 2
+      }
+    }
+  },
+  {
+    "EntryId": 20,
+    "Name": "Capital Ship Normal Repair: Delay (ticks)",
+    "ParameterId": 2053,
+    "Development": 30,
+    "Multiplayer": 30,
+    "by_faction": {
+      "faction_a": {
+        "easy": 30,
+        "medium": 30,
+        "hard": 30
+      },
+      "faction_b": {
+        "easy": 30,
+        "medium": 30,
+        "hard": 30
+      }
+    }
+  },
+  {
+    "EntryId": 21,
+    "Name": "Fast Heal: Force Rank Threshold",
+    "ParameterId": 2560,
+    "Development": 80,
+    "Multiplayer": 80,
+    "by_faction": {
+      "faction_a": {
+        "easy": 80,
+        "medium": 80,
+        "hard": 80
+      },
+      "faction_b": {
+        "easy": 80,
+        "medium": 80,
+        "hard": 80
+      }
+    }
+  },
+  {
+    "EntryId": 22,
+    "Name": "Character Fast Heal: Recovery Delay (ticks)",
+    "ParameterId": 2561,
+    "Development": 1,
+    "Multiplayer": 1,
+    "by_faction": {
+      "faction_a": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      },
+      "faction_b": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      }
+    }
+  },
+  {
+    "EntryId": 23,
+    "Name": "Character Normal Heal: Recovery Delay (ticks)",
+    "ParameterId": 2562,
+    "Development": 1,
+    "Multiplayer": 1,
+    "by_faction": {
+      "faction_a": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      },
+      "faction_b": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      }
+    }
+  },
+  {
+    "EntryId": 24,
+    "Name": "Character Fast Heal: Injury Reduction Per Tick",
+    "ParameterId": 2563,
+    "Development": 2,
+    "Multiplayer": 2,
+    "by_faction": {
+      "faction_a": {
+        "easy": 2,
+        "medium": 2,
+        "hard": 2
+      },
+      "faction_b": {
+        "easy": 2,
+        "medium": 2,
+        "hard": 2
+      }
+    }
+  },
+  {
+    "EntryId": 25,
+    "Name": "Injured character: Combat points recovered by day",
+    "ParameterId": 2564,
+    "Development": 1,
+    "Multiplayer": 1,
+    "by_faction": {
+      "faction_a": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      },
+      "faction_b": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      }
+    }
+  },
+  {
+    "EntryId": 26,
+    "Name": "Abduction Injury: Chance Floor",
+    "ParameterId": 2565,
+    "Development": 1,
+    "Multiplayer": 1,
+    "by_faction": {
+      "faction_a": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      },
+      "faction_b": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      }
+    }
+  },
+  {
+    "EntryId": 27,
+    "Name": "Abduction Injury: Flat Bonus",
+    "ParameterId": 2566,
+    "Development": 1,
+    "Multiplayer": 1,
+    "by_faction": {
+      "faction_a": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      },
+      "faction_b": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      }
+    }
+  },
+  {
+    "EntryId": 28,
+    "Name": "Abduction Injury: Random Bonus Width",
+    "ParameterId": 2567,
+    "Development": 29,
+    "Multiplayer": 29,
+    "by_faction": {
+      "faction_a": {
+        "easy": 29,
+        "medium": 29,
+        "hard": 29
+      },
+      "faction_b": {
+        "easy": 29,
+        "medium": 29,
+        "hard": 29
+      }
+    }
+  },
+  {
+    "EntryId": 29,
+    "Name": "Secondary Injury: Chance Floor",
+    "ParameterId": 2568,
+    "Development": 1,
+    "Multiplayer": 1,
+    "by_faction": {
+      "faction_a": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      },
+      "faction_b": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      }
+    }
+  },
+  {
+    "EntryId": 30,
+    "Name": "Secondary Injury: Flat Bonus",
+    "ParameterId": 2569,
+    "Development": 1,
+    "Multiplayer": 1,
+    "by_faction": {
+      "faction_a": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      },
+      "faction_b": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      }
+    }
+  },
+  {
+    "EntryId": 31,
+    "Name": "Secondary Injury: Random Bonus Width",
+    "ParameterId": 2570,
+    "Development": 29,
+    "Multiplayer": 29,
+    "by_faction": {
+      "faction_a": {
+        "easy": 29,
+        "medium": 29,
+        "hard": 29
+      },
+      "faction_b": {
+        "easy": 29,
+        "medium": 29,
+        "hard": 29
+      }
+    }
+  },
+  {
+    "EntryId": 32,
+    "Name": "Character Comparison Fallback Injury: Chance Floor",
+    "ParameterId": 2571,
+    "Development": 1,
+    "Multiplayer": 1,
+    "by_faction": {
+      "faction_a": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      },
+      "faction_b": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      }
+    }
+  },
+  {
+    "EntryId": 33,
+    "Name": "Character Comparison Fallback Injury: Base Amount",
+    "ParameterId": 2572,
+    "Development": 1,
+    "Multiplayer": 1,
+    "by_faction": {
+      "faction_a": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      },
+      "faction_b": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      }
+    }
+  },
+  {
+    "EntryId": 34,
+    "Name": "Character Comparison Fallback Injury: Random Spread",
+    "ParameterId": 2573,
+    "Development": 29,
+    "Multiplayer": 29,
+    "by_faction": {
+      "faction_a": {
+        "easy": 29,
+        "medium": 29,
+        "hard": 29
+      },
+      "faction_b": {
+        "easy": 29,
+        "medium": 29,
+        "hard": 29
+      }
+    }
+  },
+  {
+    "EntryId": 35,
+    "Name": "Assassination Post-Hit Injury: Gate and Random Width",
+    "ParameterId": 2574,
+    "Development": 100,
+    "Multiplayer": 100,
+    "by_faction": {
+      "faction_a": {
+        "easy": 100,
+        "medium": 100,
+        "hard": 100
+      },
+      "faction_b": {
+        "easy": 100,
+        "medium": 100,
+        "hard": 100
+      }
+    }
+  },
+  {
+    "EntryId": 36,
+    "Name": "Assassination Post-Hit Injury: Base Amount",
+    "ParameterId": 2575,
+    "Development": 1,
+    "Multiplayer": 1,
+    "by_faction": {
+      "faction_a": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      },
+      "faction_b": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      }
+    }
+  },
+  {
+    "EntryId": 37,
+    "Name": "Assassination Post-Hit Injury: Random Spread",
+    "ParameterId": 2576,
+    "Development": 29,
+    "Multiplayer": 29,
+    "by_faction": {
+      "faction_a": {
+        "easy": 29,
+        "medium": 29,
+        "hard": 29
+      },
+      "faction_b": {
+        "easy": 29,
+        "medium": 29,
+        "hard": 29
+      }
+    }
+  },
+  {
+    "EntryId": 38,
+    "Name": "Minor Personnel Post-Injury Followup Chance",
+    "ParameterId": 2577,
+    "Development": 25,
+    "Multiplayer": 25,
+    "by_faction": {
+      "faction_a": {
+        "easy": 25,
+        "medium": 25,
+        "hard": 25
+      },
+      "faction_b": {
+        "easy": 25,
+        "medium": 25,
+        "hard": 25
+      }
+    }
+  },
+  {
+    "EntryId": 39,
+    "Name": "Encounter Opponent Injury: Combat Bonus",
+    "ParameterId": 2578,
+    "Development": 1,
+    "Multiplayer": 1,
+    "by_faction": {
+      "faction_a": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      },
+      "faction_b": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      }
+    }
+  },
+  {
+    "EntryId": 40,
+    "Name": "Low Force Status Threshold",
+    "ParameterId": 2579,
+    "Development": 60,
+    "Multiplayer": 60,
+    "by_faction": {
+      "faction_a": {
+        "easy": 60,
+        "medium": 60,
+        "hard": 60
+      },
+      "faction_b": {
+        "easy": 60,
+        "medium": 60,
+        "hard": 60
+      }
+    }
+  },
+  {
+    "EntryId": 41,
+    "Name": "Discovering Force User Threshold",
+    "ParameterId": 2580,
+    "Development": 80,
+    "Multiplayer": 80,
+    "by_faction": {
+      "faction_a": {
+        "easy": 80,
+        "medium": 80,
+        "hard": 80
+      },
+      "faction_b": {
+        "easy": 80,
+        "medium": 80,
+        "hard": 80
+      }
+    }
+  },
+  {
+    "EntryId": 42,
+    "Name": "Force Qualified Character Threshold",
+    "ParameterId": 2581,
+    "Development": 100,
+    "Multiplayer": 100,
+    "by_faction": {
+      "faction_a": {
+        "easy": 100,
+        "medium": 100,
+        "hard": 100
+      },
+      "faction_b": {
+        "easy": 100,
+        "medium": 100,
+        "hard": 100
+      }
+    }
+  },
+  {
+    "EntryId": 43,
+    "Name": "Force User Discovery Scan: Base Delay (ticks)",
+    "ParameterId": 2582,
+    "Development": 1,
+    "Multiplayer": 1,
+    "by_faction": {
+      "faction_a": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      },
+      "faction_b": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      }
+    }
+  },
+  {
+    "EntryId": 44,
+    "Name": "Force User Discovery Scan: Random Spread (ticks)",
+    "ParameterId": 2583,
+    "Development": 0,
+    "Multiplayer": 0,
+    "by_faction": {
+      "faction_a": {
+        "easy": 0,
+        "medium": 0,
+        "hard": 0
+      },
+      "faction_b": {
+        "easy": 0,
+        "medium": 0,
+        "hard": 0
+      }
+    }
+  },
+  {
+    "EntryId": 45,
+    "Name": "Escape Attempt Timer: Base Delay (ticks)",
+    "ParameterId": 2584,
+    "Development": 100,
+    "Multiplayer": 100,
+    "by_faction": {
+      "faction_a": {
+        "easy": 100,
+        "medium": 100,
+        "hard": 100
+      },
+      "faction_b": {
+        "easy": 100,
+        "medium": 100,
+        "hard": 100
+      }
+    }
+  },
+  {
+    "EntryId": 46,
+    "Name": "Escape Attempt Timer: Random Spread (ticks)",
+    "ParameterId": 2585,
+    "Development": 1000,
+    "Multiplayer": 1000,
+    "by_faction": {
+      "faction_a": {
+        "easy": 1000,
+        "medium": 1000,
+        "hard": 1000
+      },
+      "faction_b": {
+        "easy": 1000,
+        "medium": 1000,
+        "hard": 1000
+      }
+    }
+  },
+  {
+    "EntryId": 47,
+    "Name": "Loyalty Shift: Random Spread",
+    "ParameterId": 2592,
+    "Development": -5,
+    "Multiplayer": -5,
+    "by_faction": {
+      "faction_a": {
+        "easy": -5,
+        "medium": -5,
+        "hard": -5
+      },
+      "faction_b": {
+        "easy": -5,
+        "medium": -5,
+        "hard": -5
+      }
+    }
+  },
+  {
+    "EntryId": 48,
+    "Name": "Loyalty Shift: Base Amount",
+    "ParameterId": 2593,
+    "Development": 0,
+    "Multiplayer": 0,
+    "by_faction": {
+      "faction_a": {
+        "easy": 0,
+        "medium": 0,
+        "hard": 0
+      },
+      "faction_b": {
+        "easy": 0,
+        "medium": 0,
+        "hard": 0
+      }
+    }
+  },
+  {
+    "EntryId": 49,
+    "Name": "Luke vs Vader: Force Gain Scale (%)",
+    "ParameterId": 3072,
+    "Development": 25,
+    "Multiplayer": 25,
+    "by_faction": {
+      "faction_a": {
+        "easy": 25,
+        "medium": 25,
+        "hard": 25
+      },
+      "faction_b": {
+        "easy": 25,
+        "medium": 25,
+        "hard": 25
+      }
+    }
+  },
+  {
+    "EntryId": 50,
+    "Name": "Luke vs Emperor: Force Gain Scale (%)",
+    "ParameterId": 3073,
+    "Development": 20,
+    "Multiplayer": 20,
+    "by_faction": {
+      "faction_a": {
+        "easy": 20,
+        "medium": 20,
+        "hard": 20
+      },
+      "faction_b": {
+        "easy": 20,
+        "medium": 20,
+        "hard": 20
+      }
+    }
+  },
+  {
+    "EntryId": 51,
+    "Name": "Leia vs Vader: Force Gain Scale (%)",
+    "ParameterId": 3074,
+    "Development": 20,
+    "Multiplayer": 20,
+    "by_faction": {
+      "faction_a": {
+        "easy": 20,
+        "medium": 20,
+        "hard": 20
+      },
+      "faction_b": {
+        "easy": 20,
+        "medium": 20,
+        "hard": 20
+      }
+    }
+  },
+  {
+    "EntryId": 52,
+    "Name": "Leia vs Emperor: Force Gain Scale (%)",
+    "ParameterId": 3075,
+    "Development": 20,
+    "Multiplayer": 20,
+    "by_faction": {
+      "faction_a": {
+        "easy": 20,
+        "medium": 20,
+        "hard": 20
+      },
+      "faction_b": {
+        "easy": 20,
+        "medium": 20,
+        "hard": 20
+      }
+    }
+  },
+  {
+    "EntryId": 53,
+    "Name": "Seat of Power (Emperor on Coruscant): Leadership Bonus (%)",
+    "ParameterId": 3076,
+    "Development": 50,
+    "Multiplayer": 50,
+    "by_faction": {
+      "faction_a": {
+        "easy": 50,
+        "medium": 50,
+        "hard": 50
+      },
+      "faction_b": {
+        "easy": 50,
+        "medium": 50,
+        "hard": 50
+      }
+    }
+  },
+  {
+    "EntryId": 54,
+    "Name": "Luke Dagobah Completion: Injury Force Rank Ceiling",
+    "ParameterId": 3077,
+    "Development": 80,
+    "Multiplayer": 80,
+    "by_faction": {
+      "faction_a": {
+        "easy": 80,
+        "medium": 80,
+        "hard": 80
+      },
+      "faction_b": {
+        "easy": 80,
+        "medium": 80,
+        "hard": 80
+      }
+    }
+  },
+  {
+    "EntryId": 55,
+    "Name": "Luke Knows Heritage: Force Rank Threshold",
+    "ParameterId": 3078,
+    "Development": 60,
+    "Multiplayer": 60,
+    "by_faction": {
+      "faction_a": {
+        "easy": 60,
+        "medium": 60,
+        "hard": 60
+      },
+      "faction_b": {
+        "easy": 60,
+        "medium": 60,
+        "hard": 60
+      }
+    }
+  },
+  {
+    "EntryId": 56,
+    "Name": "Luke Dagobah Completion: Injury Base Amount",
+    "ParameterId": 3079,
+    "Development": 1,
+    "Multiplayer": 1,
+    "by_faction": {
+      "faction_a": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      },
+      "faction_b": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      }
+    }
+  },
+  {
+    "EntryId": 57,
+    "Name": "Luke Dagobah Completion: Injury Random Spread",
+    "ParameterId": 3080,
+    "Development": 99,
+    "Multiplayer": 99,
+    "by_faction": {
+      "faction_a": {
+        "easy": 99,
+        "medium": 99,
+        "hard": 99
+      },
+      "faction_b": {
+        "easy": 99,
+        "medium": 99,
+        "hard": 99
+      }
+    }
+  },
+  {
+    "EntryId": 58,
+    "Name": "Luke Ordinary Mission: Force Reward",
+    "ParameterId": 3081,
+    "Development": 1,
+    "Multiplayer": 1,
+    "by_faction": {
+      "faction_a": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      },
+      "faction_b": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      }
+    }
+  },
+  {
+    "EntryId": 59,
+    "Name": "Leia Ordinary Mission: Force Reward",
+    "ParameterId": 3082,
+    "Development": 1,
+    "Multiplayer": 1,
+    "by_faction": {
+      "faction_a": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      },
+      "faction_b": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      }
+    }
+  },
+  {
+    "EntryId": 60,
+    "Name": "Space Travel Time: Han Solo (%, lower=faster)",
+    "ParameterId": 3083,
+    "Development": 50,
+    "Multiplayer": 50,
+    "by_faction": {
+      "faction_a": {
+        "easy": 50,
+        "medium": 50,
+        "hard": 50
+      },
+      "faction_b": {
+        "easy": 50,
+        "medium": 50,
+        "hard": 50
+      }
+    }
+  },
+  {
+    "EntryId": 61,
+    "Name": "Luke vs Vader: Force Gain Min",
+    "ParameterId": 3084,
+    "Development": 1,
+    "Multiplayer": 1,
+    "by_faction": {
+      "faction_a": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      },
+      "faction_b": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      }
+    }
+  },
+  {
+    "EntryId": 62,
+    "Name": "Luke vs Emperor: Force Gain Min",
+    "ParameterId": 3085,
+    "Development": 1,
+    "Multiplayer": 1,
+    "by_faction": {
+      "faction_a": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      },
+      "faction_b": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      }
+    }
+  },
+  {
+    "EntryId": 63,
+    "Name": "Leia vs Vader: Force Gain Min (After Heritage)",
+    "ParameterId": 3086,
+    "Development": 1,
+    "Multiplayer": 1,
+    "by_faction": {
+      "faction_a": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      },
+      "faction_b": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      }
+    }
+  },
+  {
+    "EntryId": 64,
+    "Name": "Leia vs Emperor: Force Gain Min (After Heritage)",
+    "ParameterId": 3087,
+    "Development": 1,
+    "Multiplayer": 1,
+    "by_faction": {
+      "faction_a": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      },
+      "faction_b": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      }
+    }
+  },
+  {
+    "EntryId": 65,
+    "Name": "Hostile Foil Score Bias",
+    "ParameterId": 3584,
+    "Development": -1,
+    "Multiplayer": -1,
+    "by_faction": {
+      "faction_a": {
+        "easy": -1,
+        "medium": -1,
+        "hard": -1
+      },
+      "faction_b": {
+        "easy": -1,
+        "medium": -1,
+        "hard": -1
+      }
+    }
+  },
+  {
+    "EntryId": 66,
+    "Name": "Local Side Force User Selector: Low Rank Threshold",
+    "ParameterId": 3585,
+    "Development": 1,
+    "Multiplayer": 1,
+    "by_faction": {
+      "faction_a": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      },
+      "faction_b": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      }
+    }
+  },
+  {
+    "EntryId": 67,
+    "Name": "Cross Side Force User Selector: High Rank Threshold",
+    "ParameterId": 3586,
+    "Development": 60,
+    "Multiplayer": 60,
+    "by_faction": {
+      "faction_a": {
+        "easy": 60,
+        "medium": 60,
+        "hard": 60
+      },
+      "faction_b": {
+        "easy": 60,
+        "medium": 60,
+        "hard": 60
+      }
+    }
+  },
+  {
+    "EntryId": 68,
+    "Name": "Force User Selector: Encounter Probability Offset",
+    "ParameterId": 3587,
+    "Development": -100,
+    "Multiplayer": -100,
+    "by_faction": {
+      "faction_a": {
+        "easy": -100,
+        "medium": -100,
+        "hard": -100
+      },
+      "faction_b": {
+        "easy": -100,
+        "medium": -100,
+        "hard": -100
+      }
+    }
+  },
+  {
+    "EntryId": 69,
+    "Name": "Decoy % Stat Debuff",
+    "ParameterId": 3588,
+    "Development": 35,
+    "Multiplayer": 35,
+    "by_faction": {
+      "faction_a": {
+        "easy": 35,
+        "medium": 35,
+        "hard": 35
+      },
+      "faction_b": {
+        "easy": 35,
+        "medium": 35,
+        "hard": 35
+      }
+    }
+  },
+  {
+    "EntryId": 70,
+    "Name": "Defending Personnel: Espionage Penalty Scale (%)",
+    "ParameterId": 3589,
+    "Development": 35,
+    "Multiplayer": 35,
+    "by_faction": {
+      "faction_a": {
+        "easy": 35,
+        "medium": 35,
+        "hard": 35
+      },
+      "faction_b": {
+        "easy": 35,
+        "medium": 35,
+        "hard": 35
+      }
+    }
+  },
+  {
+    "EntryId": 71,
+    "Name": "Processing Facility Point Present: Scale (%)",
+    "ParameterId": 4096,
+    "Development": 20,
+    "Multiplayer": 20,
+    "by_faction": {
+      "faction_a": {
+        "easy": 20,
+        "medium": 20,
+        "hard": 20
+      },
+      "faction_b": {
+        "easy": 20,
+        "medium": 20,
+        "hard": 20
+      }
+    }
+  },
+  {
+    "EntryId": 72,
+    "Name": "Damaged Squadron: Days to recover 1 Fighter if Shipyard",
+    "ParameterId": 4608,
+    "Development": 2,
+    "Multiplayer": 2,
+    "by_faction": {
+      "faction_a": {
+        "easy": 2,
+        "medium": 2,
+        "hard": 2
+      },
+      "faction_b": {
+        "easy": 2,
+        "medium": 2,
+        "hard": 2
+      }
+    }
+  },
+  {
+    "EntryId": 73,
+    "Name": "Damaged Squadron:Days to recover 1 Fighter if no Shipyard",
+    "ParameterId": 4609,
+    "Development": 30,
+    "Multiplayer": 30,
+    "by_faction": {
+      "faction_a": {
+        "easy": 30,
+        "medium": 30,
+        "hard": 30
+      },
+      "faction_b": {
+        "easy": 30,
+        "medium": 30,
+        "hard": 30
+      }
+    }
+  },
+  {
+    "EntryId": 74,
+    "Name": "Space Travel Time: Distance Divisor (higher=faster)",
+    "ParameterId": 5120,
+    "Development": 5,
+    "Multiplayer": 5,
+    "by_faction": {
+      "faction_a": {
+        "easy": 5,
+        "medium": 5,
+        "hard": 5
+      },
+      "faction_b": {
+        "easy": 5,
+        "medium": 5,
+        "hard": 5
+      }
+    }
+  },
+  {
+    "EntryId": 75,
+    "Name": "Direct System Support Shift Amount",
+    "ParameterId": 5121,
+    "Development": -2,
+    "Multiplayer": -2,
+    "by_faction": {
+      "faction_a": {
+        "easy": -2,
+        "medium": -2,
+        "hard": -2
+      },
+      "faction_b": {
+        "easy": -2,
+        "medium": -2,
+        "hard": -2
+      }
+    }
+  },
+  {
+    "EntryId": 76,
+    "Name": "Direct System Support Threshold",
+    "ParameterId": 5122,
+    "Development": 90,
+    "Multiplayer": 90,
+    "by_faction": {
+      "faction_a": {
+        "easy": 90,
+        "medium": 90,
+        "hard": 90
+      },
+      "faction_b": {
+        "easy": 90,
+        "medium": 90,
+        "hard": 90
+      }
+    }
+  },
+  {
+    "EntryId": 77,
+    "Name": "Sector Scan Support Shift Amount",
+    "ParameterId": 5123,
+    "Development": -10,
+    "Multiplayer": -10,
+    "by_faction": {
+      "faction_a": {
+        "easy": -10,
+        "medium": -10,
+        "hard": -10
+      },
+      "faction_b": {
+        "easy": -10,
+        "medium": -10,
+        "hard": -10
+      }
+    }
+  },
+  {
+    "EntryId": 78,
+    "Name": "Sector Scan Support Threshold",
+    "ParameterId": 5124,
+    "Development": 101,
+    "Multiplayer": 101,
+    "by_faction": {
+      "faction_a": {
+        "easy": 101,
+        "medium": 101,
+        "hard": 101
+      },
+      "faction_b": {
+        "easy": 101,
+        "medium": 101,
+        "hard": 101
+      }
+    }
+  },
+  {
+    "EntryId": 79,
+    "Name": "Alliance Low Support: Startup Support Shift Magnitude",
+    "ParameterId": 5125,
+    "Development": 0,
+    "Multiplayer": 0,
+    "by_faction": {
+      "faction_a": {
+        "easy": 0,
+        "medium": 0,
+        "hard": 0
+      },
+      "faction_b": {
+        "easy": 0,
+        "medium": 0,
+        "hard": 0
+      }
+    }
+  },
+  {
+    "EntryId": 80,
+    "Name": "Alliance Low Support: Startup Support Threshold",
+    "ParameterId": 5126,
+    "Development": 0,
+    "Multiplayer": 0,
+    "by_faction": {
+      "faction_a": {
+        "easy": 0,
+        "medium": 0,
+        "hard": 0
+      },
+      "faction_b": {
+        "easy": 0,
+        "medium": 0,
+        "hard": 0
+      }
+    }
+  },
+  {
+    "EntryId": 81,
+    "Name": "HQ Triggered Startup Support Shift Magnitude",
+    "ParameterId": 5127,
+    "Development": -10,
+    "Multiplayer": -10,
+    "by_faction": {
+      "faction_a": {
+        "easy": -10,
+        "medium": -10,
+        "hard": -10
+      },
+      "faction_b": {
+        "easy": -10,
+        "medium": -10,
+        "hard": -10
+      }
+    }
+  },
+  {
+    "EntryId": 82,
+    "Name": "HQ Triggered Startup Support Threshold",
+    "ParameterId": 5128,
+    "Development": 101,
+    "Multiplayer": 101,
+    "by_faction": {
+      "faction_a": {
+        "easy": 101,
+        "medium": 101,
+        "hard": 101
+      },
+      "faction_b": {
+        "easy": 101,
+        "medium": 101,
+        "hard": 101
+      }
+    }
+  },
+  {
+    "EntryId": 83,
+    "Name": "Fleet 1 location probability: Yavin vs HQ",
+    "ParameterId": 5129,
+    "Development": 50,
+    "Multiplayer": 50,
+    "by_faction": {
+      "faction_a": {
+        "easy": 50,
+        "medium": 50,
+        "hard": 50
+      },
+      "faction_b": {
+        "easy": 50,
+        "medium": 50,
+        "hard": 50
+      }
+    }
+  },
+  {
+    "EntryId": 84,
+    "Name": "CMUNYVTB.DAT - Alliance Yavin 4: Min army no. to deploy",
+    "ParameterId": 5130,
+    "Development": 1,
+    "Multiplayer": 1,
+    "by_faction": {
+      "faction_a": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      },
+      "faction_b": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      }
+    }
+  },
+  {
+    "EntryId": 85,
+    "Name": "CMUNYVTB.DAT - Alliance Yavin 4: Max army no. to deploy",
+    "ParameterId": 5131,
+    "Development": 1,
+    "Multiplayer": 1,
+    "by_faction": {
+      "faction_a": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      },
+      "faction_b": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      }
+    }
+  },
+  {
+    "EntryId": 86,
+    "Name": "CMUNHQTB.DAT - Alliance HQ: Min army no. to deploy",
+    "ParameterId": 5132,
+    "Development": 1,
+    "Multiplayer": 1,
+    "by_faction": {
+      "faction_a": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      },
+      "faction_b": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      }
+    }
+  },
+  {
+    "EntryId": 87,
+    "Name": "CMUNHQTB.DAT - Alliance HQ: Max army no. to deploy",
+    "ParameterId": 5133,
+    "Development": 1,
+    "Multiplayer": 1,
+    "by_faction": {
+      "faction_a": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      },
+      "faction_b": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      }
+    }
+  },
+  {
+    "EntryId": 88,
+    "Name": "CMUNCRTB.DAT - Empire Coruscant: Min army no. to deploy",
+    "ParameterId": 5134,
+    "Development": 1,
+    "Multiplayer": 1,
+    "by_faction": {
+      "faction_a": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      },
+      "faction_b": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      }
+    }
+  },
+  {
+    "EntryId": 89,
+    "Name": "CMUNCRTB.DAT - Empire Coruscant: Max army no. to deploy",
+    "ParameterId": 5135,
+    "Development": 1,
+    "Multiplayer": 1,
+    "by_faction": {
+      "faction_a": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      },
+      "faction_b": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      }
+    }
+  },
+  {
+    "EntryId": 90,
+    "Name": "CMUNAFTB.DAT - Alliance HQ or Yavin 4 Fleet: Min capital ship no. to deploy",
+    "ParameterId": 5136,
+    "Development": 1,
+    "Multiplayer": 1,
+    "by_faction": {
+      "faction_a": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      },
+      "faction_b": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      }
+    }
+  },
+  {
+    "EntryId": 91,
+    "Name": "CMUNAFTB.DAT - Alliance HQ or Yavin 4 Fleet: Max capital ship no. to deploy",
+    "ParameterId": 5137,
+    "Development": 2,
+    "Multiplayer": 2,
+    "by_faction": {
+      "faction_a": {
+        "easy": 2,
+        "medium": 2,
+        "hard": 2
+      },
+      "faction_b": {
+        "easy": 2,
+        "medium": 2,
+        "hard": 2
+      }
+    }
+  },
+  {
+    "EntryId": 92,
+    "Name": "CMUNEFTB.DAT - Empire Coruscant Fleet: Min capital ship no. to deploy",
+    "ParameterId": 5138,
+    "Development": 1,
+    "Multiplayer": 1,
+    "by_faction": {
+      "faction_a": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      },
+      "faction_b": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      }
+    }
+  },
+  {
+    "EntryId": 93,
+    "Name": "CMUNEFTB.DAT - Empire Coruscant Fleet: Max capital ship no. to deploy",
+    "ParameterId": 5139,
+    "Development": 1,
+    "Multiplayer": 1,
+    "by_faction": {
+      "faction_a": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      },
+      "faction_b": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      }
+    }
+  },
+  {
+    "EntryId": 94,
+    "Name": "FACLHQTB.DAT - Alliance HQ: Min facilities group no. to deploy",
+    "ParameterId": 5140,
+    "Development": 1,
+    "Multiplayer": 1,
+    "by_faction": {
+      "faction_a": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      },
+      "faction_b": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      }
+    }
+  },
+  {
+    "EntryId": 95,
+    "Name": "FACLHQTB.DAT - Alliance HQ: Max facilities group no. to deploy",
+    "ParameterId": 5141,
+    "Development": 2,
+    "Multiplayer": 2,
+    "by_faction": {
+      "faction_a": {
+        "easy": 2,
+        "medium": 2,
+        "hard": 2
+      },
+      "faction_b": {
+        "easy": 2,
+        "medium": 2,
+        "hard": 2
+      }
+    }
+  },
+  {
+    "EntryId": 96,
+    "Name": "FACLCRTB.DAT - Empire Coruscant: Min facilities group no. to deploy",
+    "ParameterId": 5142,
+    "Development": 1,
+    "Multiplayer": 1,
+    "by_faction": {
+      "faction_a": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      },
+      "faction_b": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      }
+    }
+  },
+  {
+    "EntryId": 97,
+    "Name": "FACLCRTB.DAT - Empire Coruscant: Max facilities group no. to deploy",
+    "ParameterId": 5143,
+    "Development": 1,
+    "Multiplayer": 1,
+    "by_faction": {
+      "faction_a": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      },
+      "faction_b": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      }
+    }
+  },
+  {
+    "EntryId": 98,
+    "Name": "Startup Balance: Payload Divisor",
+    "ParameterId": 5152,
+    "Development": 10,
+    "Multiplayer": 10,
+    "by_faction": {
+      "faction_a": {
+        "easy": 10,
+        "medium": 10,
+        "hard": 10
+      },
+      "faction_b": {
+        "easy": 10,
+        "medium": 10,
+        "hard": 10
+      }
+    }
+  },
+  {
+    "EntryId": 99,
+    "Name": "Uprising Mission: Leadership Divisor",
+    "ParameterId": 6144,
+    "Development": 10,
+    "Multiplayer": 10,
+    "by_faction": {
+      "faction_a": {
+        "easy": 10,
+        "medium": 10,
+        "hard": 10
+      },
+      "faction_b": {
+        "easy": 10,
+        "medium": 10,
+        "hard": 10
+      }
+    }
+  },
+  {
+    "EntryId": 100,
+    "Name": "Incite Uprising: Fixed Bias",
+    "ParameterId": 6145,
+    "Development": -2,
+    "Multiplayer": -2,
+    "by_faction": {
+      "faction_a": {
+        "easy": -2,
+        "medium": -2,
+        "hard": -2
+      },
+      "faction_b": {
+        "easy": -2,
+        "medium": -2,
+        "hard": -2
+      }
+    }
+  },
+  {
+    "EntryId": 101,
+    "Name": "Luke goes to Dagobah: Base (days)",
+    "ParameterId": 6146,
+    "Development": 300,
+    "Multiplayer": 300,
+    "by_faction": {
+      "faction_a": {
+        "easy": 300,
+        "medium": 300,
+        "hard": 300
+      },
+      "faction_b": {
+        "easy": 300,
+        "medium": 300,
+        "hard": 300
+      }
+    }
+  },
+  {
+    "EntryId": 102,
+    "Name": "Luke goes to Dagobah: Max Random Extra (days)",
+    "ParameterId": 6147,
+    "Development": 100,
+    "Multiplayer": 100,
+    "by_faction": {
+      "faction_a": {
+        "easy": 100,
+        "medium": 100,
+        "hard": 100
+      },
+      "faction_b": {
+        "easy": 100,
+        "medium": 100,
+        "hard": 100
+      }
+    }
+  },
+  {
+    "EntryId": 103,
+    "Name": "Bounty Hunter Frequency: Base (days)",
+    "ParameterId": 6148,
+    "Development": 300,
+    "Multiplayer": 300,
+    "by_faction": {
+      "faction_a": {
+        "easy": 300,
+        "medium": 300,
+        "hard": 300
+      },
+      "faction_b": {
+        "easy": 300,
+        "medium": 300,
+        "hard": 300
+      }
+    }
+  },
+  {
+    "EntryId": 104,
+    "Name": "Bounty Hunter Frequency: Max Random Extra (days)",
+    "ParameterId": 6149,
+    "Development": 300,
+    "Multiplayer": 300,
+    "by_faction": {
+      "faction_a": {
+        "easy": 300,
+        "medium": 300,
+        "hard": 300
+      },
+      "faction_b": {
+        "easy": 300,
+        "medium": 300,
+        "hard": 300
+      }
+    }
+  },
+  {
+    "EntryId": 105,
+    "Name": "Mission Manager: Bounty Hunter Han Intervention Chance",
+    "ParameterId": 6150,
+    "Development": 100,
+    "Multiplayer": 100,
+    "by_faction": {
+      "faction_a": {
+        "easy": 100,
+        "medium": 100,
+        "hard": 100
+      },
+      "faction_b": {
+        "easy": 100,
+        "medium": 100,
+        "hard": 100
+      }
+    }
+  },
+  {
+    "EntryId": 106,
+    "Name": "Story Selector: Luke Low Rank Fallback Threshold",
+    "ParameterId": 6151,
+    "Development": 100,
+    "Multiplayer": 100,
+    "by_faction": {
+      "faction_a": {
+        "easy": 100,
+        "medium": 100,
+        "hard": 100
+      },
+      "faction_b": {
+        "easy": 100,
+        "medium": 100,
+        "hard": 100
+      }
+    }
+  },
+  {
+    "EntryId": 107,
+    "Name": "Luke Low Rank Story Fallback: Injury Base Amount",
+    "ParameterId": 6152,
+    "Development": 1,
+    "Multiplayer": 1,
+    "by_faction": {
+      "faction_a": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      },
+      "faction_b": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      }
+    }
+  },
+  {
+    "EntryId": 108,
+    "Name": "Luke Low Rank Story Fallback: Injury Random Spread",
+    "ParameterId": 6153,
+    "Development": 199,
+    "Multiplayer": 199,
+    "by_faction": {
+      "faction_a": {
+        "easy": 199,
+        "medium": 199,
+        "hard": 199
+      },
+      "faction_b": {
+        "easy": 199,
+        "medium": 199,
+        "hard": 199
+      }
+    }
+  },
+  {
+    "EntryId": 109,
+    "Name": "Palace Resolution: Espionage Divisor",
+    "ParameterId": 6154,
+    "Development": 3,
+    "Multiplayer": 3,
+    "by_faction": {
+      "faction_a": {
+        "easy": 3,
+        "medium": 3,
+        "hard": 3
+      },
+      "faction_b": {
+        "easy": 3,
+        "medium": 3,
+        "hard": 3
+      }
+    }
+  },
+  {
+    "EntryId": 110,
+    "Name": "Palace Resolution: Combat Divisor",
+    "ParameterId": 6155,
+    "Development": 3,
+    "Multiplayer": 3,
+    "by_faction": {
+      "faction_a": {
+        "easy": 3,
+        "medium": 3,
+        "hard": 3
+      },
+      "faction_b": {
+        "easy": 3,
+        "medium": 3,
+        "hard": 3
+      }
+    }
+  },
+  {
+    "EntryId": 111,
+    "Name": "Diplomacy success: Diplomacy points gain",
+    "ParameterId": 6156,
+    "Development": 1,
+    "Multiplayer": 1,
+    "by_faction": {
+      "faction_a": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      },
+      "faction_b": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      }
+    }
+  },
+  {
+    "EntryId": 112,
+    "Name": "Espionage success: Espionage points gain",
+    "ParameterId": 6157,
+    "Development": 1,
+    "Multiplayer": 1,
+    "by_faction": {
+      "faction_a": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      },
+      "faction_b": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      }
+    }
+  },
+  {
+    "EntryId": 113,
+    "Name": "Research success: Research points gain",
+    "ParameterId": 6158,
+    "Development": 1,
+    "Multiplayer": 1,
+    "by_faction": {
+      "faction_a": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      },
+      "faction_b": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      }
+    }
+  },
+  {
+    "EntryId": 114,
+    "Name": "Recruitment success: Leadership points gain",
+    "ParameterId": 6159,
+    "Development": 1,
+    "Multiplayer": 1,
+    "by_faction": {
+      "faction_a": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      },
+      "faction_b": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      }
+    }
+  },
+  {
+    "EntryId": 115,
+    "Name": "Incite Uprising success: Leadership points gain",
+    "ParameterId": 6160,
+    "Development": 1,
+    "Multiplayer": 1,
+    "by_faction": {
+      "faction_a": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      },
+      "faction_b": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      }
+    }
+  },
+  {
+    "EntryId": 116,
+    "Name": "Subdue Uprising success: Leadership points gain",
+    "ParameterId": 6161,
+    "Development": 1,
+    "Multiplayer": 1,
+    "by_faction": {
+      "faction_a": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      },
+      "faction_b": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      }
+    }
+  },
+  {
+    "EntryId": 117,
+    "Name": "Rescue success: Combat points gain",
+    "ParameterId": 6162,
+    "Development": 1,
+    "Multiplayer": 1,
+    "by_faction": {
+      "faction_a": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      },
+      "faction_b": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      }
+    }
+  },
+  {
+    "EntryId": 118,
+    "Name": "Abduction success: Combat points gain",
+    "ParameterId": 6163,
+    "Development": 1,
+    "Multiplayer": 1,
+    "by_faction": {
+      "faction_a": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      },
+      "faction_b": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      }
+    }
+  },
+  {
+    "EntryId": 119,
+    "Name": "Assassination success: Combat points gain",
+    "ParameterId": 6164,
+    "Development": 1,
+    "Multiplayer": 1,
+    "by_faction": {
+      "faction_a": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      },
+      "faction_b": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      }
+    }
+  },
+  {
+    "EntryId": 120,
+    "Name": "Sabotage success: Espionage points gain",
+    "ParameterId": 6165,
+    "Development": 1,
+    "Multiplayer": 1,
+    "by_faction": {
+      "faction_a": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      },
+      "faction_b": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      }
+    }
+  },
+  {
+    "EntryId": 121,
+    "Name": "Sabotage success: Combat points gain",
+    "ParameterId": 6166,
+    "Development": 1,
+    "Multiplayer": 1,
+    "by_faction": {
+      "faction_a": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      },
+      "faction_b": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      }
+    }
+  },
+  {
+    "EntryId": 122,
+    "Name": "Death Star Sabotage Success: Espionage Points Gain",
+    "ParameterId": 6167,
+    "Development": 1,
+    "Multiplayer": 1,
+    "by_faction": {
+      "faction_a": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      },
+      "faction_b": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      }
+    }
+  },
+  {
+    "EntryId": 123,
+    "Name": "Death Star Sabotage Success: Combat Points Gain",
+    "ParameterId": 6168,
+    "Development": 1,
+    "Multiplayer": 1,
+    "by_faction": {
+      "faction_a": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      },
+      "faction_b": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      }
+    }
+  },
+  {
+    "EntryId": 124,
+    "Name": "Palace Success: Espionage Points Gain",
+    "ParameterId": 6169,
+    "Development": 1,
+    "Multiplayer": 1,
+    "by_faction": {
+      "faction_a": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      },
+      "faction_b": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      }
+    }
+  },
+  {
+    "EntryId": 125,
+    "Name": "Palace Success: Combat Points Gain",
+    "ParameterId": 6170,
+    "Development": 1,
+    "Multiplayer": 1,
+    "by_faction": {
+      "faction_a": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      },
+      "faction_b": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      }
+    }
+  },
+  {
+    "EntryId": 126,
+    "Name": "Research Success: Research Points Base Amount",
+    "ParameterId": 6171,
+    "Development": 1,
+    "Multiplayer": 1,
+    "by_faction": {
+      "faction_a": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      },
+      "faction_b": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      }
+    }
+  },
+  {
+    "EntryId": 127,
+    "Name": "Research Success: Research Points Random Spread",
+    "ParameterId": 6172,
+    "Development": 6,
+    "Multiplayer": 6,
+    "by_faction": {
+      "faction_a": {
+        "easy": 6,
+        "medium": 6,
+        "hard": 6
+      },
+      "faction_b": {
+        "easy": 6,
+        "medium": 6,
+        "hard": 6
+      }
+    }
+  },
+  {
+    "EntryId": 128,
+    "Name": "Jedi Training success: Jedi level gain: Max Random Extra",
+    "ParameterId": 6173,
+    "Development": 50,
+    "Multiplayer": 50,
+    "by_faction": {
+      "faction_a": {
+        "easy": 50,
+        "medium": 50,
+        "hard": 50
+      },
+      "faction_b": {
+        "easy": 50,
+        "medium": 50,
+        "hard": 50
+      }
+    }
+  },
+  {
+    "EntryId": 129,
+    "Name": "Dagobah Completed: Force Rank Bonus Scale (%)",
+    "ParameterId": 6174,
+    "Development": 60,
+    "Multiplayer": 60,
+    "by_faction": {
+      "faction_a": {
+        "easy": 60,
+        "medium": 60,
+        "hard": 60
+      },
+      "faction_b": {
+        "easy": 60,
+        "medium": 60,
+        "hard": 60
+      }
+    }
+  },
+  {
+    "EntryId": 130,
+    "Name": "Dagobah Pre-Completed: Force Rank Bonus Divisor",
+    "ParameterId": 6175,
+    "Development": 2,
+    "Multiplayer": 2,
+    "by_faction": {
+      "faction_a": {
+        "easy": 2,
+        "medium": 2,
+        "hard": 2
+      },
+      "faction_b": {
+        "easy": 2,
+        "medium": 2,
+        "hard": 2
+      }
+    }
+  },
+  {
+    "EntryId": 131,
+    "Name": "Espionage Extra Reveal System Count: Floor",
+    "ParameterId": 6176,
+    "Development": 1,
+    "Multiplayer": 1,
+    "by_faction": {
+      "faction_a": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      },
+      "faction_b": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      }
+    }
+  },
+  {
+    "EntryId": 132,
+    "Name": "Espionage Extra Reveal System Count: Random Spread",
+    "ParameterId": 6177,
+    "Development": 0,
+    "Multiplayer": 0,
+    "by_faction": {
+      "faction_a": {
+        "easy": 0,
+        "medium": 0,
+        "hard": 0
+      },
+      "faction_b": {
+        "easy": 0,
+        "medium": 0,
+        "hard": 0
+      }
+    }
+  },
+  {
+    "EntryId": 133,
+    "Name": "Espionage Extra Reveal System Coruscant Count: Floor",
+    "ParameterId": 6178,
+    "Development": 1,
+    "Multiplayer": 1,
+    "by_faction": {
+      "faction_a": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      },
+      "faction_b": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      }
+    }
+  },
+  {
+    "EntryId": 134,
+    "Name": "Espionage Extra Reveal System Coruscant Count: Random Spread",
+    "ParameterId": 6179,
+    "Development": 4,
+    "Multiplayer": 4,
+    "by_faction": {
+      "faction_a": {
+        "easy": 4,
+        "medium": 4,
+        "hard": 4
+      },
+      "faction_b": {
+        "easy": 4,
+        "medium": 4,
+        "hard": 4
+      }
+    }
+  },
+  {
+    "EntryId": 135,
+    "Name": "Espionage Extra Reveal System Alliance HQ Count: Floor",
+    "ParameterId": 6180,
+    "Development": 1,
+    "Multiplayer": 1,
+    "by_faction": {
+      "faction_a": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      },
+      "faction_b": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      }
+    }
+  },
+  {
+    "EntryId": 136,
+    "Name": "Espionage Extra Reveal System Alliance HQ Count: Random Spread",
+    "ParameterId": 6181,
+    "Development": 4,
+    "Multiplayer": 4,
+    "by_faction": {
+      "faction_a": {
+        "easy": 4,
+        "medium": 4,
+        "hard": 4
+      },
+      "faction_b": {
+        "easy": 4,
+        "medium": 4,
+        "hard": 4
+      }
+    }
+  },
+  {
+    "EntryId": 137,
+    "Name": "Diplomacy Success on occupied System Popularity gain: Base (%)",
+    "ParameterId": 6183,
+    "Development": 1,
+    "Multiplayer": 1,
+    "by_faction": {
+      "faction_a": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      },
+      "faction_b": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      }
+    }
+  },
+  {
+    "EntryId": 138,
+    "Name": "Diplomacy Success on occupied System Popularity gain: Max Random Extra (%)",
+    "ParameterId": 6184,
+    "Development": 19,
+    "Multiplayer": 19,
+    "by_faction": {
+      "faction_a": {
+        "easy": 19,
+        "medium": 19,
+        "hard": 19
+      },
+      "faction_b": {
+        "easy": 19,
+        "medium": 19,
+        "hard": 19
+      }
+    }
+  },
+  {
+    "EntryId": 139,
+    "Name": "Diplomacy Success on neutral System Popularity gain: Base (%)",
+    "ParameterId": 6185,
+    "Development": 1,
+    "Multiplayer": 1,
+    "by_faction": {
+      "faction_a": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      },
+      "faction_b": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      }
+    }
+  },
+  {
+    "EntryId": 140,
+    "Name": "Diplomacy Success on neutral System Popularity gain: Max Random Extra (%)",
+    "ParameterId": 6186,
+    "Development": 9,
+    "Multiplayer": 9,
+    "by_faction": {
+      "faction_a": {
+        "easy": 9,
+        "medium": 9,
+        "hard": 9
+      },
+      "faction_b": {
+        "easy": 9,
+        "medium": 9,
+        "hard": 9
+      }
+    }
+  },
+  {
+    "EntryId": 141,
+    "Name": "Subdue Uprising Matching Side Support Shift: Floor",
+    "ParameterId": 6187,
+    "Development": 1,
+    "Multiplayer": 1,
+    "by_faction": {
+      "faction_a": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      },
+      "faction_b": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      }
+    }
+  },
+  {
+    "EntryId": 142,
+    "Name": "Subdue Uprising Matching Side Support Shift: Random Spread",
+    "ParameterId": 6188,
+    "Development": 19,
+    "Multiplayer": 19,
+    "by_faction": {
+      "faction_a": {
+        "easy": 19,
+        "medium": 19,
+        "hard": 19
+      },
+      "faction_b": {
+        "easy": 19,
+        "medium": 19,
+        "hard": 19
+      }
+    }
+  },
+  {
+    "EntryId": 143,
+    "Name": "Subdue Uprising Neutral Target Support Shift: Floor",
+    "ParameterId": 6189,
+    "Development": 1,
+    "Multiplayer": 1,
+    "by_faction": {
+      "faction_a": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      },
+      "faction_b": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      }
+    }
+  },
+  {
+    "EntryId": 144,
+    "Name": "Subdue Uprising Neutral Target Support Shift: Random Spread",
+    "ParameterId": 6190,
+    "Development": 9,
+    "Multiplayer": 9,
+    "by_faction": {
+      "faction_a": {
+        "easy": 9,
+        "medium": 9,
+        "hard": 9
+      },
+      "faction_b": {
+        "easy": 9,
+        "medium": 9,
+        "hard": 9
+      }
+    }
+  },
+  {
+    "EntryId": 145,
+    "Name": "Maintenance Shortfall Frequency (days)",
+    "ParameterId": 7168,
+    "Development": 10,
+    "Multiplayer": 10,
+    "by_faction": {
+      "faction_a": {
+        "easy": 10,
+        "medium": 10,
+        "hard": 10
+      },
+      "faction_b": {
+        "easy": 10,
+        "medium": 10,
+        "hard": 10
+      }
+    }
+  },
+  {
+    "EntryId": 146,
+    "Name": "Related to default (non mission) research rate (lower=faster) - To test",
+    "ParameterId": 7169,
+    "Development": 30,
+    "Multiplayer": 30,
+    "by_faction": {
+      "faction_a": {
+        "easy": 30,
+        "medium": 30,
+        "hard": 30
+      },
+      "faction_b": {
+        "easy": 30,
+        "medium": 30,
+        "hard": 30
+      }
+    }
+  },
+  {
+    "EntryId": 147,
+    "Name": "Related to default (non mission) research rate (lower=faster) - To test",
+    "ParameterId": 7170,
+    "Development": 30,
+    "Multiplayer": 30,
+    "by_faction": {
+      "faction_a": {
+        "easy": 30,
+        "medium": 30,
+        "hard": 30
+      },
+      "faction_b": {
+        "easy": 30,
+        "medium": 30,
+        "hard": 30
+      }
+    }
+  },
+  {
+    "EntryId": 148,
+    "Name": "Core Strong Support Threshold",
+    "ParameterId": 7680,
+    "Development": 2,
+    "Multiplayer": 2,
+    "by_faction": {
+      "faction_a": {
+        "easy": 2,
+        "medium": 2,
+        "hard": 2
+      },
+      "faction_b": {
+        "easy": 2,
+        "medium": 2,
+        "hard": 2
+      }
+    }
+  },
+  {
+    "EntryId": 149,
+    "Name": "Core Weak Support Threshold",
+    "ParameterId": 7681,
+    "Development": 2,
+    "Multiplayer": 2,
+    "by_faction": {
+      "faction_a": {
+        "easy": 2,
+        "medium": 2,
+        "hard": 2
+      },
+      "faction_b": {
+        "easy": 2,
+        "medium": 2,
+        "hard": 2
+      }
+    }
+  },
+  {
+    "EntryId": 150,
+    "Name": "Uprising Active Garrison Multiplier",
+    "ParameterId": 7682,
+    "Development": 2,
+    "Multiplayer": 2,
+    "by_faction": {
+      "faction_a": {
+        "easy": 2,
+        "medium": 2,
+        "hard": 2
+      },
+      "faction_b": {
+        "easy": 2,
+        "medium": 2,
+        "hard": 2
+      }
+    }
+  },
+  {
+    "EntryId": 151,
+    "Name": "Required Shield Generators to Prevent Assault",
+    "ParameterId": 7683,
+    "Development": 2,
+    "Multiplayer": 2,
+    "by_faction": {
+      "faction_a": {
+        "easy": 2,
+        "medium": 2,
+        "hard": 2
+      },
+      "faction_b": {
+        "easy": 2,
+        "medium": 2,
+        "hard": 2
+      }
+    }
+  },
+  {
+    "EntryId": 152,
+    "Name": "No KDY Blockade: Capital Ship Production Penalty",
+    "ParameterId": 7684,
+    "Development": 5,
+    "Multiplayer": 5,
+    "by_faction": {
+      "faction_a": {
+        "easy": 5,
+        "medium": 5,
+        "hard": 5
+      },
+      "faction_b": {
+        "easy": 5,
+        "medium": 5,
+        "hard": 5
+      }
+    }
+  },
+  {
+    "EntryId": 153,
+    "Name": "No KDY Blockade: Fighter Production Penalty",
+    "ParameterId": 7685,
+    "Development": 2,
+    "Multiplayer": 2,
+    "by_faction": {
+      "faction_a": {
+        "easy": 2,
+        "medium": 2,
+        "hard": 2
+      },
+      "faction_b": {
+        "easy": 2,
+        "medium": 2,
+        "hard": 2
+      }
+    }
+  },
+  {
+    "EntryId": 154,
+    "Name": "Low Support: Hostile Fleet Shift Penalty",
+    "ParameterId": 7686,
+    "Development": 10,
+    "Multiplayer": 10,
+    "by_faction": {
+      "faction_a": {
+        "easy": 10,
+        "medium": 10,
+        "hard": 10
+      },
+      "faction_b": {
+        "easy": 10,
+        "medium": 10,
+        "hard": 10
+      }
+    }
+  },
+  {
+    "EntryId": 155,
+    "Name": "Low Support: Hostile Fighter Shift Penalty",
+    "ParameterId": 7687,
+    "Development": 5,
+    "Multiplayer": 5,
+    "by_faction": {
+      "faction_a": {
+        "easy": 5,
+        "medium": 5,
+        "hard": 5
+      },
+      "faction_b": {
+        "easy": 5,
+        "medium": 5,
+        "hard": 5
+      }
+    }
+  },
+  {
+    "EntryId": 156,
+    "Name": "Low Support: Adjusted Hostile Troop Shift Penalty",
+    "ParameterId": 7688,
+    "Development": 2,
+    "Multiplayer": 2,
+    "by_faction": {
+      "faction_a": {
+        "easy": 2,
+        "medium": 2,
+        "hard": 2
+      },
+      "faction_b": {
+        "easy": 2,
+        "medium": 2,
+        "hard": 2
+      }
+    }
+  },
+  {
+    "EntryId": 157,
+    "Name": "Smuggling Support Shift",
+    "ParameterId": 7689,
+    "Development": -10,
+    "Multiplayer": -10,
+    "by_faction": {
+      "faction_a": {
+        "easy": -10,
+        "medium": -10,
+        "hard": -10
+      },
+      "faction_b": {
+        "easy": -10,
+        "medium": -10,
+        "hard": -10
+      }
+    }
+  },
+  {
+    "EntryId": 158,
+    "Name": "Smuggling Support Threshold",
+    "ParameterId": 7690,
+    "Development": 70,
+    "Multiplayer": 70,
+    "by_faction": {
+      "faction_a": {
+        "easy": 70,
+        "medium": 70,
+        "hard": 70
+      },
+      "faction_b": {
+        "easy": 70,
+        "medium": 70,
+        "hard": 70
+      }
+    }
+  },
+  {
+    "EntryId": 159,
+    "Name": "Empire Troop Warning Support Shift",
+    "ParameterId": 7691,
+    "Development": 0,
+    "Multiplayer": 0,
+    "by_faction": {
+      "faction_a": {
+        "easy": 0,
+        "medium": 0,
+        "hard": 0
+      },
+      "faction_b": {
+        "easy": 0,
+        "medium": 0,
+        "hard": 0
+      }
+    }
+  },
+  {
+    "EntryId": 160,
+    "Name": "Smuggling Followup Timer: Base Delay",
+    "ParameterId": 7692,
+    "Development": 1000,
+    "Multiplayer": 1000,
+    "by_faction": {
+      "faction_a": {
+        "easy": 1000,
+        "medium": 1000,
+        "hard": 1000
+      },
+      "faction_b": {
+        "easy": 1000,
+        "medium": 1000,
+        "hard": 1000
+      }
+    }
+  },
+  {
+    "EntryId": 161,
+    "Name": "Blockade Support Shift (Matching Side)",
+    "ParameterId": 7693,
+    "Development": 1,
+    "Multiplayer": 1,
+    "by_faction": {
+      "faction_a": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      },
+      "faction_b": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      }
+    }
+  },
+  {
+    "EntryId": 162,
+    "Name": "Blockade Support Timer: Base Delay (Matching Side)",
+    "ParameterId": 7694,
+    "Development": 30,
+    "Multiplayer": 30,
+    "by_faction": {
+      "faction_a": {
+        "easy": 30,
+        "medium": 30,
+        "hard": 30
+      },
+      "faction_b": {
+        "easy": 30,
+        "medium": 30,
+        "hard": 30
+      }
+    }
+  },
+  {
+    "EntryId": 163,
+    "Name": "Blockade Support Shift (Mismatched Side)",
+    "ParameterId": 7695,
+    "Development": -1,
+    "Multiplayer": -1,
+    "by_faction": {
+      "faction_a": {
+        "easy": -1,
+        "medium": -1,
+        "hard": -1
+      },
+      "faction_b": {
+        "easy": -1,
+        "medium": -1,
+        "hard": -1
+      }
+    }
+  },
+  {
+    "EntryId": 164,
+    "Name": "Blockade Support Timer: Base Delay (Mismatched Side)",
+    "ParameterId": 7696,
+    "Development": 30,
+    "Multiplayer": 30,
+    "by_faction": {
+      "faction_a": {
+        "easy": 30,
+        "medium": 30,
+        "hard": 30
+      },
+      "faction_b": {
+        "easy": 30,
+        "medium": 30,
+        "hard": 30
+      }
+    }
+  },
+  {
+    "EntryId": 165,
+    "Name": "Active Uprising Controller Support Shift",
+    "ParameterId": 7697,
+    "Development": -1,
+    "Multiplayer": -1,
+    "by_faction": {
+      "faction_a": {
+        "easy": -1,
+        "medium": -1,
+        "hard": -1
+      },
+      "faction_b": {
+        "easy": -1,
+        "medium": -1,
+        "hard": -1
+      }
+    }
+  },
+  {
+    "EntryId": 166,
+    "Name": "Active Uprising Support Drift Timer: Base Delay",
+    "ParameterId": 7698,
+    "Development": 30,
+    "Multiplayer": 30,
+    "by_faction": {
+      "faction_a": {
+        "easy": 30,
+        "medium": 30,
+        "hard": 30
+      },
+      "faction_b": {
+        "easy": 30,
+        "medium": 30,
+        "hard": 30
+      }
+    }
+  },
+  {
+    "EntryId": 167,
+    "Name": "Uprising Clear Timer: Base Delay",
+    "ParameterId": 7699,
+    "Development": 20,
+    "Multiplayer": 20,
+    "by_faction": {
+      "faction_a": {
+        "easy": 20,
+        "medium": 20,
+        "hard": 20
+      },
+      "faction_b": {
+        "easy": 20,
+        "medium": 20,
+        "hard": 20
+      }
+    }
+  },
+  {
+    "EntryId": 168,
+    "Name": "Uprising Clear Timer: Random Spread",
+    "ParameterId": 7700,
+    "Development": 20,
+    "Multiplayer": 20,
+    "by_faction": {
+      "faction_a": {
+        "easy": 20,
+        "medium": 20,
+        "hard": 20
+      },
+      "faction_b": {
+        "easy": 20,
+        "medium": 20,
+        "hard": 20
+      }
+    }
+  },
+  {
+    "EntryId": 169,
+    "Name": "Uprising Incident Timer: Base Delay",
+    "ParameterId": 7701,
+    "Development": 30,
+    "Multiplayer": 30,
+    "by_faction": {
+      "faction_a": {
+        "easy": 30,
+        "medium": 30,
+        "hard": 30
+      },
+      "faction_b": {
+        "easy": 30,
+        "medium": 30,
+        "hard": 30
+      }
+    }
+  },
+  {
+    "EntryId": 170,
+    "Name": "Uprising Incident Timer: Random Spread",
+    "ParameterId": 7702,
+    "Development": 70,
+    "Multiplayer": 70,
+    "by_faction": {
+      "faction_a": {
+        "easy": 70,
+        "medium": 70,
+        "hard": 70
+      },
+      "faction_b": {
+        "easy": 70,
+        "medium": 70,
+        "hard": 70
+      }
+    }
+  },
+  {
+    "EntryId": 171,
+    "Name": "Informants Info Frequency: Base (lower=faster)",
+    "ParameterId": 7703,
+    "Development": 30,
+    "Multiplayer": 30,
+    "by_faction": {
+      "faction_a": {
+        "easy": 30,
+        "medium": 30,
+        "hard": 30
+      },
+      "faction_b": {
+        "easy": 30,
+        "medium": 30,
+        "hard": 30
+      }
+    }
+  },
+  {
+    "EntryId": 172,
+    "Name": "Informants Info Frequency: Max Random Extra (lower=faster)",
+    "ParameterId": 7704,
+    "Development": 970,
+    "Multiplayer": 970,
+    "by_faction": {
+      "faction_a": {
+        "easy": 970,
+        "medium": 970,
+        "hard": 970
+      },
+      "faction_b": {
+        "easy": 970,
+        "medium": 970,
+        "hard": 970
+      }
+    }
+  },
+  {
+    "EntryId": 173,
+    "Name": "Orbital Strike Selected Side Support Shift",
+    "ParameterId": 7705,
+    "Development": -20,
+    "Multiplayer": -20,
+    "by_faction": {
+      "faction_a": {
+        "easy": -20,
+        "medium": -20,
+        "hard": -20
+      },
+      "faction_b": {
+        "easy": -20,
+        "medium": -20,
+        "hard": -20
+      }
+    }
+  },
+  {
+    "EntryId": 174,
+    "Name": "Alliance HQ System Support Shift Magnitude",
+    "ParameterId": 7706,
+    "Development": 5,
+    "Multiplayer": 5,
+    "by_faction": {
+      "faction_a": {
+        "easy": 5,
+        "medium": 5,
+        "hard": 5
+      },
+      "faction_b": {
+        "easy": 5,
+        "medium": 5,
+        "hard": 5
+      }
+    }
+  },
+  {
+    "EntryId": 175,
+    "Name": "Uprising: Base",
+    "ParameterId": 7707,
+    "Development": 1,
+    "Multiplayer": 1,
+    "by_faction": {
+      "faction_a": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      },
+      "faction_b": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      }
+    }
+  },
+  {
+    "EntryId": 176,
+    "Name": "Uprising: Max Random Extra",
+    "ParameterId": 7708,
+    "Development": 9,
+    "Multiplayer": 9,
+    "by_faction": {
+      "faction_a": {
+        "easy": 9,
+        "medium": 9,
+        "hard": 9
+      },
+      "faction_b": {
+        "easy": 9,
+        "medium": 9,
+        "hard": 9
+      }
+    }
+  },
+  {
+    "EntryId": 177,
+    "Name": "Informants: Success Event Index in table increment to random(8)",
+    "ParameterId": 7709,
+    "Development": 1,
+    "Multiplayer": 1,
+    "by_faction": {
+      "faction_a": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      },
+      "faction_b": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      }
+    }
+  },
+  {
+    "EntryId": 178,
+    "Name": "Informants: Success if random(8) is above",
+    "ParameterId": 7710,
+    "Development": 7,
+    "Multiplayer": 7,
+    "by_faction": {
+      "faction_a": {
+        "easy": 7,
+        "medium": 7,
+        "hard": 7
+      },
+      "faction_b": {
+        "easy": 7,
+        "medium": 7,
+        "hard": 7
+      }
+    }
+  },
+  {
+    "EntryId": 179,
+    "Name": "Systems Mines slots (Raw Materials): Min",
+    "ParameterId": 7711,
+    "Development": 0,
+    "Multiplayer": 0,
+    "by_faction": {
+      "faction_a": {
+        "easy": 0,
+        "medium": 0,
+        "hard": 0
+      },
+      "faction_b": {
+        "easy": 0,
+        "medium": 0,
+        "hard": 0
+      }
+    }
+  },
+  {
+    "EntryId": 180,
+    "Name": "Systems Mines slots (Raw Materials): Max",
+    "ParameterId": 7712,
+    "Development": 15,
+    "Multiplayer": 15,
+    "by_faction": {
+      "faction_a": {
+        "easy": 15,
+        "medium": 15,
+        "hard": 15
+      },
+      "faction_b": {
+        "easy": 15,
+        "medium": 15,
+        "hard": 15
+      }
+    }
+  },
+  {
+    "EntryId": 181,
+    "Name": "Systems Buildings slots (Energy): Min",
+    "ParameterId": 7713,
+    "Development": 0,
+    "Multiplayer": 0,
+    "by_faction": {
+      "faction_a": {
+        "easy": 0,
+        "medium": 0,
+        "hard": 0
+      },
+      "faction_b": {
+        "easy": 0,
+        "medium": 0,
+        "hard": 0
+      }
+    }
+  },
+  {
+    "EntryId": 182,
+    "Name": "Systems Buildings slots (Energy): Max",
+    "ParameterId": 7714,
+    "Development": 15,
+    "Multiplayer": 15,
+    "by_faction": {
+      "faction_a": {
+        "easy": 15,
+        "medium": 15,
+        "hard": 15
+      },
+      "faction_b": {
+        "easy": 15,
+        "medium": 15,
+        "hard": 15
+      }
+    }
+  },
+  {
+    "EntryId": 183,
+    "Name": "Natural Disaster: Raw material lost & Energy slots lost",
+    "ParameterId": 7715,
+    "Development": 5,
+    "Multiplayer": 5,
+    "by_faction": {
+      "faction_a": {
+        "easy": 5,
+        "medium": 5,
+        "hard": 5
+      },
+      "faction_b": {
+        "easy": 5,
+        "medium": 5,
+        "hard": 5
+      }
+    }
+  },
+  {
+    "EntryId": 184,
+    "Name": "Natural Disaster: % to lose a Facility (applied to each)",
+    "ParameterId": 7716,
+    "Development": 10,
+    "Multiplayer": 10,
+    "by_faction": {
+      "faction_a": {
+        "easy": 10,
+        "medium": 10,
+        "hard": 10
+      },
+      "faction_b": {
+        "easy": 10,
+        "medium": 10,
+        "hard": 10
+      }
+    }
+  },
+  {
+    "EntryId": 185,
+    "Name": "Natural Disaster Frequency: Base (days)",
+    "ParameterId": 7717,
+    "Development": 1,
+    "Multiplayer": 1,
+    "by_faction": {
+      "faction_a": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      },
+      "faction_b": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      }
+    }
+  },
+  {
+    "EntryId": 186,
+    "Name": "Natural Disaster Frequency: Max Random Extra (days)",
+    "ParameterId": 7718,
+    "Development": 399,
+    "Multiplayer": 399,
+    "by_faction": {
+      "faction_a": {
+        "easy": 399,
+        "medium": 399,
+        "hard": 399
+      },
+      "faction_b": {
+        "easy": 399,
+        "medium": 399,
+        "hard": 399
+      }
+    }
+  },
+  {
+    "EntryId": 187,
+    "Name": "Resource Event Frequency: Base (days)",
+    "ParameterId": 7719,
+    "Development": 1,
+    "Multiplayer": 1,
+    "by_faction": {
+      "faction_a": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      },
+      "faction_b": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      }
+    }
+  },
+  {
+    "EntryId": 188,
+    "Name": "Resource Event Frequency: Max Random Extra (days)",
+    "ParameterId": 7720,
+    "Development": 499,
+    "Multiplayer": 499,
+    "by_faction": {
+      "faction_a": {
+        "easy": 499,
+        "medium": 499,
+        "hard": 499
+      },
+      "faction_b": {
+        "easy": 499,
+        "medium": 499,
+        "hard": 499
+      }
+    }
+  },
+  {
+    "EntryId": 189,
+    "Name": "Core Systems Buildings slots (Energy): Base",
+    "ParameterId": 7721,
+    "Development": 10,
+    "Multiplayer": 10,
+    "by_faction": {
+      "faction_a": {
+        "easy": 10,
+        "medium": 10,
+        "hard": 10
+      },
+      "faction_b": {
+        "easy": 10,
+        "medium": 10,
+        "hard": 10
+      }
+    }
+  },
+  {
+    "EntryId": 190,
+    "Name": "Core Systems Buildings slots (Energy): Max Random Extra",
+    "ParameterId": 7722,
+    "Development": 4,
+    "Multiplayer": 4,
+    "by_faction": {
+      "faction_a": {
+        "easy": 4,
+        "medium": 4,
+        "hard": 4
+      },
+      "faction_b": {
+        "easy": 4,
+        "medium": 4,
+        "hard": 4
+      }
+    }
+  },
+  {
+    "EntryId": 191,
+    "Name": "Core Systems Mines slots (Raw Materials): Base",
+    "ParameterId": 7723,
+    "Development": 5,
+    "Multiplayer": 5,
+    "by_faction": {
+      "faction_a": {
+        "easy": 5,
+        "medium": 5,
+        "hard": 5
+      },
+      "faction_b": {
+        "easy": 5,
+        "medium": 5,
+        "hard": 5
+      }
+    }
+  },
+  {
+    "EntryId": 192,
+    "Name": "Core Systems Mines slots (Raw Materials): Max Random Extra",
+    "ParameterId": 7724,
+    "Development": 9,
+    "Multiplayer": 9,
+    "by_faction": {
+      "faction_a": {
+        "easy": 9,
+        "medium": 9,
+        "hard": 9
+      },
+      "faction_b": {
+        "easy": 9,
+        "medium": 9,
+        "hard": 9
+      }
+    }
+  },
+  {
+    "EntryId": 193,
+    "Name": "Rim Systems Buildings slots (Energy): Base",
+    "ParameterId": 7725,
+    "Development": 1,
+    "Multiplayer": 1,
+    "by_faction": {
+      "faction_a": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      },
+      "faction_b": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      }
+    }
+  },
+  {
+    "EntryId": 194,
+    "Name": "Rim Systems Buildings slots (Energy): Max Random Extra 1",
+    "ParameterId": 7726,
+    "Development": 4,
+    "Multiplayer": 4,
+    "by_faction": {
+      "faction_a": {
+        "easy": 4,
+        "medium": 4,
+        "hard": 4
+      },
+      "faction_b": {
+        "easy": 4,
+        "medium": 4,
+        "hard": 4
+      }
+    }
+  },
+  {
+    "EntryId": 195,
+    "Name": "Rim Systems Buildings slots (Energy): Max Random Extra 2",
+    "ParameterId": 7727,
+    "Development": 9,
+    "Multiplayer": 9,
+    "by_faction": {
+      "faction_a": {
+        "easy": 9,
+        "medium": 9,
+        "hard": 9
+      },
+      "faction_b": {
+        "easy": 9,
+        "medium": 9,
+        "hard": 9
+      }
+    }
+  },
+  {
+    "EntryId": 196,
+    "Name": "Rim Systems Mines slots (Raw Materials): Base",
+    "ParameterId": 7728,
+    "Development": 1,
+    "Multiplayer": 1,
+    "by_faction": {
+      "faction_a": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      },
+      "faction_b": {
+        "easy": 1,
+        "medium": 1,
+        "hard": 1
+      }
+    }
+  },
+  {
+    "EntryId": 197,
+    "Name": "Rim Systems Mines slots (Raw Materials): Max Random Extra",
+    "ParameterId": 7729,
+    "Development": 14,
+    "Multiplayer": 14,
+    "by_faction": {
+      "faction_a": {
+        "easy": 14,
+        "medium": 14,
+        "hard": 14
+      },
+      "faction_b": {
+        "easy": 14,
+        "medium": 14,
+        "hard": 14
+      }
+    }
+  },
+  {
+    "EntryId": 198,
+    "Name": "Core Systems: Populated systems (%)",
+    "ParameterId": 7730,
+    "Development": 100,
+    "Multiplayer": 100,
+    "by_faction": {
+      "faction_a": {
+        "easy": 100,
+        "medium": 100,
+        "hard": 100
+      },
+      "faction_b": {
+        "easy": 100,
+        "medium": 100,
+        "hard": 100
+      }
+    }
+  },
+  {
+    "EntryId": 199,
+    "Name": "Rim Systems: Populated systems (%)",
+    "ParameterId": 7731,
+    "Development": 31,
+    "Multiplayer": 31,
+    "by_faction": {
+      "faction_a": {
+        "easy": 31,
+        "medium": 31,
+        "hard": 31
+      },
+      "faction_b": {
+        "easy": 31,
+        "medium": 31,
+        "hard": 31
+      }
+    }
+  },
+  {
+    "EntryId": 200,
+    "Name": "Low Support Branch: Max Controller Support",
+    "ParameterId": 7732,
+    "Development": 40,
+    "Multiplayer": 40,
+    "by_faction": {
+      "faction_a": {
+        "easy": 40,
+        "medium": 40,
+        "hard": 40
+      },
+      "faction_b": {
+        "easy": 40,
+        "medium": 40,
+        "hard": 40
+      }
+    }
+  },
+  {
+    "EntryId": 201,
+    "Name": "Low Support Upper Band: Base Shift",
+    "ParameterId": 7733,
+    "Development": 25,
+    "Multiplayer": 25,
+    "by_faction": {
+      "faction_a": {
+        "easy": 25,
+        "medium": 25,
+        "hard": 25
+      },
+      "faction_b": {
+        "easy": 25,
+        "medium": 25,
+        "hard": 25
+      }
+    }
+  },
+  {
+    "EntryId": 202,
+    "Name": "Low Support Middle Band: Max Support",
+    "ParameterId": 7734,
+    "Development": 30,
+    "Multiplayer": 30,
+    "by_faction": {
+      "faction_a": {
+        "easy": 30,
+        "medium": 30,
+        "hard": 30
+      },
+      "faction_b": {
+        "easy": 30,
+        "medium": 30,
+        "hard": 30
+      }
+    }
+  },
+  {
+    "EntryId": 203,
+    "Name": "Low Support Middle Band: Base Shift",
+    "ParameterId": 7735,
+    "Development": 50,
+    "Multiplayer": 50,
+    "by_faction": {
+      "faction_a": {
+        "easy": 50,
+        "medium": 50,
+        "hard": 50
+      },
+      "faction_b": {
+        "easy": 50,
+        "medium": 50,
+        "hard": 50
+      }
+    }
+  },
+  {
+    "EntryId": 204,
+    "Name": "Low Support Lower Band: Max Support",
+    "ParameterId": 7736,
+    "Development": 20,
+    "Multiplayer": 20,
+    "by_faction": {
+      "faction_a": {
+        "easy": 20,
+        "medium": 20,
+        "hard": 20
+      },
+      "faction_b": {
+        "easy": 20,
+        "medium": 20,
+        "hard": 20
+      }
+    }
+  },
+  {
+    "EntryId": 205,
+    "Name": "Low Support Lower Band: Base Shift",
+    "ParameterId": 7737,
+    "Development": 75,
+    "Multiplayer": 75,
+    "by_faction": {
+      "faction_a": {
+        "easy": 75,
+        "medium": 75,
+        "hard": 75
+      },
+      "faction_b": {
+        "easy": 75,
+        "medium": 75,
+        "hard": 75
+      }
+    }
+  },
+  {
+    "EntryId": 206,
+    "Name": "Popularity required on System to Join Side (%)",
+    "ParameterId": 7760,
+    "Development": 60,
+    "Multiplayer": 60,
+    "by_faction": {
+      "faction_a": {
+        "easy": 60,
+        "medium": 60,
+        "hard": 60
+      },
+      "faction_b": {
+        "easy": 60,
+        "medium": 60,
+        "hard": 60
+      }
+    }
+  },
+  {
+    "EntryId": 207,
+    "Name": "Garrison Requirement: Uprising Threshold",
+    "ParameterId": 7761,
+    "Development": 60,
+    "Multiplayer": 60,
+    "by_faction": {
+      "faction_a": {
+        "easy": 60,
+        "medium": 60,
+        "hard": 60
+      },
+      "faction_b": {
+        "easy": 60,
+        "medium": 60,
+        "hard": 60
+      }
+    }
+  },
+  {
+    "EntryId": 208,
+    "Name": "Garrison Requirement: Troop's Order Contribution",
+    "ParameterId": 7762,
+    "Development": -10,
+    "Multiplayer": -10,
+    "by_faction": {
+      "faction_a": {
+        "easy": -10,
+        "medium": -10,
+        "hard": -10
+      },
+      "faction_b": {
+        "easy": -10,
+        "medium": -10,
+        "hard": -10
+      }
+    }
+  },
+  {
+    "EntryId": 209,
+    "Name": "Raw and Refined Materials collection rate (lower=faster)",
+    "ParameterId": 7763,
+    "Development": 100,
+    "Multiplayer": 100,
+    "by_faction": {
+      "faction_a": {
+        "easy": 100,
+        "medium": 100,
+        "hard": 100
+      },
+      "faction_b": {
+        "easy": 100,
+        "medium": 100,
+        "hard": 100
+      }
+    }
+  },
+  {
+    "EntryId": 210,
+    "Name": "??? Core Sector Neutral System support Initial Popularity (%)",
+    "ParameterId": 7764,
+    "Development": 18,
+    "Multiplayer": 18,
+    "by_faction": {
+      "faction_a": {
+        "easy": 18,
+        "medium": 18,
+        "hard": 18
+      },
+      "faction_b": {
+        "easy": 18,
+        "medium": 18,
+        "hard": 18
+      }
+    }
+  },
+  {
+    "EntryId": 211,
+    "Name": "Rim Systems: Neutral system support at day 0. Random range=[50%*(1-X%),50%*(1+X%)]",
+    "ParameterId": 7765,
+    "Development": 0,
+    "Multiplayer": 0,
+    "by_faction": {
+      "faction_a": {
+        "easy": 0,
+        "medium": 0,
+        "hard": 0
+      },
+      "faction_b": {
+        "easy": 0,
+        "medium": 0,
+        "hard": 0
+      }
+    }
+  },
+  {
+    "EntryId": 212,
+    "Name": "Core Systems: Each free slot gets: FreeSlots*X% chances to generate a mine",
+    "ParameterId": 7766,
+    "Development": 4,
+    "Multiplayer": 4,
+    "by_faction": {
+      "faction_a": {
+        "easy": 4,
+        "medium": 4,
+        "hard": 4
+      },
+      "faction_b": {
+        "easy": 4,
+        "medium": 4,
+        "hard": 4
+      }
+    }
+  },
+  {
+    "EntryId": 213,
+    "Name": "Rim Systems: Each free slot gets: FreeSlots*X% chances to generate a mine",
+    "ParameterId": 7767,
+    "Development": 2,
+    "Multiplayer": 2,
+    "by_faction": {
+      "faction_a": {
+        "easy": 2,
+        "medium": 2,
+        "hard": 2
+      },
+      "faction_b": {
+        "easy": 2,
+        "medium": 2,
+        "hard": 2
+      }
+    }
+  }
+]

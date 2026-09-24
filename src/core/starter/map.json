@@ -1,0 +1,211 @@
+{
+  "sectors": [
+    {
+      "id": "western_core",
+      "display_name": "Western Core",
+      "ring": 1,
+      "starts_neutral": false,
+      "map": {
+        "x": 190,
+        "y": 190
+      },
+      "min_size": "standard"
+    },
+    {
+      "id": "eastern_core",
+      "display_name": "Eastern Core",
+      "ring": 1,
+      "starts_neutral": false,
+      "map": {
+        "x": 510,
+        "y": 190
+      },
+      "min_size": "standard"
+    },
+    {
+      "id": "northern_rim",
+      "display_name": "Northern Rim",
+      "ring": 2,
+      "starts_neutral": true,
+      "map": {
+        "x": 350,
+        "y": 70
+      },
+      "min_size": "standard"
+    },
+    {
+      "id": "southern_rim",
+      "display_name": "Southern Rim",
+      "ring": 2,
+      "starts_neutral": true,
+      "map": {
+        "x": 350,
+        "y": 340
+      },
+      "min_size": "large"
+    },
+    {
+      "id": "far_rim",
+      "display_name": "Far Rim",
+      "ring": 3,
+      "starts_neutral": true,
+      "map": {
+        "x": 640,
+        "y": 360
+      },
+      "min_size": "huge"
+    }
+  ],
+  "planets": [
+    {
+      "id": "alpha_prime",
+      "display_name": "Alpha Prime",
+      "sector": "western_core",
+      "starts_inhabited": true,
+      "map": {
+        "x": 150,
+        "y": 180
+      }
+    },
+    {
+      "id": "alpha_minor",
+      "display_name": "Alpha Minor",
+      "sector": "western_core",
+      "starts_inhabited": true,
+      "map": {
+        "x": 230,
+        "y": 150
+      }
+    },
+    {
+      "id": "alpha_reach",
+      "display_name": "Alpha Reach",
+      "sector": "western_core",
+      "starts_inhabited": true,
+      "map": {
+        "x": 210,
+        "y": 250
+      }
+    },
+    {
+      "id": "beta_prime",
+      "display_name": "Beta Prime",
+      "sector": "eastern_core",
+      "starts_inhabited": true,
+      "map": {
+        "x": 550,
+        "y": 180
+      }
+    },
+    {
+      "id": "beta_minor",
+      "display_name": "Beta Minor",
+      "sector": "eastern_core",
+      "starts_inhabited": true,
+      "map": {
+        "x": 470,
+        "y": 150
+      }
+    },
+    {
+      "id": "beta_reach",
+      "display_name": "Beta Reach",
+      "sector": "eastern_core",
+      "starts_inhabited": true,
+      "map": {
+        "x": 490,
+        "y": 250
+      }
+    },
+    {
+      "id": "north_gate",
+      "display_name": "North Gate",
+      "sector": "northern_rim",
+      "starts_inhabited": true,
+      "map": {
+        "x": 300,
+        "y": 60
+      }
+    },
+    {
+      "id": "north_haven",
+      "display_name": "North Haven",
+      "sector": "northern_rim",
+      "starts_inhabited": false,
+      "map": {
+        "x": 400,
+        "y": 50
+      }
+    },
+    {
+      "id": "north_watch",
+      "display_name": "North Watch",
+      "sector": "northern_rim",
+      "starts_inhabited": true,
+      "map": {
+        "x": 350,
+        "y": 110
+      }
+    },
+    {
+      "id": "south_gate",
+      "display_name": "South Gate",
+      "sector": "southern_rim",
+      "starts_inhabited": true,
+      "map": {
+        "x": 290,
+        "y": 330
+      }
+    },
+    {
+      "id": "south_haven",
+      "display_name": "South Haven",
+      "sector": "southern_rim",
+      "starts_inhabited": false,
+      "map": {
+        "x": 410,
+        "y": 350
+      }
+    },
+    {
+      "id": "south_watch",
+      "display_name": "South Watch",
+      "sector": "southern_rim",
+      "starts_inhabited": true,
+      "map": {
+        "x": 350,
+        "y": 300
+      }
+    },
+    {
+      "id": "far_outpost",
+      "display_name": "Far Outpost",
+      "sector": "far_rim",
+      "starts_inhabited": false,
+      "map": {
+        "x": 620,
+        "y": 340
+      }
+    },
+    {
+      "id": "far_colony",
+      "display_name": "Far Colony",
+      "sector": "far_rim",
+      "starts_inhabited": true,
+      "map": {
+        "x": 670,
+        "y": 380
+      }
+    },
+    {
+      "id": "far_wastes",
+      "display_name": "Far Wastes",
+      "sector": "far_rim",
+      "starts_inhabited": false,
+      "map": {
+        "x": 600,
+        "y": 395
+      }
+    }
+  ]
+}

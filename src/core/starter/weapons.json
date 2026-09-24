@@ -1,0 +1,59 @@
+{
+  "weapons": [
+    {
+      "id": "torpedoes",
+      "display_name": "Torpedoes",
+      "roles": [
+        "no_fighter_effect"
+      ],
+      "arcs": true,
+      "observed_ranges": [
+        35,
+        40,
+        60
+      ]
+    },
+    {
+      "id": "main_guns",
+      "display_name": "Main Guns",
+      "roles": [
+        "fighter_accuracy_scaled"
+      ],
+      "arcs": true,
+      "observed_ranges": [
+        35,
+        50,
+        60,
+        65,
+        70,
+        75
+      ]
+    },
+    {
+      "id": "light_guns",
+      "display_name": "Light Guns",
+      "roles": [
+        "fighter_accuracy_scaled"
+      ],
+      "arcs": true,
+      "observed_ranges": [
+        17,
+        25
+      ]
+    },
+    {
+      "id": "bombs",
+      "display_name": "Bombs and Aerial Torpedoes",
+      "roles": [
+        "no_fighter_effect",
+        "requires_shields_down",
+        "squadron_only"
+      ],
+      "arcs": false,
+      "observed_ranges": [
+        7,
+        10
+      ]
+    }
+  ]
+}

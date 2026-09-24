@@ -1,0 +1,1294 @@
+{
+  "tables": {
+    "abduction": {
+      "source_file": "ABDCMSTB.DAT",
+      "description": "Abduction - mission success %",
+      "entries": [
+        {
+          "id": 1,
+          "field2": 1,
+          "threshold": -100,
+          "value": 5
+        },
+        {
+          "id": 2,
+          "field2": 1,
+          "threshold": -80,
+          "value": 10
+        },
+        {
+          "id": 3,
+          "field2": 1,
+          "threshold": -60,
+          "value": 20
+        },
+        {
+          "id": 4,
+          "field2": 1,
+          "threshold": -40,
+          "value": 30
+        },
+        {
+          "id": 5,
+          "field2": 1,
+          "threshold": -20,
+          "value": 40
+        },
+        {
+          "id": 6,
+          "field2": 1,
+          "threshold": 0,
+          "value": 50
+        },
+        {
+          "id": 7,
+          "field2": 1,
+          "threshold": 20,
+          "value": 60
+        },
+        {
+          "id": 8,
+          "field2": 1,
+          "threshold": 40,
+          "value": 70
+        },
+        {
+          "id": 9,
+          "field2": 1,
+          "threshold": 50,
+          "value": 80
+        },
+        {
+          "id": 10,
+          "field2": 1,
+          "threshold": 60,
+          "value": 90
+        },
+        {
+          "id": 11,
+          "field2": 1,
+          "threshold": 80,
+          "value": 95
+        },
+        {
+          "id": 12,
+          "field2": 1,
+          "threshold": 100,
+          "value": 99
+        }
+      ]
+    },
+    "assassination": {
+      "source_file": "ASSNMSTB.DAT",
+      "description": "Assassination - mission success %",
+      "entries": [
+        {
+          "id": 1,
+          "field2": 1,
+          "threshold": -100,
+          "value": 0
+        },
+        {
+          "id": 2,
+          "field2": 1,
+          "threshold": -80,
+          "value": 5
+        },
+        {
+          "id": 3,
+          "field2": 1,
+          "threshold": -60,
+          "value": 10
+        },
+        {
+          "id": 4,
+          "field2": 1,
+          "threshold": -40,
+          "value": 15
+        },
+        {
+          "id": 5,
+          "field2": 1,
+          "threshold": -20,
+          "value": 20
+        },
+        {
+          "id": 6,
+          "field2": 1,
+          "threshold": 0,
+          "value": 25
+        },
+        {
+          "id": 7,
+          "field2": 1,
+          "threshold": 20,
+          "value": 30
+        },
+        {
+          "id": 8,
+          "field2": 1,
+          "threshold": 40,
+          "value": 35
+        },
+        {
+          "id": 9,
+          "field2": 1,
+          "threshold": 50,
+          "value": 40
+        },
+        {
+          "id": 10,
+          "field2": 1,
+          "threshold": 60,
+          "value": 45
+        },
+        {
+          "id": 11,
+          "field2": 1,
+          "threshold": 80,
+          "value": 50
+        },
+        {
+          "id": 12,
+          "field2": 1,
+          "threshold": 100,
+          "value": 55
+        }
+      ]
+    },
+    "character_search": {
+      "source_file": "CSCRHTTB.DAT",
+      "description": "Character search / hit table",
+      "entries": [
+        {
+          "id": 1,
+          "field2": 1,
+          "threshold": 0,
+          "value": 2
+        },
+        {
+          "id": 2,
+          "field2": 1,
+          "threshold": 16,
+          "value": 3
+        },
+        {
+          "id": 3,
+          "field2": 1,
+          "threshold": 31,
+          "value": 4
+        },
+        {
+          "id": 4,
+          "field2": 1,
+          "threshold": 41,
+          "value": 5
+        },
+        {
+          "id": 5,
+          "field2": 1,
+          "threshold": 46,
+          "value": 6
+        }
+      ]
+    },
+    "diplomacy": {
+      "source_file": "DIPLMSTB.DAT",
+      "description": "Diplomacy - mission success %",
+      "entries": [
+        {
+          "id": 1,
+          "field2": 1,
+          "threshold": -39,
+          "value": 1
+        },
+        {
+          "id": 2,
+          "field2": 1,
+          "threshold": -29,
+          "value": 3
+        },
+        {
+          "id": 3,
+          "field2": 1,
+          "threshold": -19,
+          "value": 5
+        },
+        {
+          "id": 4,
+          "field2": 1,
+          "threshold": -9,
+          "value": 10
+        },
+        {
+          "id": 5,
+          "field2": 1,
+          "threshold": 0,
+          "value": 20
+        },
+        {
+          "id": 6,
+          "field2": 1,
+          "threshold": 10,
+          "value": 30
+        },
+        {
+          "id": 7,
+          "field2": 1,
+          "threshold": 20,
+          "value": 40
+        },
+        {
+          "id": 8,
+          "field2": 1,
+          "threshold": 30,
+          "value": 50
+        },
+        {
+          "id": 9,
+          "field2": 1,
+          "threshold": 40,
+          "value": 60
+        },
+        {
+          "id": 10,
+          "field2": 1,
+          "threshold": 50,
+          "value": 70
+        }
+      ]
+    },
+    "escape": {
+      "source_file": "ESCAPETB.DAT",
+      "description": "Escape from capture %",
+      "entries": [
+        {
+          "id": 1,
+          "field2": 1,
+          "threshold": -50,
+          "value": 1
+        },
+        {
+          "id": 2,
+          "field2": 1,
+          "threshold": -49,
+          "value": 2
+        },
+        {
+          "id": 3,
+          "field2": 1,
+          "threshold": -31,
+          "value": 3
+        },
+        {
+          "id": 4,
+          "field2": 1,
+          "threshold": -11,
+          "value": 5
+        },
+        {
+          "id": 5,
+          "field2": 1,
+          "threshold": 10,
+          "value": 10
+        },
+        {
+          "id": 6,
+          "field2": 1,
+          "threshold": 20,
+          "value": 15
+        },
+        {
+          "id": 7,
+          "field2": 1,
+          "threshold": 30,
+          "value": 20
+        },
+        {
+          "id": 8,
+          "field2": 1,
+          "threshold": 40,
+          "value": 25
+        },
+        {
+          "id": 9,
+          "field2": 1,
+          "threshold": 50,
+          "value": 30
+        }
+      ]
+    },
+    "espionage": {
+      "source_file": "ESPIMSTB.DAT",
+      "description": "Espionage - mission success %",
+      "entries": [
+        {
+          "id": 1,
+          "field2": 1,
+          "threshold": -1,
+          "value": 0
+        },
+        {
+          "id": 2,
+          "field2": 1,
+          "threshold": 0,
+          "value": 1
+        },
+        {
+          "id": 3,
+          "field2": 1,
+          "threshold": 10,
+          "value": 10
+        },
+        {
+          "id": 4,
+          "field2": 1,
+          "threshold": 20,
+          "value": 20
+        },
+        {
+          "id": 5,
+          "field2": 1,
+          "threshold": 30,
+          "value": 30
+        },
+        {
+          "id": 6,
+          "field2": 1,
+          "threshold": 40,
+          "value": 40
+        },
+        {
+          "id": 7,
+          "field2": 1,
+          "threshold": 50,
+          "value": 50
+        },
+        {
+          "id": 8,
+          "field2": 1,
+          "threshold": 60,
+          "value": 60
+        },
+        {
+          "id": 9,
+          "field2": 1,
+          "threshold": 70,
+          "value": 70
+        },
+        {
+          "id": 10,
+          "field2": 1,
+          "threshold": 80,
+          "value": 80
+        },
+        {
+          "id": 11,
+          "field2": 1,
+          "threshold": 90,
+          "value": 90
+        },
+        {
+          "id": 12,
+          "field2": 1,
+          "threshold": 100,
+          "value": 99
+        }
+      ]
+    },
+    "decoy": {
+      "source_file": "FDECOYTB.DAT",
+      "description": "Decoy effectiveness (F) %",
+      "entries": [
+        {
+          "id": 1,
+          "field2": 1,
+          "threshold": -20,
+          "value": 10
+        },
+        {
+          "id": 2,
+          "field2": 1,
+          "threshold": -19,
+          "value": 20
+        },
+        {
+          "id": 3,
+          "field2": 1,
+          "threshold": -9,
+          "value": 40
+        },
+        {
+          "id": 4,
+          "field2": 1,
+          "threshold": 0,
+          "value": 50
+        },
+        {
+          "id": 5,
+          "field2": 1,
+          "threshold": 10,
+          "value": 60
+        },
+        {
+          "id": 6,
+          "field2": 1,
+          "threshold": 20,
+          "value": 70
+        },
+        {
+          "id": 7,
+          "field2": 1,
+          "threshold": 30,
+          "value": 80
+        },
+        {
+          "id": 8,
+          "field2": 1,
+          "threshold": 40,
+          "value": 90
+        },
+        {
+          "id": 9,
+          "field2": 1,
+          "threshold": 50,
+          "value": 92
+        },
+        {
+          "id": 10,
+          "field2": 1,
+          "threshold": 60,
+          "value": 94
+        },
+        {
+          "id": 11,
+          "field2": 1,
+          "threshold": 70,
+          "value": 95
+        },
+        {
+          "id": 12,
+          "field2": 1,
+          "threshold": 80,
+          "value": 96
+        },
+        {
+          "id": 13,
+          "field2": 1,
+          "threshold": 90,
+          "value": 98
+        },
+        {
+          "id": 14,
+          "field2": 1,
+          "threshold": 100,
+          "value": 99
+        }
+      ]
+    },
+    "foil": {
+      "source_file": "FOILTB.DAT",
+      "description": "Foiling - chance an enemy mission is detected/foiled %",
+      "entries": [
+        {
+          "id": 1,
+          "field2": 1,
+          "threshold": -20,
+          "value": 99
+        },
+        {
+          "id": 2,
+          "field2": 1,
+          "threshold": -19,
+          "value": 98
+        },
+        {
+          "id": 3,
+          "field2": 1,
+          "threshold": -9,
+          "value": 96
+        },
+        {
+          "id": 4,
+          "field2": 1,
+          "threshold": 1,
+          "value": 94
+        },
+        {
+          "id": 5,
+          "field2": 1,
+          "threshold": 11,
+          "value": 90
+        },
+        {
+          "id": 6,
+          "field2": 1,
+          "threshold": 21,
+          "value": 80
+        },
+        {
+          "id": 7,
+          "field2": 1,
+          "threshold": 31,
+          "value": 70
+        },
+        {
+          "id": 8,
+          "field2": 1,
+          "threshold": 41,
+          "value": 60
+        },
+        {
+          "id": 9,
+          "field2": 1,
+          "threshold": 51,
+          "value": 50
+        },
+        {
+          "id": 10,
+          "field2": 1,
+          "threshold": 61,
+          "value": 45
+        },
+        {
+          "id": 11,
+          "field2": 1,
+          "threshold": 71,
+          "value": 40
+        },
+        {
+          "id": 12,
+          "field2": 1,
+          "threshold": 81,
+          "value": 35
+        },
+        {
+          "id": 13,
+          "field2": 1,
+          "threshold": 91,
+          "value": 30
+        },
+        {
+          "id": 14,
+          "field2": 1,
+          "threshold": 101,
+          "value": 25
+        }
+      ]
+    },
+    "incite_uprising": {
+      "source_file": "INCTMSTB.DAT",
+      "description": "Incite Uprising - mission success %",
+      "entries": [
+        {
+          "id": 1,
+          "field2": 1,
+          "threshold": -20,
+          "value": 1
+        },
+        {
+          "id": 2,
+          "field2": 1,
+          "threshold": -10,
+          "value": 3
+        },
+        {
+          "id": 3,
+          "field2": 1,
+          "threshold": 0,
+          "value": 5
+        },
+        {
+          "id": 4,
+          "field2": 1,
+          "threshold": 10,
+          "value": 10
+        },
+        {
+          "id": 5,
+          "field2": 1,
+          "threshold": 20,
+          "value": 20
+        },
+        {
+          "id": 6,
+          "field2": 1,
+          "threshold": 30,
+          "value": 30
+        },
+        {
+          "id": 7,
+          "field2": 1,
+          "threshold": 40,
+          "value": 40
+        },
+        {
+          "id": 8,
+          "field2": 1,
+          "threshold": 50,
+          "value": 50
+        },
+        {
+          "id": 9,
+          "field2": 1,
+          "threshold": 60,
+          "value": 60
+        },
+        {
+          "id": 10,
+          "field2": 1,
+          "threshold": 70,
+          "value": 70
+        },
+        {
+          "id": 11,
+          "field2": 1,
+          "threshold": 80,
+          "value": 80
+        },
+        {
+          "id": 12,
+          "field2": 1,
+          "threshold": 90,
+          "value": 90
+        },
+        {
+          "id": 13,
+          "field2": 1,
+          "threshold": 100,
+          "value": 99
+        }
+      ]
+    },
+    "informants": {
+      "source_file": "INFORMTB.DAT",
+      "description": "Informant event selection",
+      "entries": [
+        {
+          "id": 1,
+          "field2": 1,
+          "threshold": 1,
+          "value": 1
+        },
+        {
+          "id": 2,
+          "field2": 1,
+          "threshold": 2,
+          "value": 2
+        },
+        {
+          "id": 3,
+          "field2": 1,
+          "threshold": 3,
+          "value": 3
+        },
+        {
+          "id": 4,
+          "field2": 1,
+          "threshold": 4,
+          "value": 4
+        },
+        {
+          "id": 5,
+          "field2": 1,
+          "threshold": 5,
+          "value": 7
+        },
+        {
+          "id": 6,
+          "field2": 1,
+          "threshold": 6,
+          "value": 8
+        },
+        {
+          "id": 7,
+          "field2": 1,
+          "threshold": 7,
+          "value": 9
+        },
+        {
+          "id": 8,
+          "field2": 1,
+          "threshold": 8,
+          "value": 10
+        }
+      ]
+    },
+    "recruitment": {
+      "source_file": "RCRTMSTB.DAT",
+      "description": "Recruitment - mission success %",
+      "entries": [
+        {
+          "id": 1,
+          "field2": 1,
+          "threshold": 0,
+          "value": 10
+        },
+        {
+          "id": 2,
+          "field2": 1,
+          "threshold": 10,
+          "value": 20
+        },
+        {
+          "id": 3,
+          "field2": 1,
+          "threshold": 20,
+          "value": 30
+        },
+        {
+          "id": 4,
+          "field2": 1,
+          "threshold": 30,
+          "value": 35
+        },
+        {
+          "id": 5,
+          "field2": 1,
+          "threshold": 40,
+          "value": 40
+        },
+        {
+          "id": 6,
+          "field2": 1,
+          "threshold": 50,
+          "value": 45
+        },
+        {
+          "id": 7,
+          "field2": 1,
+          "threshold": 60,
+          "value": 50
+        },
+        {
+          "id": 8,
+          "field2": 1,
+          "threshold": 70,
+          "value": 55
+        },
+        {
+          "id": 9,
+          "field2": 1,
+          "threshold": 80,
+          "value": 60
+        },
+        {
+          "id": 10,
+          "field2": 1,
+          "threshold": 90,
+          "value": 70
+        },
+        {
+          "id": 11,
+          "field2": 1,
+          "threshold": 100,
+          "value": 80
+        }
+      ]
+    },
+    "rescue": {
+      "source_file": "RESCMSTB.DAT",
+      "description": "Rescue - mission success %",
+      "entries": [
+        {
+          "id": 1,
+          "field2": 1,
+          "threshold": -1,
+          "value": 0
+        },
+        {
+          "id": 2,
+          "field2": 1,
+          "threshold": 0,
+          "value": 1
+        },
+        {
+          "id": 3,
+          "field2": 1,
+          "threshold": 10,
+          "value": 10
+        },
+        {
+          "id": 4,
+          "field2": 1,
+          "threshold": 20,
+          "value": 20
+        },
+        {
+          "id": 5,
+          "field2": 1,
+          "threshold": 30,
+          "value": 30
+        },
+        {
+          "id": 6,
+          "field2": 1,
+          "threshold": 40,
+          "value": 40
+        },
+        {
+          "id": 7,
+          "field2": 1,
+          "threshold": 50,
+          "value": 50
+        },
+        {
+          "id": 8,
+          "field2": 1,
+          "threshold": 60,
+          "value": 60
+        },
+        {
+          "id": 9,
+          "field2": 1,
+          "threshold": 70,
+          "value": 70
+        },
+        {
+          "id": 10,
+          "field2": 1,
+          "threshold": 80,
+          "value": 80
+        },
+        {
+          "id": 11,
+          "field2": 1,
+          "threshold": 90,
+          "value": 90
+        },
+        {
+          "id": 12,
+          "field2": 1,
+          "threshold": 100,
+          "value": 99
+        }
+      ]
+    },
+    "resource_event": {
+      "source_file": "RESRCTB.DAT",
+      "description": "Resource event table",
+      "entries": [
+        {
+          "id": 1,
+          "field2": 1,
+          "threshold": 0,
+          "value": 1
+        },
+        {
+          "id": 2,
+          "field2": 1,
+          "threshold": 25,
+          "value": 2
+        },
+        {
+          "id": 3,
+          "field2": 1,
+          "threshold": 50,
+          "value": 3
+        },
+        {
+          "id": 4,
+          "field2": 1,
+          "threshold": 75,
+          "value": 4
+        }
+      ]
+    },
+    "evasion": {
+      "source_file": "RLEVADTB.DAT",
+      "description": "Evasion after being foiled %",
+      "entries": [
+        {
+          "id": 1,
+          "field2": 1,
+          "threshold": -20,
+          "value": 15
+        },
+        {
+          "id": 2,
+          "field2": 1,
+          "threshold": -19,
+          "value": 30
+        },
+        {
+          "id": 3,
+          "field2": 1,
+          "threshold": -9,
+          "value": 40
+        },
+        {
+          "id": 4,
+          "field2": 1,
+          "threshold": 1,
+          "value": 50
+        },
+        {
+          "id": 5,
+          "field2": 1,
+          "threshold": 11,
+          "value": 70
+        },
+        {
+          "id": 6,
+          "field2": 1,
+          "threshold": 21,
+          "value": 80
+        },
+        {
+          "id": 7,
+          "field2": 1,
+          "threshold": 31,
+          "value": 85
+        },
+        {
+          "id": 8,
+          "field2": 1,
+          "threshold": 41,
+          "value": 88
+        },
+        {
+          "id": 9,
+          "field2": 1,
+          "threshold": 51,
+          "value": 90
+        },
+        {
+          "id": 10,
+          "field2": 1,
+          "threshold": 61,
+          "value": 92
+        },
+        {
+          "id": 11,
+          "field2": 1,
+          "threshold": 71,
+          "value": 94
+        },
+        {
+          "id": 12,
+          "field2": 1,
+          "threshold": 81,
+          "value": 96
+        },
+        {
+          "id": 13,
+          "field2": 1,
+          "threshold": 91,
+          "value": 98
+        },
+        {
+          "id": 14,
+          "field2": 1,
+          "threshold": 101,
+          "value": 99
+        }
+      ]
+    },
+    "sabotage": {
+      "source_file": "SBTGMSTB.DAT",
+      "description": "Sabotage - mission success %",
+      "entries": [
+        {
+          "id": 1,
+          "field2": 1,
+          "threshold": -1,
+          "value": 0
+        },
+        {
+          "id": 2,
+          "field2": 1,
+          "threshold": 0,
+          "value": 1
+        },
+        {
+          "id": 3,
+          "field2": 1,
+          "threshold": 10,
+          "value": 10
+        },
+        {
+          "id": 4,
+          "field2": 1,
+          "threshold": 20,
+          "value": 20
+        },
+        {
+          "id": 5,
+          "field2": 1,
+          "threshold": 30,
+          "value": 30
+        },
+        {
+          "id": 6,
+          "field2": 1,
+          "threshold": 40,
+          "value": 40
+        },
+        {
+          "id": 7,
+          "field2": 1,
+          "threshold": 50,
+          "value": 50
+        },
+        {
+          "id": 8,
+          "field2": 1,
+          "threshold": 60,
+          "value": 60
+        },
+        {
+          "id": 9,
+          "field2": 1,
+          "threshold": 70,
+          "value": 70
+        },
+        {
+          "id": 10,
+          "field2": 1,
+          "threshold": 80,
+          "value": 80
+        },
+        {
+          "id": 11,
+          "field2": 1,
+          "threshold": 90,
+          "value": 90
+        },
+        {
+          "id": 12,
+          "field2": 1,
+          "threshold": 100,
+          "value": 99
+        }
+      ]
+    },
+    "subdue_uprising": {
+      "source_file": "SUBDMSTB.DAT",
+      "description": "Subdue Uprising - mission success %",
+      "entries": [
+        {
+          "id": 1,
+          "field2": 1,
+          "threshold": -20,
+          "value": 1
+        },
+        {
+          "id": 2,
+          "field2": 1,
+          "threshold": -10,
+          "value": 3
+        },
+        {
+          "id": 3,
+          "field2": 1,
+          "threshold": 0,
+          "value": 5
+        },
+        {
+          "id": 4,
+          "field2": 1,
+          "threshold": 10,
+          "value": 10
+        },
+        {
+          "id": 5,
+          "field2": 1,
+          "threshold": 20,
+          "value": 20
+        },
+        {
+          "id": 6,
+          "field2": 1,
+          "threshold": 30,
+          "value": 30
+        },
+        {
+          "id": 7,
+          "field2": 1,
+          "threshold": 40,
+          "value": 40
+        },
+        {
+          "id": 8,
+          "field2": 1,
+          "threshold": 50,
+          "value": 50
+        },
+        {
+          "id": 9,
+          "field2": 1,
+          "threshold": 60,
+          "value": 60
+        },
+        {
+          "id": 10,
+          "field2": 1,
+          "threshold": 70,
+          "value": 70
+        },
+        {
+          "id": 11,
+          "field2": 1,
+          "threshold": 80,
+          "value": 80
+        },
+        {
+          "id": 12,
+          "field2": 1,
+          "threshold": 90,
+          "value": 90
+        },
+        {
+          "id": 13,
+          "field2": 1,
+          "threshold": 100,
+          "value": 99
+        }
+      ]
+    },
+    "troop_decoy": {
+      "source_file": "TDECOYTB.DAT",
+      "description": "Decoy effectiveness (T) %",
+      "entries": [
+        {
+          "id": 1,
+          "field2": 1,
+          "threshold": -20,
+          "value": 10
+        },
+        {
+          "id": 2,
+          "field2": 1,
+          "threshold": -19,
+          "value": 20
+        },
+        {
+          "id": 3,
+          "field2": 1,
+          "threshold": -9,
+          "value": 40
+        },
+        {
+          "id": 4,
+          "field2": 1,
+          "threshold": 0,
+          "value": 50
+        },
+        {
+          "id": 5,
+          "field2": 1,
+          "threshold": 10,
+          "value": 60
+        },
+        {
+          "id": 6,
+          "field2": 1,
+          "threshold": 20,
+          "value": 70
+        },
+        {
+          "id": 7,
+          "field2": 1,
+          "threshold": 30,
+          "value": 80
+        },
+        {
+          "id": 8,
+          "field2": 1,
+          "threshold": 40,
+          "value": 90
+        },
+        {
+          "id": 9,
+          "field2": 1,
+          "threshold": 50,
+          "value": 92
+        },
+        {
+          "id": 10,
+          "field2": 1,
+          "threshold": 60,
+          "value": 94
+        },
+        {
+          "id": 11,
+          "field2": 1,
+          "threshold": 70,
+          "value": 95
+        },
+        {
+          "id": 12,
+          "field2": 1,
+          "threshold": 80,
+          "value": 96
+        },
+        {
+          "id": 13,
+          "field2": 1,
+          "threshold": 90,
+          "value": 98
+        },
+        {
+          "id": 14,
+          "field2": 1,
+          "threshold": 100,
+          "value": 99
+        }
+      ]
+    },
+    "uprising_start": {
+      "source_file": "UPRIS1TB.DAT",
+      "description": "Uprising start probability %",
+      "entries": [
+        {
+          "id": 1,
+          "field2": 1,
+          "threshold": 1,
+          "value": 0
+        },
+        {
+          "id": 2,
+          "field2": 1,
+          "threshold": 6,
+          "value": 1
+        },
+        {
+          "id": 3,
+          "field2": 1,
+          "threshold": 10,
+          "value": 2
+        }
+      ]
+    },
+    "uprising_end": {
+      "source_file": "UPRIS2TB.DAT",
+      "description": "Uprising end / subdue probability %",
+      "entries": [
+        {
+          "id": 1,
+          "field2": 1,
+          "threshold": 1,
+          "value": 0
+        },
+        {
+          "id": 2,
+          "field2": 1,
+          "threshold": 9,
+          "value": 3
+        },
+        {
+          "id": 3,
+          "field2": 1,
+          "threshold": 11,
+          "value": 4
+        },
+        {
+          "id": 4,
+          "field2": 1,
+          "threshold": 12,
+          "value": 5
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,522 @@
+{
+  "missions": [
+    {
+      "id": "diplomacy",
+      "display_name": "Diplomacy",
+      "behaviour": "diplomacy",
+      "available_to": [
+        "faction_a",
+        "faction_b"
+      ],
+      "spec_forces": [],
+      "length": {
+        "base": 5,
+        "spread": 10
+      },
+      "flags": {
+        "can_continue": true,
+        "scripted": false,
+        "return_on_abort": true,
+        "target_known_required": true,
+        "abort_on_blockade": true,
+        "can_escape": false,
+        "can_kill": false
+      },
+      "targets": {
+        "friendly": true,
+        "neutral": true,
+        "hostile": false
+      },
+      "spec_force_mask": 0,
+      "unknown_columns": {
+        "Unknown9": 65536,
+        "Unknown14": 1,
+        "Unknown15": 1,
+        "Unknown17": 1,
+        "Unknown19": 1,
+        "Unknown20": 1,
+        "Unknown24": 0
+      }
+    },
+    {
+      "id": "rescue",
+      "display_name": "Rescue",
+      "behaviour": "rescue",
+      "available_to": [
+        "faction_a",
+        "faction_b"
+      ],
+      "spec_forces": [
+        "a_agents",
+        "b_agents"
+      ],
+      "length": {
+        "base": 1,
+        "spread": 6
+      },
+      "flags": {
+        "can_continue": false,
+        "scripted": false,
+        "return_on_abort": true,
+        "target_known_required": true,
+        "abort_on_blockade": false,
+        "can_escape": true,
+        "can_kill": false
+      },
+      "targets": {
+        "friendly": false,
+        "neutral": false,
+        "hostile": true
+      },
+      "spec_force_mask": 2050,
+      "unknown_columns": {
+        "Unknown9": 65536,
+        "Unknown14": 1,
+        "Unknown15": 1,
+        "Unknown17": 0,
+        "Unknown19": 0,
+        "Unknown20": 1,
+        "Unknown24": 0
+      }
+    },
+    {
+      "id": "sabotage",
+      "display_name": "Sabotage",
+      "behaviour": "sabotage",
+      "available_to": [
+        "faction_a",
+        "faction_b"
+      ],
+      "spec_forces": [
+        "a_agents",
+        "b_agents"
+      ],
+      "length": {
+        "base": 1,
+        "spread": 2
+      },
+      "flags": {
+        "can_continue": false,
+        "scripted": false,
+        "return_on_abort": true,
+        "target_known_required": true,
+        "abort_on_blockade": false,
+        "can_escape": false,
+        "can_kill": false
+      },
+      "targets": {
+        "friendly": false,
+        "neutral": true,
+        "hostile": true
+      },
+      "spec_force_mask": 1026,
+      "unknown_columns": {
+        "Unknown9": 65536,
+        "Unknown14": 1,
+        "Unknown15": 1,
+        "Unknown17": 0,
+        "Unknown19": 0,
+        "Unknown20": 1,
+        "Unknown24": 0
+      }
+    },
+    {
+      "id": "espionage",
+      "display_name": "Espionage",
+      "behaviour": "espionage",
+      "available_to": [
+        "faction_a",
+        "faction_b"
+      ],
+      "spec_forces": [
+        "a_agents",
+        "b_agents"
+      ],
+      "length": {
+        "base": 1,
+        "spread": 20
+      },
+      "flags": {
+        "can_continue": false,
+        "scripted": false,
+        "return_on_abort": true,
+        "target_known_required": true,
+        "abort_on_blockade": true,
+        "can_escape": false,
+        "can_kill": false
+      },
+      "targets": {
+        "friendly": true,
+        "neutral": true,
+        "hostile": true
+      },
+      "spec_force_mask": 520,
+      "unknown_columns": {
+        "Unknown9": 65536,
+        "Unknown14": 1,
+        "Unknown15": 1,
+        "Unknown17": 0,
+        "Unknown19": 0,
+        "Unknown20": 0,
+        "Unknown24": 1
+      }
+    },
+    {
+      "id": "reconnaissance",
+      "display_name": "Reconnaissance",
+      "behaviour": "reconnaissance",
+      "available_to": [
+        "faction_a",
+        "faction_b"
+      ],
+      "spec_forces": [
+        "a_agents",
+        "b_agents"
+      ],
+      "length": {
+        "base": 1,
+        "spread": 5
+      },
+      "flags": {
+        "can_continue": false,
+        "scripted": false,
+        "return_on_abort": true,
+        "target_known_required": false,
+        "abort_on_blockade": true,
+        "can_escape": false,
+        "can_kill": false
+      },
+      "targets": {
+        "friendly": false,
+        "neutral": true,
+        "hostile": true
+      },
+      "spec_force_mask": 260,
+      "unknown_columns": {
+        "Unknown9": 0,
+        "Unknown14": 1,
+        "Unknown15": 1,
+        "Unknown17": 0,
+        "Unknown19": 0,
+        "Unknown20": 0,
+        "Unknown24": 1
+      }
+    },
+    {
+      "id": "recruitment",
+      "display_name": "Recruitment",
+      "behaviour": "recruitment",
+      "available_to": [
+        "faction_a",
+        "faction_b"
+      ],
+      "spec_forces": [],
+      "length": {
+        "base": 5,
+        "spread": 20
+      },
+      "flags": {
+        "can_continue": false,
+        "scripted": false,
+        "return_on_abort": true,
+        "target_known_required": true,
+        "abort_on_blockade": true,
+        "can_escape": false,
+        "can_kill": false
+      },
+      "targets": {
+        "friendly": true,
+        "neutral": false,
+        "hostile": false
+      },
+      "spec_force_mask": 0,
+      "unknown_columns": {
+        "Unknown9": 65536,
+        "Unknown14": 1,
+        "Unknown15": 1,
+        "Unknown17": 1,
+        "Unknown19": 1,
+        "Unknown20": 1,
+        "Unknown24": 1
+      }
+    },
+    {
+      "id": "abduction",
+      "display_name": "Abduction",
+      "behaviour": "abduction",
+      "available_to": [
+        "faction_a",
+        "faction_b"
+      ],
+      "spec_forces": [
+        "a_agents",
+        "b_agents"
+      ],
+      "length": {
+        "base": 1,
+        "spread": 2
+      },
+      "flags": {
+        "can_continue": false,
+        "scripted": false,
+        "return_on_abort": true,
+        "target_known_required": true,
+        "abort_on_blockade": false,
+        "can_escape": false,
+        "can_kill": true
+      },
+      "targets": {
+        "friendly": false,
+        "neutral": false,
+        "hostile": true
+      },
+      "spec_force_mask": 2050,
+      "unknown_columns": {
+        "Unknown9": 65536,
+        "Unknown14": 1,
+        "Unknown15": 1,
+        "Unknown17": 0,
+        "Unknown19": 0,
+        "Unknown20": 1,
+        "Unknown24": 0
+      }
+    },
+    {
+      "id": "ship_design_research",
+      "display_name": "Ship Design Research",
+      "behaviour": "ship_design_research",
+      "available_to": [
+        "faction_a",
+        "faction_b"
+      ],
+      "spec_forces": [],
+      "length": {
+        "base": 10,
+        "spread": 10
+      },
+      "flags": {
+        "can_continue": true,
+        "scripted": false,
+        "return_on_abort": true,
+        "target_known_required": true,
+        "abort_on_blockade": true,
+        "can_escape": false,
+        "can_kill": false
+      },
+      "targets": {
+        "friendly": true,
+        "neutral": false,
+        "hostile": false
+      },
+      "spec_force_mask": 0,
+      "unknown_columns": {
+        "Unknown9": 65536,
+        "Unknown14": 1,
+        "Unknown15": 1,
+        "Unknown17": 1,
+        "Unknown19": 0,
+        "Unknown20": 1,
+        "Unknown24": 1
+      }
+    },
+    {
+      "id": "facility_design_research",
+      "display_name": "Facility Design Research",
+      "behaviour": "facility_design_research",
+      "available_to": [
+        "faction_a",
+        "faction_b"
+      ],
+      "spec_forces": [],
+      "length": {
+        "base": 10,
+        "spread": 10
+      },
+      "flags": {
+        "can_continue": true,
+        "scripted": false,
+        "return_on_abort": true,
+        "target_known_required": true,
+        "abort_on_blockade": true,
+        "can_escape": false,
+        "can_kill": false
+      },
+      "targets": {
+        "friendly": true,
+        "neutral": false,
+        "hostile": false
+      },
+      "spec_force_mask": 0,
+      "unknown_columns": {
+        "Unknown9": 65536,
+        "Unknown14": 1,
+        "Unknown15": 1,
+        "Unknown17": 1,
+        "Unknown19": 0,
+        "Unknown20": 1,
+        "Unknown24": 1
+      }
+    },
+    {
+      "id": "troop_training_research",
+      "display_name": "Troop Training Research",
+      "behaviour": "troop_training_research",
+      "available_to": [
+        "faction_a",
+        "faction_b"
+      ],
+      "spec_forces": [],
+      "length": {
+        "base": 10,
+        "spread": 10
+      },
+      "flags": {
+        "can_continue": true,
+        "scripted": false,
+        "return_on_abort": true,
+        "target_known_required": true,
+        "abort_on_blockade": true,
+        "can_escape": false,
+        "can_kill": false
+      },
+      "targets": {
+        "friendly": true,
+        "neutral": false,
+        "hostile": false
+      },
+      "spec_force_mask": 0,
+      "unknown_columns": {
+        "Unknown9": 65536,
+        "Unknown14": 1,
+        "Unknown15": 1,
+        "Unknown17": 1,
+        "Unknown19": 0,
+        "Unknown20": 1,
+        "Unknown24": 1
+      }
+    },
+    {
+      "id": "incite_uprising",
+      "display_name": "Incite Uprising",
+      "behaviour": "incite_uprising",
+      "available_to": [
+        "faction_a",
+        "faction_b"
+      ],
+      "spec_forces": [
+        "a_agents",
+        "b_agents"
+      ],
+      "length": {
+        "base": 2,
+        "spread": 10
+      },
+      "flags": {
+        "can_continue": true,
+        "scripted": false,
+        "return_on_abort": true,
+        "target_known_required": true,
+        "abort_on_blockade": true,
+        "can_escape": false,
+        "can_kill": false
+      },
+      "targets": {
+        "friendly": false,
+        "neutral": false,
+        "hostile": true
+      },
+      "spec_force_mask": 1025,
+      "unknown_columns": {
+        "Unknown9": 65536,
+        "Unknown14": 1,
+        "Unknown15": 1,
+        "Unknown17": 1,
+        "Unknown19": 1,
+        "Unknown20": 1,
+        "Unknown24": 1
+      }
+    },
+    {
+      "id": "subdue_uprising",
+      "display_name": "Subdue Uprising",
+      "behaviour": "subdue_uprising",
+      "available_to": [
+        "faction_a",
+        "faction_b"
+      ],
+      "spec_forces": [
+        "a_agents",
+        "b_agents"
+      ],
+      "length": {
+        "base": 2,
+        "spread": 10
+      },
+      "flags": {
+        "can_continue": true,
+        "scripted": false,
+        "return_on_abort": true,
+        "target_known_required": true,
+        "abort_on_blockade": false,
+        "can_escape": false,
+        "can_kill": false
+      },
+      "targets": {
+        "friendly": true,
+        "neutral": false,
+        "hostile": false
+      },
+      "spec_force_mask": 1025,
+      "unknown_columns": {
+        "Unknown9": 65536,
+        "Unknown14": 1,
+        "Unknown15": 1,
+        "Unknown17": 1,
+        "Unknown19": 1,
+        "Unknown20": 1,
+        "Unknown24": 1
+      }
+    },
+    {
+      "id": "assassination",
+      "display_name": "Assassination",
+      "behaviour": "assassination",
+      "available_to": [
+        "faction_a",
+        "faction_b"
+      ],
+      "spec_forces": [
+        "a_agents",
+        "b_agents"
+      ],
+      "length": {
+        "base": 1,
+        "spread": 1
+      },
+      "flags": {
+        "can_continue": false,
+        "scripted": false,
+        "return_on_abort": true,
+        "target_known_required": true,
+        "abort_on_blockade": false,
+        "can_escape": false,
+        "can_kill": true
+      },
+      "targets": {
+        "friendly": false,
+        "neutral": false,
+        "hostile": true
+      },
+      "spec_force_mask": 2048,
+      "unknown_columns": {
+        "Unknown9": 65536,
+        "Unknown14": 1,
+        "Unknown15": 1,
+        "Unknown17": 0,
+        "Unknown19": 0,
+        "Unknown20": 1,
+        "Unknown24": 0
+      }
+    }
+  ]
+}

@@ -1,0 +1,329 @@
+{
+  "facilities": [
+    {
+      "id": "headquarters",
+      "display_name": "Headquarters",
+      "family": "headquarters",
+      "tier": 1,
+      "roles": [
+        "headquarters"
+      ],
+      "buildable_by": [
+        "faction_a"
+      ],
+      "construction_cost": 0,
+      "maintenance_cost": 0,
+      "research_order": 0,
+      "research_cost": 0,
+      "stats": {
+        "bombardment_defense": 9,
+        "processing_rate": 0
+      }
+    },
+    {
+      "id": "shipyard",
+      "display_name": "Shipyard",
+      "family": "shipyard",
+      "tier": 1,
+      "roles": [
+        "produces_unit"
+      ],
+      "buildable_by": [
+        "faction_a",
+        "faction_b"
+      ],
+      "construction_cost": 20,
+      "maintenance_cost": 13,
+      "research_order": 0,
+      "research_cost": 0,
+      "stats": {
+        "bombardment_defense": 2,
+        "processing_rate": 4
+      }
+    },
+    {
+      "id": "training_facility",
+      "display_name": "Training Facility",
+      "family": "training_facility",
+      "tier": 1,
+      "roles": [
+        "produces_troop"
+      ],
+      "buildable_by": [
+        "faction_a",
+        "faction_b"
+      ],
+      "construction_cost": 10,
+      "maintenance_cost": 10,
+      "research_order": 0,
+      "research_cost": 0,
+      "stats": {
+        "bombardment_defense": 3,
+        "processing_rate": 4
+      }
+    },
+    {
+      "id": "construction_yard",
+      "display_name": "Construction Yard",
+      "family": "construction_yard",
+      "tier": 1,
+      "roles": [
+        "produces_facility"
+      ],
+      "buildable_by": [
+        "faction_a",
+        "faction_b"
+      ],
+      "construction_cost": 10,
+      "maintenance_cost": 10,
+      "research_order": 0,
+      "research_cost": 0,
+      "stats": {
+        "bombardment_defense": 3,
+        "processing_rate": 4
+      }
+    },
+    {
+      "id": "advanced_shipyard",
+      "display_name": "Advanced Shipyard",
+      "family": "shipyard",
+      "tier": 2,
+      "roles": [
+        "produces_unit"
+      ],
+      "buildable_by": [
+        "faction_a",
+        "faction_b"
+      ],
+      "construction_cost": 20,
+      "maintenance_cost": 20,
+      "research_order": 5,
+      "research_cost": 60,
+      "stats": {
+        "bombardment_defense": 2,
+        "processing_rate": 2
+      }
+    },
+    {
+      "id": "advanced_training_facility",
+      "display_name": "Advanced Training Facility",
+      "family": "training_facility",
+      "tier": 2,
+      "roles": [
+        "produces_troop"
+      ],
+      "buildable_by": [
+        "faction_a",
+        "faction_b"
+      ],
+      "construction_cost": 10,
+      "maintenance_cost": 10,
+      "research_order": 1,
+      "research_cost": 24,
+      "stats": {
+        "bombardment_defense": 4,
+        "processing_rate": 2
+      }
+    },
+    {
+      "id": "advanced_construction_yard",
+      "display_name": "Advanced Construction Yard",
+      "family": "construction_yard",
+      "tier": 2,
+      "roles": [
+        "produces_facility"
+      ],
+      "buildable_by": [
+        "faction_a",
+        "faction_b"
+      ],
+      "construction_cost": 10,
+      "maintenance_cost": 10,
+      "research_order": 2,
+      "research_cost": 40,
+      "stats": {
+        "bombardment_defense": 4,
+        "processing_rate": 2
+      }
+    },
+    {
+      "id": "mine",
+      "display_name": "Mine",
+      "family": "mine",
+      "tier": 1,
+      "roles": [
+        "extracts_raw"
+      ],
+      "buildable_by": [
+        "faction_a",
+        "faction_b"
+      ],
+      "construction_cost": 20,
+      "maintenance_cost": 0,
+      "research_order": 0,
+      "research_cost": 0,
+      "stats": {
+        "bombardment_defense": 5,
+        "processing_rate": 5
+      }
+    },
+    {
+      "id": "refinery",
+      "display_name": "Refinery",
+      "family": "refinery",
+      "tier": 1,
+      "roles": [
+        "refines"
+      ],
+      "buildable_by": [
+        "faction_a",
+        "faction_b"
+      ],
+      "construction_cost": 20,
+      "maintenance_cost": 0,
+      "research_order": 0,
+      "research_cost": 0,
+      "stats": {
+        "bombardment_defense": 2,
+        "processing_rate": 5
+      }
+    },
+    {
+      "id": "minefield",
+      "display_name": "Minefield",
+      "family": "minefield",
+      "tier": 1,
+      "roles": [
+        "planet_defense",
+        "disable"
+      ],
+      "buildable_by": [
+        "faction_a",
+        "faction_b"
+      ],
+      "construction_cost": 4,
+      "maintenance_cost": 4,
+      "research_order": 0,
+      "research_cost": 0,
+      "stats": {
+        "bombardment_defense": 5,
+        "weapon_rating": 2000,
+        "shield_strength": 0
+      }
+    },
+    {
+      "id": "coastal_battery",
+      "display_name": "Defense Battery",
+      "family": "coastal_battery",
+      "tier": 1,
+      "roles": [
+        "planet_defense",
+        "anti_ship"
+      ],
+      "buildable_by": [
+        "faction_a",
+        "faction_b"
+      ],
+      "construction_cost": 7,
+      "maintenance_cost": 7,
+      "research_order": 0,
+      "research_cost": 0,
+      "stats": {
+        "bombardment_defense": 4,
+        "weapon_rating": 800,
+        "shield_strength": 0
+      }
+    },
+    {
+      "id": "fortifications",
+      "display_name": "Shield Fortifications",
+      "family": "fortifications",
+      "tier": 1,
+      "roles": [
+        "planet_defense",
+        "shield"
+      ],
+      "buildable_by": [
+        "faction_a",
+        "faction_b"
+      ],
+      "construction_cost": 12,
+      "maintenance_cost": 12,
+      "research_order": 0,
+      "research_cost": 0,
+      "stats": {
+        "bombardment_defense": 2,
+        "weapon_rating": 0,
+        "shield_strength": 40
+      }
+    },
+    {
+      "id": "hardened_airbase",
+      "display_name": "Hardened Bunker",
+      "family": "hardened_airbase",
+      "tier": 1,
+      "roles": [
+        "planet_defense",
+        "superweapon_shield"
+      ],
+      "buildable_by": [
+        "faction_a"
+      ],
+      "construction_cost": 25,
+      "maintenance_cost": 20,
+      "research_order": 3,
+      "research_cost": 24,
+      "stats": {
+        "bombardment_defense": 1,
+        "weapon_rating": 0,
+        "shield_strength": 0
+      }
+    },
+    {
+      "id": "heavy_coastal_battery",
+      "display_name": "Heavy Defense Battery",
+      "family": "coastal_battery",
+      "tier": 2,
+      "roles": [
+        "planet_defense",
+        "anti_ship"
+      ],
+      "buildable_by": [
+        "faction_a",
+        "faction_b"
+      ],
+      "construction_cost": 10,
+      "maintenance_cost": 4,
+      "research_order": 4,
+      "research_cost": 40,
+      "stats": {
+        "bombardment_defense": 3,
+        "weapon_rating": 5000,
+        "shield_strength": 0
+      }
+    },
+    {
+      "id": "fortress_line",
+      "display_name": "Fortress Line",
+      "family": "fortifications",
+      "tier": 2,
+      "roles": [
+        "planet_defense",
+        "shield"
+      ],
+      "buildable_by": [
+        "faction_a",
+        "faction_b"
+      ],
+      "construction_cost": 20,
+      "maintenance_cost": 7,
+      "research_order": 6,
+      "research_cost": 40,
+      "stats": {
+        "bombardment_defense": 3,
+        "weapon_rating": 0,
+        "shield_strength": 80
+      }
+    }
+  ]
+}

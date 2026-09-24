@@ -1,0 +1,40 @@
+{
+  "name": "faction-wars-editor",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Cross-platform editor for Faction Wars faction packs: open any pack, build one from scratch, save a folder, export a zip the game imports.",
+  "main": "out/main/index.js",
+  "author": "TeeJS",
+  "homepage": "https://github.com/TeeJS/faction-wars-editor",
+  "engines": {
+    "node": ">=22.12 <27"
+  },
+  "scripts": {
+    "dev": "electron-vite dev",
+    "build": "electron-vite build",
+    "start": "electron-vite preview",
+    "typecheck": "tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p tsconfig.web.json",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "dist:win": "electron-vite build && electron-builder --win",
+    "dist:mac": "electron-vite build && electron-builder --mac",
+    "dist:linux": "electron-vite build && electron-builder --linux"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0",
+    "@types/node": "24.13.6",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@vitejs/plugin-react": "5.2.0",
+    "electron": "44.3.0",
+    "electron-builder": "26.15.3",
+    "electron-vite": "5.0.0",
+    "fflate": "0.8.3",
+    "jsonc-parser": "3.3.1",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "typescript": "6.0.3",
+    "vite": "7.3.6",
+    "vitest": "5.0.1"
+  }
+}

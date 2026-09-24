@@ -1,0 +1,446 @@
+{
+  "units": [
+    {
+      "id": "a_battleship",
+      "display_name": "Battleship A",
+      "kind": "capital_ship",
+      "buildable_by": [
+        "faction_a"
+      ],
+      "construction_cost": 60,
+      "maintenance_cost": 60,
+      "research_order": 7,
+      "research_cost": 60,
+      "weapons": {
+        "torpedoes": {
+          "arcs": {
+            "fore": 50,
+            "aft": 0,
+            "starboard": 40,
+            "port": 40
+          },
+          "range": 35
+        },
+        "main_guns": {
+          "arcs": {
+            "fore": 70,
+            "aft": 0,
+            "starboard": 120,
+            "port": 120
+          },
+          "range": 60
+        }
+      },
+      "stats": {
+        "detection": 15,
+        "shield": 600,
+        "sublight": 5,
+        "maneuverability": 2,
+        "hyperdrive": 80,
+        "hyperdrive_damaged": 120,
+        "hull": 1400,
+        "tractor_power": 0,
+        "tractor_range": 0,
+        "gravity_well": 0,
+        "interdiction_strength": 0,
+        "bombardment": 2,
+        "damage_control": 30,
+        "weapon_recharge": 16,
+        "shield_recharge": 30,
+        "fighter_capacity": 0,
+        "troop_capacity": 0
+      }
+    },
+    {
+      "id": "a_carrier",
+      "display_name": "Carrier A",
+      "kind": "capital_ship",
+      "buildable_by": [
+        "faction_a"
+      ],
+      "construction_cost": 248,
+      "maintenance_cost": 175,
+      "research_order": 11,
+      "research_cost": 100,
+      "weapons": {
+        "torpedoes": {
+          "arcs": {
+            "fore": 200,
+            "aft": 80,
+            "starboard": 150,
+            "port": 150
+          },
+          "range": 40
+        },
+        "main_guns": {
+          "arcs": {
+            "fore": 600,
+            "aft": 120,
+            "starboard": 300,
+            "port": 300
+          },
+          "range": 70
+        }
+      },
+      "stats": {
+        "detection": 10,
+        "shield": 1100,
+        "sublight": 3,
+        "maneuverability": 2,
+        "hyperdrive": 60,
+        "hyperdrive_damaged": 100,
+        "hull": 3000,
+        "tractor_power": 6,
+        "tractor_range": 20,
+        "gravity_well": 0,
+        "interdiction_strength": 0,
+        "bombardment": 4,
+        "damage_control": 40,
+        "weapon_recharge": 80,
+        "shield_recharge": 60,
+        "fighter_capacity": 10,
+        "troop_capacity": 4
+      }
+    },
+    {
+      "id": "a_transport",
+      "display_name": "Transport A",
+      "kind": "capital_ship",
+      "buildable_by": [
+        "faction_a"
+      ],
+      "construction_cost": 24,
+      "maintenance_cost": 22,
+      "research_order": 0,
+      "research_cost": 0,
+      "weapons": {},
+      "stats": {
+        "detection": 1,
+        "shield": 200,
+        "sublight": 1,
+        "maneuverability": 1,
+        "hyperdrive": 90,
+        "hyperdrive_damaged": 0,
+        "hull": 600,
+        "tractor_power": 0,
+        "tractor_range": 0,
+        "gravity_well": 0,
+        "interdiction_strength": 0,
+        "bombardment": 0,
+        "damage_control": 5,
+        "weapon_recharge": 0,
+        "shield_recharge": 10,
+        "fighter_capacity": 0,
+        "troop_capacity": 6
+      }
+    },
+    {
+      "id": "a_fighter",
+      "display_name": "Fighter Squadron A",
+      "kind": "fighter",
+      "buildable_by": [
+        "faction_a"
+      ],
+      "construction_cost": 5,
+      "maintenance_cost": 4,
+      "research_order": 3,
+      "research_cost": 24,
+      "weapons": {
+        "light_guns": {
+          "arcs": {
+            "fore": 5,
+            "aft": 0,
+            "starboard": 0,
+            "port": 0
+          }
+        }
+      },
+      "stats": {
+        "detection": 15,
+        "shield": 5,
+        "sublight": 11,
+        "maneuverability": 8,
+        "hyperdrive": 60,
+        "hyperdrive_damaged": 0,
+        "bombardment": 0,
+        "squadron_size": 12
+      }
+    },
+    {
+      "id": "a_infantry",
+      "display_name": "Infantry Regiment A",
+      "kind": "troop",
+      "buildable_by": [
+        "faction_a"
+      ],
+      "construction_cost": 10,
+      "maintenance_cost": 8,
+      "research_order": 3,
+      "research_cost": 60,
+      "weapons": {},
+      "stats": {
+        "detection": 20,
+        "bombardment_defense": 4,
+        "attack": 8,
+        "defense": 4
+      }
+    },
+    {
+      "id": "a_agents",
+      "display_name": "Special Agents A",
+      "kind": "spec_force",
+      "buildable_by": [
+        "faction_a"
+      ],
+      "construction_cost": 2,
+      "maintenance_cost": 1,
+      "research_order": 0,
+      "research_cost": 0,
+      "weapons": {},
+      "stats": {
+        "detection": 0,
+        "diplomacy_rating": 0,
+        "espionage_rating": 60,
+        "combat_rating": 55,
+        "leadership_rating": 0
+      }
+    },
+    {
+      "id": "b_battleship",
+      "display_name": "Battleship B",
+      "kind": "capital_ship",
+      "buildable_by": [
+        "faction_b"
+      ],
+      "construction_cost": 40,
+      "maintenance_cost": 34,
+      "research_order": 6,
+      "research_cost": 70,
+      "weapons": {
+        "torpedoes": {
+          "arcs": {
+            "fore": 0,
+            "aft": 0,
+            "starboard": 10,
+            "port": 10
+          },
+          "range": 35
+        },
+        "main_guns": {
+          "arcs": {
+            "fore": 10,
+            "aft": 0,
+            "starboard": 20,
+            "port": 20
+          },
+          "range": 50
+        },
+        "light_guns": {
+          "arcs": {
+            "fore": 90,
+            "aft": 0,
+            "starboard": 60,
+            "port": 60
+          },
+          "range": 17
+        }
+      },
+      "stats": {
+        "detection": 30,
+        "shield": 600,
+        "sublight": 4,
+        "maneuverability": 1,
+        "hyperdrive": 80,
+        "hyperdrive_damaged": 100,
+        "hull": 1200,
+        "tractor_power": 0,
+        "tractor_range": 0,
+        "gravity_well": 4,
+        "interdiction_strength": 100,
+        "bombardment": 0,
+        "damage_control": 10,
+        "weapon_recharge": 7,
+        "shield_recharge": 15,
+        "fighter_capacity": 0,
+        "troop_capacity": 0
+      }
+    },
+    {
+      "id": "b_carrier",
+      "display_name": "Carrier B",
+      "kind": "capital_ship",
+      "buildable_by": [
+        "faction_b"
+      ],
+      "construction_cost": 112,
+      "maintenance_cost": 71,
+      "research_order": 0,
+      "research_cost": 0,
+      "weapons": {
+        "torpedoes": {
+          "arcs": {
+            "fore": 100,
+            "aft": 40,
+            "starboard": 40,
+            "port": 40
+          },
+          "range": 35
+        },
+        "main_guns": {
+          "arcs": {
+            "fore": 100,
+            "aft": 40,
+            "starboard": 60,
+            "port": 60
+          },
+          "range": 50
+        }
+      },
+      "stats": {
+        "detection": 10,
+        "shield": 300,
+        "sublight": 4,
+        "maneuverability": 1,
+        "hyperdrive": 80,
+        "hyperdrive_damaged": 100,
+        "hull": 2750,
+        "tractor_power": 3,
+        "tractor_range": 20,
+        "gravity_well": 0,
+        "interdiction_strength": 0,
+        "bombardment": 2,
+        "damage_control": 30,
+        "weapon_recharge": 20,
+        "shield_recharge": 15,
+        "fighter_capacity": 6,
+        "troop_capacity": 3
+      }
+    },
+    {
+      "id": "b_transport",
+      "display_name": "Transport B",
+      "kind": "capital_ship",
+      "buildable_by": [
+        "faction_b"
+      ],
+      "construction_cost": 112,
+      "maintenance_cost": 71,
+      "research_order": 0,
+      "research_cost": 0,
+      "weapons": {
+        "torpedoes": {
+          "arcs": {
+            "fore": 100,
+            "aft": 40,
+            "starboard": 40,
+            "port": 40
+          },
+          "range": 35
+        },
+        "main_guns": {
+          "arcs": {
+            "fore": 100,
+            "aft": 40,
+            "starboard": 60,
+            "port": 60
+          },
+          "range": 50
+        }
+      },
+      "stats": {
+        "detection": 10,
+        "shield": 300,
+        "sublight": 4,
+        "maneuverability": 1,
+        "hyperdrive": 80,
+        "hyperdrive_damaged": 100,
+        "hull": 2750,
+        "tractor_power": 3,
+        "tractor_range": 20,
+        "gravity_well": 0,
+        "interdiction_strength": 0,
+        "bombardment": 2,
+        "damage_control": 30,
+        "weapon_recharge": 20,
+        "shield_recharge": 15,
+        "fighter_capacity": 6,
+        "troop_capacity": 3
+      }
+    },
+    {
+      "id": "b_fighter",
+      "display_name": "Fighter Squadron B",
+      "kind": "fighter",
+      "buildable_by": [
+        "faction_b"
+      ],
+      "construction_cost": 5,
+      "maintenance_cost": 7,
+      "research_order": 8,
+      "research_cost": 50,
+      "weapons": {
+        "light_guns": {
+          "arcs": {
+            "fore": 10,
+            "aft": 0,
+            "starboard": 0,
+            "port": 0
+          }
+        },
+        "bombs": {
+          "amount": 10,
+          "range": 10
+        }
+      },
+      "stats": {
+        "detection": 25,
+        "shield": 5,
+        "sublight": 8,
+        "maneuverability": 6,
+        "hyperdrive": 60,
+        "hyperdrive_damaged": 0,
+        "bombardment": 1,
+        "squadron_size": 12
+      }
+    },
+    {
+      "id": "b_infantry",
+      "display_name": "Infantry Regiment B",
+      "kind": "troop",
+      "buildable_by": [
+        "faction_b"
+      ],
+      "construction_cost": 12,
+      "maintenance_cost": 8,
+      "research_order": 2,
+      "research_cost": 66,
+      "weapons": {},
+      "stats": {
+        "detection": 30,
+        "bombardment_defense": 6,
+        "attack": 8,
+        "defense": 8
+      }
+    },
+    {
+      "id": "b_agents",
+      "display_name": "Special Agents B",
+      "kind": "spec_force",
+      "buildable_by": [
+        "faction_b"
+      ],
+      "construction_cost": 2,
+      "maintenance_cost": 1,
+      "research_order": 0,
+      "research_cost": 0,
+      "weapons": {},
+      "stats": {
+        "detection": 0,
+        "diplomacy_rating": 0,
+        "espionage_rating": 55,
+        "combat_rating": 70,
+        "leadership_rating": 0
+      }
+    }
+  ]
+}

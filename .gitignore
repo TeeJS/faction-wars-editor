@@ -1,0 +1,17 @@
+node_modules/
+out/
+dist/
+release/
+coverage/
+*.log
+.DS_Store
+Thumbs.db
+
+# signing material (see PROJECT.md) - never committed
+.signing/
+
+# local test scratch
+tests/.scratch/
+*.tsbuildinfo
+test-results/
+playwright-report/
