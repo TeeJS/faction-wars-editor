@@ -1,14 +1,15 @@
 name: Release
 
 # Two ways to run it:
-#   - Actions tab -> Release -> "Run workflow" (a DRY RUN by default): builds, signs
-#     and notarizes macOS and builds Linux, and keeps them as workflow artifacts. No
-#     release is created. Use it to test signing before cutting a tag.
+#   - Actions tab -> Release -> "Run workflow" (a DRY RUN by default): builds and signs
+#     macOS (notarized), Windows (Azure Artifact Signing) and Linux, and keeps them as
+#     workflow artifacts. No release is created. Use it to test signing before a tag.
 #   - Push a tag vX.Y.Z (matching package.json "version"): the same builds, then a
-#     DRAFT release with them attached. Windows is signed locally with Azure Trusted
-#     Signing (scripts\release-win.ps1 -Tag vX.Y.Z uploads it). Publish the draft by hand.
+#     DRAFT release with all of them attached. Publish the draft by hand.
+#   (scripts\release-win.ps1 still signs Windows on this PC, as a fallback.)
 #
-# Repository secrets (Settings -> Secrets and variables -> Actions), see docs/RELEASING.md:
+# Windows signs through the 'release' environment (variables AZURE_CLIENT_ID, AZURE_TENANT_ID,
+# AZURE_SUBSCRIPTION_ID; OIDC, no secret). macOS repository secrets, see docs/RELEASING.md:
 #   MAC_CERT_P12_BASE64   Developer ID Application certificate + private key (.p12), base64
 #   MAC_CERT_PASSWORD     the .p12's export password
 #   APPLE_ID              the Apple ID that notarizes
@@ -129,8 +130,84 @@ jobs:
             dist/*.tar.gz
           if-no-files-found: error
 
+  # Windows, signed here with Azure Artifact (Trusted) Signing: the same sign.js hook
+  # and the same signing library (Microsoft.Trusted.Signing.Client 1.0.95, byte-
+  # identical to the local .signing\dlib-x64) that sign locally. Only the login
+  # differs: GitHub's OIDC token, through the 'release' environment's federated
+  # credential on the github-actions-code-signing app - no Azure secret is stored.
+  windows:
+    runs-on: windows-latest
+    environment: release
+    permissions:
+      id-token: write
+      contents: read
+    env:
+      SIGNING_ENDPOINT: https://eus.codesigning.azure.net/
+      SIGNING_ACCOUNT: openquakesigning
+      SIGNING_PROFILE: openquake-public
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      # The signing library runs on .NET 8.
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 8.0.x
+      - name: Azure login (OIDC, no stored secret)
+        uses: azure/login@v3
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      - name: Signing library and metadata (pinned, verified)
+        shell: pwsh
+        run: |
+          $zip = "$env:RUNNER_TEMP\signing-client.zip"
+          Invoke-WebRequest 'https://api.nuget.org/v3-flatcontainer/microsoft.trusted.signing.client/1.0.95/microsoft.trusted.signing.client.1.0.95.nupkg' -OutFile $zip
+          $hash = (Get-FileHash $zip -Algorithm SHA256).Hash.ToLower()
+          if ($hash -ne '3bfcf1e0a3cb42af1692f0a8ed45c15de070c2de86f28a59b2795d904d8a920f') { throw "signing client package hash mismatch: $hash" }
+          Expand-Archive $zip "$env:RUNNER_TEMP\signing-client"
+          New-Item -ItemType Directory -Force .signing\dlib-x64 | Out-Null
+          Copy-Item "$env:RUNNER_TEMP\signing-client\bin\x64\*" .signing\dlib-x64\ -Recurse
+          # Only the Azure CLI login that azure/login just made; every other credential
+          # type is excluded so nothing else is tried (Microsoft's documented OIDC setup).
+          $meta = [ordered]@{
+            Endpoint = $env:SIGNING_ENDPOINT
+            CodeSigningAccountName = $env:SIGNING_ACCOUNT
+            CertificateProfileName = $env:SIGNING_PROFILE
+            ExcludeCredentials = @('EnvironmentCredential', 'WorkloadIdentityCredential', 'ManagedIdentityCredential',
+              'SharedTokenCacheCredential', 'VisualStudioCredential', 'VisualStudioCodeCredential',
+              'AzurePowerShellCredential', 'AzureDeveloperCliCredential', 'InteractiveBrowserCredential')
+          }
+          [IO.File]::WriteAllText("$PWD\.signing\metadata.json", ($meta | ConvertTo-Json), [Text.UTF8Encoding]::new($false))
+      - run: npm ci
+      - run: npm run build
+      - name: Package and sign
+        run: npx electron-builder --win --publish never
+      # sign.js leaves a file unsigned (with a warning) when its setup is missing, so
+      # this is what proves the build is signed - checked on the files, not the log.
+      - name: Verify every exe is signed
+        shell: pwsh
+        run: |
+          $files = @(Get-ChildItem dist -Filter *.exe | Where-Object { $_.Name -notlike '*__uninstaller*' })
+          $files += Get-Item 'dist\win-unpacked\Faction Wars Pack Editor.exe'
+          foreach ($f in $files) {
+            $s = Get-AuthenticodeSignature $f.FullName
+            if ($s.Status -ne 'Valid') { throw "$($f.Name) is not validly signed: $($s.Status) $($s.StatusMessage)" }
+            "signed  $($f.Name)  ($($s.SignerCertificate.Subject))"
+          }
+      - uses: actions/upload-artifact@v7
+        with:
+          name: windows
+          path: |
+            dist/*.exe
+            dist/*.blockmap
+          if-no-files-found: error
+
   draft:
-    needs: [mac, linux]
+    needs: [mac, linux, windows]
     if: github.event_name == 'push' || inputs.dry_run == false
     runs-on: ubuntu-latest
     permissions:
@@ -152,5 +229,5 @@ jobs:
             exit 1
           fi
           gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --draft --verify-tag --title "Faction Wars Pack Editor $TAG" \
-            --notes "Windows builds are added after local signing (scripts/release-win.ps1). macOS builds are signed with Developer ID and notarized; Linux builds are unsigned." \
+            --notes "macOS builds are signed with Developer ID and notarized; Windows builds are signed with Azure Artifact Signing; Linux builds are unsigned." \
             artifacts/*
