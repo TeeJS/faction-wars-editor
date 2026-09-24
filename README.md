@@ -103,3 +103,7 @@ npm run dist:win
 ## Versions
 
 Electron is pinned to **44.3.0** and electron-builder to **26.15.3**, matching Bedrock Panel on the same machine. Upgrade both projects together.
+
+## License
+
+[MIT](LICENSE).
