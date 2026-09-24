@@ -1,15 +1,17 @@
 name: Release
 
-# Push a tag like v0.2.0 (matching package.json "version") to build a DRAFT
-# release with the signed and notarized macOS builds and the Linux builds.
-# Windows is signed locally with Azure Trusted Signing (it needs the local
-# Connect-AzAccount session): run scripts\release-win.ps1 -Tag v0.2.0 to build,
-# verify and upload the Windows files, then publish the draft.
+# Two ways to run it:
+#   - Actions tab -> Release -> "Run workflow" (a DRY RUN by default): builds, signs
+#     and notarizes macOS and builds Linux, and keeps them as workflow artifacts. No
+#     release is created. Use it to test signing before cutting a tag.
+#   - Push a tag vX.Y.Z (matching package.json "version"): the same builds, then a
+#     DRAFT release with them attached. Windows is signed locally with Azure Trusted
+#     Signing (scripts\release-win.ps1 -Tag vX.Y.Z uploads it). Publish the draft by hand.
 #
-# Repository secrets used by the macOS job:
-#   MAC_CERT_P12_BASE64   Developer ID Application certificate (.p12), base64
-#   MAC_CERT_PASSWORD     its password
-#   APPLE_ID              the Apple ID used for notarization
+# Repository secrets (Settings -> Secrets and variables -> Actions), see docs/RELEASING.md:
+#   MAC_CERT_P12_BASE64   Developer ID Application certificate + private key (.p12), base64
+#   MAC_CERT_PASSWORD     the .p12's export password
+#   APPLE_ID              the Apple ID that notarizes
 #   APPLE_APP_SPECIFIC_PASSWORD
 #   APPLE_TEAM_ID
 
@@ -18,9 +20,13 @@ on:
     tags: ['v*']
   workflow_dispatch:
     inputs:
+      dry_run:
+        description: Build and sign only (no release)
+        type: boolean
+        default: true
       tag:
-        description: Tag to release (e.g. v0.2.0)
-        required: true
+        description: Tag for the draft release when not a dry run (e.g. v0.1.0)
+        required: false
 
 permissions:
   contents: read
@@ -28,6 +34,7 @@ permissions:
 jobs:
   mac:
     runs-on: macos-latest
+    timeout-minutes: 90
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
@@ -37,27 +44,63 @@ jobs:
       - name: Require the signing secrets
         env:
           P12: ${{ secrets.MAC_CERT_P12_BASE64 }}
+          P12_PASSWORD: ${{ secrets.MAC_CERT_PASSWORD }}
           APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         run: |
-          if [ -z "$P12" ] || [ -z "$APPLE_ID" ]; then
-            echo "::error::Add the MAC_CERT_P12_BASE64, MAC_CERT_PASSWORD, APPLE_ID, APPLE_APP_SPECIFIC_PASSWORD and APPLE_TEAM_ID secrets to sign and notarize the macOS build."
+          missing=""
+          for v in P12 P12_PASSWORD APPLE_ID APPLE_APP_SPECIFIC_PASSWORD APPLE_TEAM_ID; do
+            [ -n "${!v}" ] || missing="$missing $v"
+          done
+          if [ -n "$missing" ]; then
+            echo "::error::Missing secrets:$missing (P12 = MAC_CERT_P12_BASE64, P12_PASSWORD = MAC_CERT_PASSWORD). See docs/RELEASING.md."
             exit 1
           fi
+      # Our own keychain, alive for the whole job (GitHub's documented pattern). Not
+      # electron-builder's CSC_LINK: that keychain is deleted before the post-build hook
+      # that signs and notarizes the .dmg runs, which would leave the .dmg unsigned.
+      - name: Import the Developer ID certificate
+        env:
+          P12: ${{ secrets.MAC_CERT_P12_BASE64 }}
+          P12_PASSWORD: ${{ secrets.MAC_CERT_PASSWORD }}
+        run: |
+          KEYCHAIN_PATH="$RUNNER_TEMP/signing.keychain-db"
+          KEYCHAIN_PASSWORD="$(openssl rand -base64 24)"
+          CERT="$RUNNER_TEMP/developer-id.p12"
+          printf '%s' "$P12" | base64 --decode > "$CERT"
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security import "$CERT" -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k "$KEYCHAIN_PATH"
+          security set-key-partition-list -S apple-tool:,apple: -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH" > /dev/null
+          security list-keychain -d user -s "$KEYCHAIN_PATH"
+          rm -f "$CERT"
+          if ! security find-identity -v -p codesigning | grep -q 'Developer ID Application'; then
+            echo "::error::The .p12 holds no usable 'Developer ID Application' identity (export the certificate WITH its private key)."
+            security find-identity -v -p codesigning
+            exit 1
+          fi
+          security find-identity -v -p codesigning | grep 'Developer ID Application'
       - run: npm ci
       - run: npm run build
+      # electron-builder finds the identity in the keychain, signs and notarizes each
+      # .app; the afterAllArtifactBuild guard then signs, notarizes and staples each .dmg
+      # and FAILS the build unless the apps and the disk images truly pass.
       - name: Package, sign and notarize
         env:
-          CSC_LINK: ${{ secrets.MAC_CERT_P12_BASE64 }}
-          CSC_KEY_PASSWORD: ${{ secrets.MAC_CERT_PASSWORD }}
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         run: npx electron-builder --mac --publish never
-      - name: Verify the signature and notarization
+      - name: Show what Gatekeeper says
         run: |
-          app=$(find dist -maxdepth 2 -name '*.app' | head -n 1)
-          codesign --verify --deep --strict --verbose=2 "$app"
-          spctl --assess --type execute --verbose "$app"
+          for app in dist/mac*/*.app; do
+            echo "== $app"; codesign --test-requirement="=notarized" --verify --strict "$app" && echo "notarized"
+          done
+          for dmg in dist/*.dmg; do
+            echo "== $dmg"; spctl -a -vv -t open --context context:primary-signature "$dmg"; xcrun stapler validate "$dmg"
+          done
       - uses: actions/upload-artifact@v7
         with:
           name: mac
@@ -88,10 +131,12 @@ jobs:
 
   draft:
     needs: [mac, linux]
+    if: github.event_name == 'push' || inputs.dry_run == false
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
+      - uses: actions/checkout@v7
       - uses: actions/download-artifact@v8
         with:
           path: artifacts
@@ -99,8 +144,13 @@ jobs:
       - name: Create the draft release
         env:
           GH_TOKEN: ${{ github.token }}
-          TAG: ${{ github.event.inputs.tag || github.ref_name }}
+          TAG: ${{ inputs.tag || github.ref_name }}
         run: |
-          gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --draft --title "Faction Wars Pack Editor $TAG" \
-            --notes "Windows builds are added after local signing (scripts/release-win.ps1). macOS builds are signed and notarized." \
+          version="v$(node -p "require('./package.json').version")"
+          if [ "$TAG" != "$version" ]; then
+            echo "::error::Tag $TAG does not match package.json version $version."
+            exit 1
+          fi
+          gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --draft --verify-tag --title "Faction Wars Pack Editor $TAG" \
+            --notes "Windows builds are added after local signing (scripts/release-win.ps1). macOS builds are signed with Developer ID and notarized; Linux builds are unsigned." \
             artifacts/*

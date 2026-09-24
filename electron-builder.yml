@@ -10,6 +10,10 @@ files:
 asar: true
 # The app has no runtime dependencies (everything is bundled by electron-vite).
 npmRebuild: false
+# macOS: sign, notarize and staple the .dmg too, then FAIL unless the app is really
+# notarized (electron-builder skips notarization silently without credentials).
+# A no-op for Windows and Linux builds. FWE_ALLOW_UNNOTARIZED=1 for a local test build.
+afterAllArtifactBuild: ./build/verify-mac-build.js
 
 win:
   target:

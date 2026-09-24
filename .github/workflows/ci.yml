@@ -45,6 +45,8 @@ jobs:
         shell: bash
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+          # A deliberate unsigned test build: the notarization guard warns instead of failing.
+          FWE_ALLOW_UNNOTARIZED: '1'
         run: |
           case "$RUNNER_OS" in
             Windows) npx electron-builder --win --publish never ;;
