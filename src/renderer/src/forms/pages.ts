@@ -784,7 +784,7 @@ export const menuFields: FieldDef[] = [
     kind: 'object',
     addValue: () => ({ rect: [0, 0, 100, 20], standard: 'Standard Game', hq_only: 'Headquarters Only Victory', color: '#40ff40' }),
     fields: [
-      { key: 'rect', label: 'Rect', kind: 'rect', required: true },
+      { key: 'rect', label: 'Rect', kind: 'rect', float: true, required: true, help: "In the picture's own pixels; the game truncates to whole pixels." },
       { key: 'standard', label: 'Standard text', kind: 'text', required: true },
       { key: 'hq_only', label: 'HQ-only text', kind: 'text', required: true },
       { key: 'color', label: 'Colour', kind: 'color' }
@@ -807,7 +807,7 @@ export const menuFields: FieldDef[] = [
           ci(r, 'action') === 'difficulty' ? KNOWN_DIFFICULTIES : ci(r, 'action') === 'galaxy_size' ? sizeOpts(c) : ci(r, 'action') === 'start' ? factionOpts(c) : [],
         showIf: (r) => ['difficulty', 'galaxy_size', 'start'].includes(String(ci(r, 'action')))
       },
-      { key: 'rect', label: 'Rect', kind: 'rect', required: true },
+      { key: 'rect', label: 'Rect', kind: 'rect', float: true, required: true, help: "In the picture's own pixels; the game truncates to whole pixels." },
       { key: 'tooltip', label: 'Tooltip', kind: 'text' },
       { key: 'selected_color', label: 'Selection colour', kind: 'color' }
     ]

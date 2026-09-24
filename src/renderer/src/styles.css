@@ -388,7 +388,7 @@ ul.plain {
   align-items: center;
   flex-wrap: wrap;
 }
-.field-control > input:not([type='checkbox']):not([type='color']),
+.field-control > input:not([type='checkbox']):not([type='color']):not(.num),
 .field-control > select,
 .field-control > textarea {
   flex: 1;

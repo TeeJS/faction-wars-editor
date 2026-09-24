@@ -162,6 +162,12 @@ export function lintLoaded(pack: LoadedPack, doc?: PackDocument): Issue[] {
         if (!families.has(fam)) warn(`display.json modes[${md.id}]: facility_count family '${fam}' is not a facility family.`, 'display', cat.index, 'categories')
       }
 
+  // The leak guard refuses these on export and on import.
+  if (doc)
+    for (const f of doc.otherFiles())
+      if (f.toLowerCase().startsWith('original/'))
+        warn(`${f}: anything under original/ blocks export (the original game's art never ships in a pack) - remove it on Files & Art.`, 'files')
+
   // Menu credits live under menu; a top-level 'credits' is never read.
   if (doc) {
     const pv = doc.value('pack.json')
