@@ -1,0 +1,102 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Test and package (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    env:
+      FACTION_WARS_DIR: ${{ github.workspace }}/faction-wars
+    steps:
+      - uses: actions/checkout@v7
+      # The shipped packs the tests read (the round-trip, validator and zip tests).
+      - uses: actions/checkout@v7
+        with:
+          repository: TeeJS/faction-wars
+          path: faction-wars
+          fetch-depth: 1
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+      - name: UI smoke tests (virtual display)
+        if: runner.os == 'Linux'
+        run: xvfb-run -a npx playwright test
+      - name: UI smoke tests
+        if: runner.os != 'Linux'
+        run: npx playwright test
+      - name: Package (unsigned test build)
+        shell: bash
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+        run: |
+          case "$RUNNER_OS" in
+            Windows) npx electron-builder --win --publish never ;;
+            macOS)   npx electron-builder --mac --publish never -c.mac.identity=null -c.mac.notarize=false ;;
+            Linux)   npx electron-builder --linux --publish never ;;
+          esac
+      - uses: actions/upload-artifact@v7
+        with:
+          name: faction-wars-editor-${{ runner.os }}
+          path: |
+            dist/*.exe
+            dist/*.dmg
+            dist/*.zip
+            dist/*.AppImage
+            dist/*.deb
+            dist/*.tar.gz
+          if-no-files-found: error
+          retention-days: 14
+      - uses: actions/upload-artifact@v7
+        if: failure()
+        with:
+          name: test-results-${{ runner.os }}
+          path: |
+            test-results/
+            tests/.scratch/
+          retention-days: 7
+
+  gamecheck:
+    name: The game validates, imports and plays editor packs
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7
+        with:
+          repository: TeeJS/faction-wars
+          path: faction-wars
+          fetch-depth: 1
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: Download Godot 4.7.1 (verified)
+        shell: pwsh
+        run: |
+          $zip = "$env:RUNNER_TEMP\godot.zip"
+          Invoke-WebRequest 'https://github.com/godotengine/godot/releases/download/4.7.1-stable/Godot_v4.7.1-stable_win64.exe.zip' -OutFile $zip
+          $hash = (Get-FileHash $zip -Algorithm SHA256).Hash.ToLower()
+          if ($hash -ne 'c7a289051eaefb460b0106b60e9cd5bee0ef55fd102dcb2bed1eb356cf3d90a1') { throw "Godot download hash mismatch: $hash" }
+          Expand-Archive $zip "$env:RUNNER_TEMP\godot"
+          $exe = Get-ChildItem "$env:RUNNER_TEMP\godot" -Recurse -Filter '*_console.exe' | Select-Object -First 1
+          "GODOT=$($exe.FullName)" | Out-File -Append $env:GITHUB_ENV
+      - name: gamecheck
+        shell: pwsh
+        run: .\scripts\gamecheck.ps1 -FactionWars "$env:GITHUB_WORKSPACE\faction-wars" -Godot $env:GODOT -Days 20

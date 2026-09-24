@@ -66,6 +66,23 @@ Packages for your operating system are written to `dist/`:
 npm run dist:win
 ```
 
+**The game itself checks the editor's output.** This script has the real game validate, import and play (headless, AI on both sides) packs the editor wrote. It works on a temporary copy of the game project and never touches your checkout; `tests/gamecheck/README.md` has the details. CI runs it too.
+
+```powershell
+.\scripts\gamecheck.ps1
+```
+
+## Releases
+
+1. Bump `version` in `package.json`, then push a tag with the same number, e.g. `v0.2.0`. The Release workflow builds the Linux packages and the macOS ones (signed and notarized), then creates a **draft** release.
+2. Build, verify and upload the signed Windows installer and portable exe. This runs locally because Azure Trusted Signing uses your `Connect-AzAccount` session (see `sign.js`):
+
+   ```powershell
+   .\scripts\release-win.ps1 -Tag v0.2.0
+   ```
+
+3. Review the draft on GitHub and publish it.
+
 ## Layout
 
 | Path | What |

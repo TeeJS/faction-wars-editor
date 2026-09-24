@@ -1,0 +1,59 @@
+appId: com.teejs.factionwarseditor
+productName: Faction Wars Pack Editor
+copyright: Copyright © 2026 TeeJS
+directories:
+  output: dist
+  buildResources: build
+files:
+  - out/**/*
+  - package.json
+asar: true
+# The app has no runtime dependencies (everything is bundled by electron-vite).
+npmRebuild: false
+
+win:
+  target:
+    - nsis
+    - portable
+  icon: build/icon.png
+  signtoolOptions:
+    sign: ./sign.js
+  artifactName: faction-wars-editor-${version}-${os}-${arch}.${ext}
+portable:
+  artifactName: faction-wars-editor-${version}-portable.${ext}
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  perMachine: false
+  artifactName: faction-wars-editor-${version}-setup.${ext}
+
+mac:
+  target:
+    - target: dmg
+      arch: [arm64, x64]
+    - target: zip
+      arch: [arm64, x64]
+  category: public.app-category.developer-tools
+  icon: build/icon.png
+  hardenedRuntime: true
+  gatekeeperAssess: false
+  entitlements: build/entitlements.mac.plist
+  entitlementsInherit: build/entitlements.mac.plist
+  # Signs with the Developer ID in CSC_LINK / CSC_KEY_PASSWORD and notarizes with
+  # APPLE_ID / APPLE_APP_SPECIFIC_PASSWORD / APPLE_TEAM_ID (release workflow secrets).
+  notarize: true
+  artifactName: faction-wars-editor-${version}-mac-${arch}.${ext}
+
+linux:
+  target:
+    - AppImage
+    - deb
+    - tar.gz
+  category: Development
+  icon: build/icon.png
+  executableName: faction-wars-editor
+  maintainer: TeeJS <TeeJS@users.noreply.github.com>
+  synopsis: Editor for Faction Wars faction packs
+  artifactName: faction-wars-editor-${version}-linux-${arch}.${ext}
+
+publish: null

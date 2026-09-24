@@ -172,6 +172,116 @@
       "is_major": false,
       "ratings": {
         "diplomacy": {
+          "base": 55,
+          "var": 10
+        },
+        "espionage": {
+          "base": 30,
+          "var": 10
+        },
+        "combat": {
+          "base": 80,
+          "var": 10
+        },
+        "leadership": {
+          "base": 85,
+          "var": 10
+        },
+        "loyalty": {
+          "base": 80,
+          "var": 10
+        },
+        "ship_research": {
+          "base": 0,
+          "var": 0
+        },
+        "troop_research": {
+          "base": 0,
+          "var": 0
+        },
+        "facility_research": {
+          "base": 0,
+          "var": 0
+        }
+      },
+      "can_command": [
+        "commander",
+        "general"
+      ],
+      "wont_betray": false,
+      "roles": [],
+      "special_power": {
+        "probability": 0,
+        "is_known_user": false,
+        "level": {
+          "base": 0,
+          "var": 0
+        },
+        "can_train": false
+      }
+    },
+    {
+      "id": "a_officer_3",
+      "display_name": "Officer A3",
+      "faction": "faction_a",
+      "is_major": false,
+      "ratings": {
+        "diplomacy": {
+          "base": 70,
+          "var": 10
+        },
+        "espionage": {
+          "base": 45,
+          "var": 10
+        },
+        "combat": {
+          "base": 65,
+          "var": 10
+        },
+        "leadership": {
+          "base": 75,
+          "var": 10
+        },
+        "loyalty": {
+          "base": 95,
+          "var": 10
+        },
+        "ship_research": {
+          "base": 0,
+          "var": 0
+        },
+        "troop_research": {
+          "base": 0,
+          "var": 0
+        },
+        "facility_research": {
+          "base": 0,
+          "var": 0
+        }
+      },
+      "can_command": [
+        "admiral",
+        "commander"
+      ],
+      "wont_betray": false,
+      "roles": [],
+      "special_power": {
+        "probability": 0,
+        "is_known_user": false,
+        "level": {
+          "base": 0,
+          "var": 0
+        },
+        "can_train": false
+      }
+    },
+    {
+      "id": "a_officer_4",
+      "display_name": "Officer A4",
+      "faction": "faction_a",
+      "is_major": false,
+      "ratings": {
+        "diplomacy": {
           "base": 30,
           "var": 10
         },
@@ -185,6 +295,114 @@
         },
         "leadership": {
           "base": 85,
+          "var": 10
+        },
+        "loyalty": {
+          "base": 90,
+          "var": 10
+        },
+        "ship_research": {
+          "base": 0,
+          "var": 0
+        },
+        "troop_research": {
+          "base": 0,
+          "var": 0
+        },
+        "facility_research": {
+          "base": 0,
+          "var": 0
+        }
+      },
+      "can_command": [
+        "general"
+      ],
+      "wont_betray": false,
+      "roles": [],
+      "special_power": {
+        "probability": 0,
+        "is_known_user": false,
+        "level": {
+          "base": 0,
+          "var": 0
+        },
+        "can_train": false
+      }
+    },
+    {
+      "id": "a_officer_5",
+      "display_name": "Officer A5",
+      "faction": "faction_a",
+      "is_major": false,
+      "ratings": {
+        "diplomacy": {
+          "base": 20,
+          "var": 10
+        },
+        "espionage": {
+          "base": 20,
+          "var": 10
+        },
+        "combat": {
+          "base": 95,
+          "var": 10
+        },
+        "leadership": {
+          "base": 85,
+          "var": 10
+        },
+        "loyalty": {
+          "base": 85,
+          "var": 10
+        },
+        "ship_research": {
+          "base": 0,
+          "var": 0
+        },
+        "troop_research": {
+          "base": 60,
+          "var": 0
+        },
+        "facility_research": {
+          "base": 0,
+          "var": 0
+        }
+      },
+      "can_command": [
+        "general"
+      ],
+      "wont_betray": false,
+      "roles": [],
+      "special_power": {
+        "probability": 0,
+        "is_known_user": false,
+        "level": {
+          "base": 0,
+          "var": 0
+        },
+        "can_train": false
+      }
+    },
+    {
+      "id": "a_officer_6",
+      "display_name": "Officer A6",
+      "faction": "faction_a",
+      "is_major": false,
+      "ratings": {
+        "diplomacy": {
+          "base": 35,
+          "var": 10
+        },
+        "espionage": {
+          "base": 30,
+          "var": 10
+        },
+        "combat": {
+          "base": 90,
+          "var": 10
+        },
+        "leadership": {
+          "base": 95,
           "var": 10
         },
         "loyalty": {
@@ -336,6 +554,61 @@
       "is_major": false,
       "ratings": {
         "diplomacy": {
+          "base": 55,
+          "var": 10
+        },
+        "espionage": {
+          "base": 30,
+          "var": 10
+        },
+        "combat": {
+          "base": 70,
+          "var": 10
+        },
+        "leadership": {
+          "base": 85,
+          "var": 10
+        },
+        "loyalty": {
+          "base": 85,
+          "var": 10
+        },
+        "ship_research": {
+          "base": 0,
+          "var": 0
+        },
+        "troop_research": {
+          "base": 0,
+          "var": 0
+        },
+        "facility_research": {
+          "base": 0,
+          "var": 0
+        }
+      },
+      "can_command": [
+        "commander",
+        "general"
+      ],
+      "wont_betray": false,
+      "roles": [],
+      "special_power": {
+        "probability": 0,
+        "is_known_user": false,
+        "level": {
+          "base": 0,
+          "var": 0
+        },
+        "can_train": false
+      }
+    },
+    {
+      "id": "b_officer_2",
+      "display_name": "Officer B2",
+      "faction": "faction_b",
+      "is_major": false,
+      "ratings": {
+        "diplomacy": {
           "base": 50,
           "var": 10
         },
@@ -384,8 +657,8 @@
       }
     },
     {
-      "id": "b_officer_2",
-      "display_name": "Officer B2",
+      "id": "b_officer_3",
+      "display_name": "Officer B3",
       "faction": "faction_b",
       "is_major": false,
       "ratings": {
@@ -424,6 +697,168 @@
       },
       "can_command": [
         "admiral"
+      ],
+      "wont_betray": false,
+      "roles": [],
+      "special_power": {
+        "probability": 0,
+        "is_known_user": false,
+        "level": {
+          "base": 0,
+          "var": 0
+        },
+        "can_train": false
+      }
+    },
+    {
+      "id": "b_officer_4",
+      "display_name": "Officer B4",
+      "faction": "faction_b",
+      "is_major": false,
+      "ratings": {
+        "diplomacy": {
+          "base": 50,
+          "var": 10
+        },
+        "espionage": {
+          "base": 30,
+          "var": 10
+        },
+        "combat": {
+          "base": 90,
+          "var": 10
+        },
+        "leadership": {
+          "base": 95,
+          "var": 10
+        },
+        "loyalty": {
+          "base": 75,
+          "var": 10
+        },
+        "ship_research": {
+          "base": 0,
+          "var": 0
+        },
+        "troop_research": {
+          "base": 40,
+          "var": 0
+        },
+        "facility_research": {
+          "base": 0,
+          "var": 0
+        }
+      },
+      "can_command": [
+        "general"
+      ],
+      "wont_betray": false,
+      "roles": [],
+      "special_power": {
+        "probability": 0,
+        "is_known_user": false,
+        "level": {
+          "base": 0,
+          "var": 0
+        },
+        "can_train": false
+      }
+    },
+    {
+      "id": "b_officer_5",
+      "display_name": "Officer B5",
+      "faction": "faction_b",
+      "is_major": false,
+      "ratings": {
+        "diplomacy": {
+          "base": 30,
+          "var": 10
+        },
+        "espionage": {
+          "base": 20,
+          "var": 10
+        },
+        "combat": {
+          "base": 85,
+          "var": 10
+        },
+        "leadership": {
+          "base": 85,
+          "var": 10
+        },
+        "loyalty": {
+          "base": 80,
+          "var": 10
+        },
+        "ship_research": {
+          "base": 0,
+          "var": 0
+        },
+        "troop_research": {
+          "base": 90,
+          "var": 0
+        },
+        "facility_research": {
+          "base": 0,
+          "var": 0
+        }
+      },
+      "can_command": [
+        "general"
+      ],
+      "wont_betray": false,
+      "roles": [],
+      "special_power": {
+        "probability": 0,
+        "is_known_user": false,
+        "level": {
+          "base": 0,
+          "var": 0
+        },
+        "can_train": false
+      }
+    },
+    {
+      "id": "b_officer_6",
+      "display_name": "Officer B6",
+      "faction": "faction_b",
+      "is_major": false,
+      "ratings": {
+        "diplomacy": {
+          "base": 40,
+          "var": 10
+        },
+        "espionage": {
+          "base": 25,
+          "var": 10
+        },
+        "combat": {
+          "base": 80,
+          "var": 10
+        },
+        "leadership": {
+          "base": 95,
+          "var": 10
+        },
+        "loyalty": {
+          "base": 80,
+          "var": 10
+        },
+        "ship_research": {
+          "base": 0,
+          "var": 0
+        },
+        "troop_research": {
+          "base": 0,
+          "var": 0
+        },
+        "facility_research": {
+          "base": 0,
+          "var": 0
+        }
+      },
+      "can_command": [
+        "general"
       ],
       "wont_betray": false,
       "roles": [],

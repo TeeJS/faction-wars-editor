@@ -26,7 +26,11 @@ async function answerDialogs(answers: { open?: string[]; save?: string }): Promi
 test.beforeAll(async () => {
   rmSync(scratch, { recursive: true, force: true })
   mkdirSync(scratch, { recursive: true })
-  app = await electron.launch({ args: [join(root, 'out', 'main', 'index.js')], env: { ...process.env, NODE_ENV: 'test' } })
+  // FWE_APP_EXE runs the packaged app instead of the dev build; Linux CI runners need --no-sandbox.
+  const sandbox = process.platform === 'linux' ? ['--no-sandbox'] : []
+  app = process.env.FWE_APP_EXE
+    ? await electron.launch({ executablePath: process.env.FWE_APP_EXE, args: sandbox })
+    : await electron.launch({ args: [...sandbox, join(root, 'out', 'main', 'index.js')], env: { ...process.env, NODE_ENV: 'test' } })
   page = await app.firstWindow()
   await page.waitForSelector('text=Faction Wars Pack Editor')
 })

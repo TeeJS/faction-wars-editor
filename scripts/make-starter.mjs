@@ -92,7 +92,7 @@ const facilities = read('facilities.json').facilities.map((f) => {
   return c
 })
 
-// ---- characters: a leader, a commander and two officers per side ----
+// ---- characters: a leader, a commander and six officers per side ----
 const wwChars = read('characters.json').characters
 const LEADER = { faction_a: 'churchill', faction_b: 'hitler' }
 const COMMANDER = { faction_a: 'de_gaulle', faction_b: 'mussolini' }
@@ -110,7 +110,11 @@ for (const [ww, side] of Object.entries(SIDE)) {
   }
   const leader = wwChars.find((c) => c.id === LEADER[side])
   const commander = wwChars.find((c) => c.id === COMMANDER[side])
-  const minors = wwChars.filter((c) => c.faction === ww && !c.is_major && (c.can_command ?? []).length > 0).slice(0, 2)
+  // Six officers: day zero places 1-4 extras by galaxy size, the rest stay recruitable.
+  const minors = wwChars
+    .filter((c) => c.faction === ww && !c.is_major)
+    .sort((a, b) => (b.can_command ?? []).length - (a.can_command ?? []).length)
+    .slice(0, 6)
   characters.push(mk(leader, `${l}_leader`, `Leader ${L}`, { is_major: true, roles: ['starts_at_hq'] }))
   characters.push(mk(commander, `${l}_commander`, `Commander ${L}`, { is_major: true, roles: ['starts_at_first_world'] }))
   minors.forEach((m, i) => characters.push(mk(m, `${l}_officer_${i + 1}`, `Officer ${L}${i + 1}`, { roles: [] })))
@@ -210,22 +214,24 @@ const sectors = [
   { id: 'far_rim', display_name: 'Far Rim', ring: 3, starts_neutral: true, map: { x: 640, y: 360 }, min_size: 'huge' }
 ]
 const P = (id, name, sector, x, y, inhabited = true) => ({ id, display_name: name, sector, starts_inhabited: inhabited, map: { x, y } })
+// Worlds sit ~25-40 apart inside a sector (4-8 days at the WW2 divisor of 5), sectors
+// far apart - the Star Wars pack's proportions (median neighbour 22, capitals 445).
 const planets = [
-  P('alpha_prime', 'Alpha Prime', 'western_core', 150, 180),
-  P('alpha_minor', 'Alpha Minor', 'western_core', 230, 150),
-  P('alpha_reach', 'Alpha Reach', 'western_core', 210, 250),
-  P('beta_prime', 'Beta Prime', 'eastern_core', 550, 180),
-  P('beta_minor', 'Beta Minor', 'eastern_core', 470, 150),
-  P('beta_reach', 'Beta Reach', 'eastern_core', 490, 250),
-  P('north_gate', 'North Gate', 'northern_rim', 300, 60),
-  P('north_haven', 'North Haven', 'northern_rim', 400, 50, false),
-  P('north_watch', 'North Watch', 'northern_rim', 350, 110),
-  P('south_gate', 'South Gate', 'southern_rim', 290, 330),
-  P('south_haven', 'South Haven', 'southern_rim', 410, 350, false),
-  P('south_watch', 'South Watch', 'southern_rim', 350, 300),
-  P('far_outpost', 'Far Outpost', 'far_rim', 620, 340, false),
-  P('far_colony', 'Far Colony', 'far_rim', 670, 380),
-  P('far_wastes', 'Far Wastes', 'far_rim', 600, 395, false)
+  P('alpha_prime', 'Alpha Prime', 'western_core', 170, 185),
+  P('alpha_minor', 'Alpha Minor', 'western_core', 200, 160),
+  P('alpha_reach', 'Alpha Reach', 'western_core', 205, 212),
+  P('beta_prime', 'Beta Prime', 'eastern_core', 530, 185),
+  P('beta_minor', 'Beta Minor', 'eastern_core', 500, 160),
+  P('beta_reach', 'Beta Reach', 'eastern_core', 495, 212),
+  P('north_gate', 'North Gate', 'northern_rim', 322, 66),
+  P('north_haven', 'North Haven', 'northern_rim', 372, 56, false),
+  P('north_watch', 'North Watch', 'northern_rim', 350, 94),
+  P('south_gate', 'South Gate', 'southern_rim', 322, 336),
+  P('south_haven', 'South Haven', 'southern_rim', 376, 346, false),
+  P('south_watch', 'South Watch', 'southern_rim', 350, 312),
+  P('far_outpost', 'Far Outpost', 'far_rim', 620, 348, false),
+  P('far_colony', 'Far Colony', 'far_rim', 660, 366),
+  P('far_wastes', 'Far Wastes', 'far_rim', 634, 388, false)
 ]
 
 const factions = {

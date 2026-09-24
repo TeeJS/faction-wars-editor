@@ -38,6 +38,8 @@ In `src/ui/pack_import.gd`, `_import`, around `:161-189`:
 
 **Minor:** the `original/` check is case-sensitive (`begins_with("original/")`), but `PackBuilder.cs` checks case-insensitively. `Original/x.png` gets past the importer.
 
+**Minor, seen in the editor's gamecheck run:** for a player who has no art set, `_leaks` (`:257`) calls `DirAccess.get_directories_at(Art.UserArtRoot)` on a folder that doesn't exist yet. Every faction-pack import then logs `ERROR: Couldn't open directory at path "user://art"`. The import still succeeds. Fix: check `DirAccess.dir_exists_absolute(...)` first.
+
 ## 3. The WW2 pack's credits are never shown
 
 `packs/ww2/pack.json` has its credits at the top level (`"credits": [...]`). The game reads credits only from `menu.credits` (`menu.gd:163`), and WW2 has no `menu`, so the credits screen says "(this pack declares no credits)".

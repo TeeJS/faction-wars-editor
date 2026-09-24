@@ -63,8 +63,8 @@
       "sector": "western_core",
       "starts_inhabited": true,
       "map": {
-        "x": 150,
-        "y": 180
+        "x": 170,
+        "y": 185
       }
     },
     {
@@ -73,8 +73,8 @@
       "sector": "western_core",
       "starts_inhabited": true,
       "map": {
-        "x": 230,
-        "y": 150
+        "x": 200,
+        "y": 160
       }
     },
     {
@@ -83,8 +83,8 @@
       "sector": "western_core",
       "starts_inhabited": true,
       "map": {
-        "x": 210,
-        "y": 250
+        "x": 205,
+        "y": 212
       }
     },
     {
@@ -93,8 +93,8 @@
       "sector": "eastern_core",
       "starts_inhabited": true,
       "map": {
-        "x": 550,
-        "y": 180
+        "x": 530,
+        "y": 185
       }
     },
     {
@@ -103,8 +103,8 @@
       "sector": "eastern_core",
       "starts_inhabited": true,
       "map": {
-        "x": 470,
-        "y": 150
+        "x": 500,
+        "y": 160
       }
     },
     {
@@ -113,8 +113,8 @@
       "sector": "eastern_core",
       "starts_inhabited": true,
       "map": {
-        "x": 490,
-        "y": 250
+        "x": 495,
+        "y": 212
       }
     },
     {
@@ -123,8 +123,8 @@
       "sector": "northern_rim",
       "starts_inhabited": true,
       "map": {
-        "x": 300,
-        "y": 60
+        "x": 322,
+        "y": 66
       }
     },
     {
@@ -133,8 +133,8 @@
       "sector": "northern_rim",
       "starts_inhabited": false,
       "map": {
-        "x": 400,
-        "y": 50
+        "x": 372,
+        "y": 56
       }
     },
     {
@@ -144,7 +144,7 @@
       "starts_inhabited": true,
       "map": {
         "x": 350,
-        "y": 110
+        "y": 94
       }
     },
     {
@@ -153,8 +153,8 @@
       "sector": "southern_rim",
       "starts_inhabited": true,
       "map": {
-        "x": 290,
-        "y": 330
+        "x": 322,
+        "y": 336
       }
     },
     {
@@ -163,8 +163,8 @@
       "sector": "southern_rim",
       "starts_inhabited": false,
       "map": {
-        "x": 410,
-        "y": 350
+        "x": 376,
+        "y": 346
       }
     },
     {
@@ -174,7 +174,7 @@
       "starts_inhabited": true,
       "map": {
         "x": 350,
-        "y": 300
+        "y": 312
       }
     },
     {
@@ -184,7 +184,7 @@
       "starts_inhabited": false,
       "map": {
         "x": 620,
-        "y": 340
+        "y": 348
       }
     },
     {
@@ -193,8 +193,8 @@
       "sector": "far_rim",
       "starts_inhabited": true,
       "map": {
-        "x": 670,
-        "y": 380
+        "x": 660,
+        "y": 366
       }
     },
     {
@@ -203,8 +203,8 @@
       "sector": "far_rim",
       "starts_inhabited": false,
       "map": {
-        "x": 600,
-        "y": 395
+        "x": 634,
+        "y": 388
       }
     }
   ]
