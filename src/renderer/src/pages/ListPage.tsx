@@ -9,6 +9,7 @@ import { FieldGroup, CommitInput } from '../forms/fields'
 import type { Ctx, Dict, ListPageDef } from '../forms/types'
 import { store, useStore } from '../store'
 import { confirmDialog, promptDialog } from '../ui/Modal'
+import { PicturesPanel } from './Pictures'
 import { RawJson } from './RawJson'
 
 interface Row {
@@ -234,6 +235,7 @@ export function ListPage({ def }: { def: ListPageDef }): ReactNode {
             {tab === 'form' ? (
               isDict(current.rec) ? (
                 <>
+                  {def.pictures && <PicturesPanel c={c} kind={def.pictures} rec={current.rec} />}
                   <FieldGroup c={c} file={def.file} path={recPath} rec={current.rec} fields={def.fields} />
                   {def.extra?.(c, current.rec, current.key)}
                 </>

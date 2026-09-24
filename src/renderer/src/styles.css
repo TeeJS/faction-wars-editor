@@ -851,9 +851,23 @@ tr.bad td {
 }
 
 /* ---- notices and dialogs ---- */
+/* Bottom right of the stage: above the Problems panel and its fix buttons, clear of
+   the toolbar and of page headers (where primary buttons live). */
+.stage {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.stage > .workspace,
+.stage > .welcome {
+  flex: 1;
+  min-height: 0;
+}
 .notices {
-  position: fixed;
-  right: 14px;
+  position: absolute;
+  right: 22px;
   bottom: 14px;
   display: flex;
   flex-direction: column;
@@ -992,4 +1006,119 @@ button.big small {
   text-overflow: ellipsis;
   white-space: nowrap;
   max-width: 60%;
+}
+
+/* ---- one-click fixes and callouts ---- */
+.problems li {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+}
+button.fix {
+  flex: none;
+  padding: 0 8px;
+  font-size: 12px;
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--line));
+}
+.callout {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--line));
+  background: color-mix(in srgb, var(--accent) 8%, var(--panel));
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  margin-bottom: 16px;
+}
+.callout button {
+  flex: none;
+}
+
+/* ---- pictures ---- */
+.pictures {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--panel);
+  padding: 10px 12px 12px;
+  margin-bottom: 16px;
+  max-width: 1100px;
+}
+.pictures-head {
+  display: flex;
+  gap: 12px;
+  align-items: baseline;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+.pictures-head h3 {
+  margin: 0;
+  font-size: 14px;
+}
+.picture-slots {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 10px;
+}
+.picture-card {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 8px;
+  background: var(--panel-2);
+}
+.picture-card.own {
+  border-color: color-mix(in srgb, var(--good) 50%, var(--line));
+}
+.picture-frame {
+  height: 120px;
+  display: grid;
+  place-items: center;
+  border-radius: 4px;
+  background: repeating-conic-gradient(#8882 0 25%, transparent 0 50%) 0 0 / 14px 14px;
+  overflow: hidden;
+}
+.picture-frame img {
+  max-width: 100%;
+  max-height: 100%;
+}
+.picture-frame.small img {
+  image-rendering: pixelated;
+  min-width: 61px;
+  transform: scale(1.5);
+}
+.picture-card figcaption {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 12px;
+}
+.picture-card .source {
+  color: var(--muted);
+}
+.picture-card .source.own {
+  color: var(--good);
+}
+.picture-card code {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 11px;
+}
+.warn-text {
+  color: var(--warn);
+}
+.description {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.original-text {
+  white-space: pre-wrap;
+  color: var(--muted);
+  margin: 6px 0 0;
 }

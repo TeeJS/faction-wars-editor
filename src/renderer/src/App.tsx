@@ -100,18 +100,21 @@ export function App(): ReactNode {
   return (
     <div className="app">
       <Toolbar />
-      {s.doc ? (
-        <div className="workspace">
-          <Nav />
-          <main className="page" aria-label={s.page}>
-            <Page page={s.page} />
-          </main>
-        </div>
-      ) : (
-        <Welcome />
-      )}
+      {/* The stage holds the notices so they sit above the Problems panel, never over it. */}
+      <div className="stage">
+        {s.doc ? (
+          <div className="workspace">
+            <Nav />
+            <main className="page" aria-label={s.page}>
+              <Page page={s.page} />
+            </main>
+          </div>
+        ) : (
+          <Welcome />
+        )}
+        <Notices />
+      </div>
       {s.doc && <Problems />}
-      <Notices />
       <DialogHost />
     </div>
   )
@@ -233,6 +236,11 @@ function Problems(): ReactNode {
       <ul>
         {[...errors, ...warnings].map((i, n) => (
           <li key={n} className={i.severity}>
+            {i.fix && (
+              <button className="fix" onClick={() => void actions.runFix(i.fix!)}>
+                {i.fix.label}
+              </button>
+            )}
             <button className="link" onClick={() => i.target && store.go(i.target.page, i.target.index ?? i.target.key)}>
               <span className="sev">{i.severity === 'error' ? 'Error' : 'Warning'}</span> {i.message}
             </button>

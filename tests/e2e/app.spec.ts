@@ -2,9 +2,10 @@
 // pack. Native dialogs are replaced in the main process with canned answers.
 
 import { _electron as electron, expect, test, type ElectronApplication, type Page } from '@playwright/test'
-import { existsSync, mkdirSync, readFileSync, rmSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { unzipSync, strFromU8 } from 'fflate'
+import { starfieldPng } from '../../src/core/png'
 import { checkImportable } from '../../src/core/zip'
 
 const root = resolve(__dirname, '..', '..')
@@ -83,14 +84,14 @@ test('the galaxy map shows the planets', async () => {
   await page.screenshot({ path: join(scratch, '03-map.png') })
 })
 
-test('opening a shipped pack folder: valid, and warns that its id ships with the game', async () => {
+test('opening a shipped pack folder: valid, and offers to make a copy of the built-in pack', async () => {
   test.skip(!existsSync(join(FW, 'packs', 'ww2', 'pack.json')), 'needs a faction-wars checkout')
   await answerDialogs({ open: [join(FW, 'packs', 'ww2')] })
   await page.getByRole('button', { name: 'Open Folder' }).click()
   // The open pack is saved, so no discard prompt.
   await expect(page.locator('.toolbar .pack-name')).toContainText('ww2')
   await expect(page.locator('.toolbar .status')).toContainText('Valid')
-  await expect(page.locator('.problems')).toContainText('ships with the game')
+  await expect(page.locator('.problems')).toContainText('this is the built-in')
   await page.getByRole('button', { name: 'Galaxy Map' }).click()
   await expect(page.locator('.planet').first()).toBeVisible()
   await page.screenshot({ path: join(scratch, '04-ww2-map.png') })
@@ -98,4 +99,40 @@ test('opening a shipped pack folder: valid, and warns that its id ships with the
   await page.screenshot({ path: join(scratch, '05-ww2-logistics.png') })
   await page.getByRole('button', { name: 'Rules', exact: true }).click()
   await page.screenshot({ path: join(scratch, '06-ww2-rules.png') })
+})
+
+test('make my own copy of the built-in pack, then give a character a portrait and text', async () => {
+  test.skip(!existsSync(join(FW, 'packs', 'ww2', 'pack.json')), 'needs a faction-wars checkout')
+  // The previous test left the built-in WW2 pack open.
+  await page.locator('.problems button.fix', { hasText: 'Make my own copy' }).click()
+  await page.getByLabel('Your pack id').fill('ww2-e2e-mod')
+  await page.getByLabel('Display name (the pack picker card)').fill('WW2 E2E Mod')
+  await answerDialogs({ open: [scratch] })
+  await page.getByRole('button', { name: 'Make copy' }).click()
+  await expect(page.locator('.notice.success').last()).toContainText('Saved')
+  const mod = join(scratch, 'ww2-e2e-mod')
+  expect(JSON.parse(readFileSync(join(mod, 'pack.json'), 'utf8')).id).toBe('ww2-e2e-mod')
+  expect(existsSync(join(mod, 'world_1941.jpg'))).toBe(true)
+  await expect(page.locator('.toolbar .pack-name')).toContainText('ww2-e2e-mod')
+  await expect(page.locator('.problems')).not.toContainText('this is the built-in')
+  await page.screenshot({ path: join(scratch, '07-own-copy.png') })
+
+  // Pictures: add a portrait from a PNG on disk, and Encyclopedia text.
+  const png = join(scratch, 'portrait.png')
+  writeFileSync(png, starfieldPng(80, 80, 3))
+  await page.getByRole('button', { name: 'Characters', exact: true }).click()
+  const portrait = page.locator('.picture-card', { hasText: 'Portrait' })
+  await expect(portrait).toContainText('none')
+  await answerDialogs({ open: [png] })
+  await portrait.getByRole('button', { name: 'Add my own…' }).click()
+  await expect(portrait).toContainText('this pack · 80×80')
+  const text = page.getByLabel('Encyclopedia text')
+  await text.fill('Written for the E2E mod.')
+  await text.blur()
+  await page.screenshot({ path: join(scratch, '08-pictures.png') })
+  await page.getByRole('button', { name: 'Save', exact: true }).click()
+  await expect(page.locator('.notice.success').last()).toContainText('Saved')
+  const first = JSON.parse(readFileSync(join(mod, 'characters.json'), 'utf8')).characters[0].id
+  expect(existsSync(join(mod, 'art', 'portraits', 'characters', `${first}.png`))).toBe(true)
+  expect(JSON.parse(readFileSync(join(mod, 'art', 'descriptions.json'), 'utf8')).characters[first]).toBe('Written for the E2E mod.')
 })

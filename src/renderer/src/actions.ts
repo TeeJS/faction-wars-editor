@@ -86,19 +86,7 @@ export async function newPack(): Promise<void> {
     ]
   )
   if (how === 'cancel') return
-  if (how === 'clone' && store.doc) {
-    const src = store.doc
-    const v = await formDialog('Copy this pack', [
-      { key: 'id', label: 'New pack id', value: `${src.packId}-copy`, validate: idProblem, help: 'The folder and the game both know the pack by this.' },
-      { key: 'name', label: 'Display name', value: `${String(src.get('pack.json', ['display_name']) ?? src.packId)} (copy)` }
-    ])
-    if (!v) return
-    const doc = clonePack(src, v.id, v.name)
-    store.setDoc(doc, { kind: 'new', folder: null, origin: null })
-    store.go('pack')
-    store.notify('info', `Copied as ${v.id}. Save it to choose its folder.`)
-    return
-  }
+  if (how === 'clone' && store.doc) return makeOwnCopy()
   const v = await formDialog(
     'New pack from scratch',
     [
@@ -124,6 +112,48 @@ export async function newPack(): Promise<void> {
   store.setDoc(doc, { kind: 'new', folder: null, origin: null })
   store.go('pack')
   store.notify('success', `Created ${v.id}. It is valid and playable as it stands; save it to choose its folder.`)
+}
+
+/**
+ * The modding path: copy the open pack under an id of your own and save it as a new
+ * folder. The copy sits beside the original in the game's pack picker; its pictures
+ * still come from the player's art set until the mod adds its own.
+ */
+export async function makeOwnCopy(): Promise<void> {
+  const d = store.doc
+  if (!d) return
+  const baseId = d.packId || 'pack'
+  const baseName = String(d.get('pack.json', ['display_name']) ?? baseId)
+  const v = await formDialog(
+    'Make your own copy',
+    [
+      {
+        key: 'id',
+        label: 'Your pack id',
+        value: `${baseId}-mod`,
+        validate: (t) => idProblem(t) ?? (t === baseId ? 'Pick an id different from the original.' : null),
+        help: 'Also the folder name. Choose it once: saved games remember it. Something distinctive avoids clashing with other people\'s mods.'
+      },
+      { key: 'name', label: 'Display name (the pack picker card)', value: `${baseName} (modded)`, validate: (s) => (s.trim() ? null : 'Give it a name.') }
+    ],
+    `Your copy sits beside the original in the game's pack picker, so players can keep both.${d.dirty ? ' Your unsaved edits go into the copy; the original stays as it is on disk.' : ''} Pictures keep coming from your art set until you add your own on each record's Pictures panel.`,
+    'Make copy'
+  )
+  if (!v) return
+  const copy = clonePack(d, v.id, v.name)
+  store.setDoc(copy, { kind: 'new', folder: null, origin: null })
+  store.go('pack')
+  store.notify('success', `Made ${v.id}. Choose where to save it.`)
+  await saveAs()
+}
+
+/** Runs the one-click fix a warning offers. */
+export async function runFix(fix: { action: string; arg?: string }): Promise<void> {
+  if (fix.action === 'makeCopy') return makeOwnCopy()
+  if (fix.action === 'removeFile' && fix.arg && store.doc) {
+    store.doc.edit(`Remove ${fix.arg}`, (e) => e.removeFile(fix.arg!))
+    store.notify('info', `Removed ${fix.arg} from the pack (it goes from the folder on the next save; Undo brings it back).`)
+  }
 }
 
 function sideId(s: string): string | null {
@@ -217,8 +247,15 @@ export async function exportZip(): Promise<void> {
     return
   }
   if (SHIPPED_PACK_IDS.includes(d.packId)) {
-    await alertDialog('Give your copy its own id', `'${d.packId}' ships with the game, and the game's importer refuses a zip that reuses it. Change the id on the Pack page (or use New Pack → Copy the open pack).`)
-    store.go('pack')
+    const r = await choiceDialog(
+      'Make it your own first',
+      `This is the built-in '${d.packId}' pack. The game always uses its built-in copy of '${d.packId}', so a zip under the same id would never load. Make your own copy with a new id, then export that.`,
+      [
+        { label: 'Cancel', value: 'cancel' },
+        { label: 'Make my own copy', value: 'copy', primary: true }
+      ]
+    )
+    if (r === 'copy') await makeOwnCopy()
     return
   }
   const out = await window.api.pickSaveZip(`${d.packId}.zip`)

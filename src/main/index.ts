@@ -318,14 +318,22 @@ function registerIpc(): void {
     return null
   })
 
-  /** One picture out of an art set (zip or folder), for previews only - never copied into a pack. */
+  /** One file out of an art set (zip or folder), for previews only - never copied into a pack.
+   * The zip is read once and kept (a Pictures panel asks for several files at a time). */
+  const artZips = new Map<string, { mtime: number; bytes: Uint8Array }>()
   ipcMain.handle('artset:file', (_e, setPath: string, rel: string) => {
     if (!existsSync(setPath)) return null
-    if (statSync(setPath).isDirectory()) {
+    const st = statSync(setPath)
+    if (st.isDirectory()) {
       const full = inside(setPath, rel)
       return existsSync(full) ? new Uint8Array(readFileSync(full)) : null
     }
-    const entries = unzipSync(new Uint8Array(readFileSync(setPath)), { filter: (f) => f.name === rel })
+    let cached = artZips.get(setPath)
+    if (!cached || cached.mtime !== st.mtimeMs) {
+      cached = { mtime: st.mtimeMs, bytes: new Uint8Array(readFileSync(setPath)) }
+      artZips.set(setPath, cached)
+    }
+    const entries = unzipSync(cached.bytes, { filter: (f) => f.name === rel })
     return entries[rel] ?? null
   })
 

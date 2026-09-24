@@ -13,9 +13,9 @@ suite('editor warnings on the shipped packs', () => {
       // top-level credits really is unread (handoff item); a local checkout may
       // carry the gitignored original/import.log, which really would block export.
       const expected = warnings.filter(
-        (w) => w.includes('ships with the game') || w.includes("top-level 'credits' is never read") || w.startsWith('original/')
+        (w) => w.includes("this is the built-in") || w.includes("top-level 'credits' is never read") || w.startsWith('original/')
       )
       expect(warnings).toEqual(expected)
-      expect(warnings.some((w) => w.includes('ships with the game'))).toBe(true)
+      expect(warnings.some((w) => w.includes('this is the built-in'))).toBe(true)
     })
 })

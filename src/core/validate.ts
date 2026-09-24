@@ -44,6 +44,8 @@ export interface Issue {
   severity: Severity
   message: string
   target?: IssueTarget
+  /** A one-click fix the UI can offer beside the message. */
+  fix?: { label: string; action: 'makeCopy' | 'removeFile'; arg?: string }
 }
 
 export interface ValidateOptions {

@@ -35,7 +35,12 @@ export function lintLoaded(pack: LoadedPack, doc?: PackDocument): Issue[] {
   if (!PACK_ID_RE.test(m.id))
     warn(`pack.json: id '${m.id}' must be 1-64 letters, digits, '-' or '_' - the game's importer refuses anything else.`, 'pack')
   if (SHIPPED_PACK_IDS.includes(m.id))
-    warn(`pack.json: id '${m.id}' belongs to a pack that ships with the game; the importer refuses a zip with this id. Give your copy its own id before exporting.`, 'pack')
+    out.push({
+      severity: 'warning',
+      message: `pack.json: this is the built-in '${m.id}' pack. To mod it, make your own copy with a new id - the game always uses its built-in '${m.id}', so an export under the same id would never load.`,
+      target: { page: 'pack' },
+      fix: { label: 'Make my own copy', action: 'makeCopy' }
+    })
   if (m.displayName.trim() === '') warn('pack.json: display_name is empty - the pack picker card will have no title.', 'pack')
   if (m.neutral && m.neutral.displayName.trim() === '') warn('pack.json: neutral.display_name is empty.', 'pack')
   if (m.schemaVersion !== 1) warn(`pack.json: schema_version is ${m.schemaVersion}; write 1 (a missing or 0 version passes today but is not the contract).`, 'pack')
@@ -166,7 +171,12 @@ export function lintLoaded(pack: LoadedPack, doc?: PackDocument): Issue[] {
   if (doc)
     for (const f of doc.otherFiles())
       if (f.toLowerCase().startsWith('original/'))
-        warn(`${f}: anything under original/ blocks export (the original game's art never ships in a pack) - remove it on Files & Art.`, 'files')
+        out.push({
+          severity: 'warning',
+          message: `${f}: not pack content (it belongs to the original game) - the game won't import a pack that carries an original/ folder, so it has to go before you export.`,
+          target: { page: 'files' },
+          fix: { label: 'Remove it', action: 'removeFile', arg: f }
+        })
 
   // Menu credits live under menu; a top-level 'credits' is never read.
   if (doc) {

@@ -2,7 +2,8 @@
 
 import type { ReactNode } from 'react'
 import { isDict } from '../../../core/model'
-import { chooseArtSet } from '../actions'
+import { chooseArtSet, makeOwnCopy } from '../actions'
+import { SHIPPED_PACK_IDS } from '../../../core/vocab'
 import { displaySettingsFields, packFields } from '../forms/pages'
 import { FieldGroup } from '../forms/fields'
 import type { Ctx } from '../forms/types'
@@ -32,6 +33,17 @@ export function PackPage(): ReactNode {
   ]
   return (
     <div className="page-pad">
+      {SHIPPED_PACK_IDS.includes(pack.manifest.id) && (
+        <div className="callout">
+          <div>
+            <strong>This is the built-in {pack.manifest.displayName || pack.manifest.id} pack.</strong> Look around and try changes freely. To keep a
+            mod, make your own copy: it gets its own id, sits beside the original in the game's pack picker, and exports as a zip anyone can import.
+          </div>
+          <button className="primary" onClick={() => void makeOwnCopy()}>
+            Make my own copy
+          </button>
+        </div>
+      )}
       <div className="pack-overview">
         <div>
           <h2>{pack.manifest.displayName || pack.manifest.id || 'Untitled pack'}</h2>

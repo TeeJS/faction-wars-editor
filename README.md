@@ -23,6 +23,12 @@ It follows the tradition of [REBED](https://swrebellion.net/files/file/2-rebed/)
   - Drag a planet to move it. Drag a sector to move it along with all its planets.
   - Shift-click a second planet to see the travel days between them, calculated the way the engine does.
 - **Cockpit menu editor:** draw and resize the clickable regions on the menu picture.
+- **Modding the built-in packs:** "Make my own copy" copies the open pack under an id of your own and saves it as a new folder. The copy sits beside the original in the game's pack picker and exports as a zip anyone can import. (The game always uses its built-in pack when two share an id, so a mod needs its own.)
+- **Pictures on every character, unit, facility, mission and planet**
+  - Each picture slot (Encyclopedia, portrait, miniature, mission pictures per side, planet sprite) shows the picture the game would use and whether it comes from this pack or from your art set.
+  - **Add my own** puts a PNG where the game looks first (`art/…`), overriding the art set's picture.
+  - Encyclopedia text is edited beside the pictures (`art/descriptions.json`).
+  - The original's pictures and text are shown for reference only and never copied into a pack.
 - **Rename with references:** renaming an id (a faction, planet, unit, weapon, logistics table and so on) updates every place that uses it. Deleting a record first shows where it is used.
 - **The game's own validator, ported line for line**
   - Errors read exactly as the game's pack picker would show them.

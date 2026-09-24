@@ -5,6 +5,7 @@ import type { ReactNode } from 'react'
 import type { PackDocument } from '../../../core/document'
 import type { JSONPath } from '../../../core/jsontext'
 import type { LoadedPack } from '../../../core/model'
+import type { PictureKind } from '../../../core/pictures'
 import type { RefKind } from '../../../core/refs'
 import type { PackJsonFile } from '../../../core/vocab'
 
@@ -90,6 +91,8 @@ export interface ListPageDef {
   group?: (rec: Dict, c: Ctx) => string
   subtitle?: (rec: Dict, c: Ctx) => string
   orderNote?: string
+  /** Show the Pictures panel (pictures + Encyclopedia text) for this kind of row. */
+  pictures?: PictureKind
   /** Extra panel under the form. */
   extra?: (c: Ctx, rec: Dict, index: number | string) => ReactNode
 }

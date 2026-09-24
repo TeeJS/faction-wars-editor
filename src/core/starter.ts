@@ -88,10 +88,12 @@ export function createStarterPack(opts: StarterOptions): PackDocument {
   return asNew(doc)
 }
 
-/** A copy of `source` under a new id: every file, the id changed, nothing else. */
+/** A copy of `source` under a new id: every file, the id changed, nothing else -
+ * except anything under original/, which is never pack content (the game refuses
+ * a pack carrying it), so a copy made to be modded can always be exported. */
 export function clonePack(source: PackDocument, id: string, displayName?: string): PackDocument {
   const files: FileMap = new Map()
-  for (const f of source.allFiles()) files.set(f.path, f.bytes)
+  for (const f of source.allFiles()) if (!f.path.toLowerCase().startsWith('original/')) files.set(f.path, f.bytes)
   const doc = new PackDocument(files, null)
   doc.edit('New id', (e) => {
     e.set('pack.json', ['id'], id)

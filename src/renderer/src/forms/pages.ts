@@ -271,6 +271,7 @@ export const sectorsPage: ListPageDef = {
 
 export const planetsPage: ListPageDef = {
   page: 'planets',
+  pictures: 'planets',
   title: 'Planets',
   intro: 'Order is load-bearing (day zero). Coordinates are travel time; drag them on the Galaxy Map.',
   file: 'map.json',
@@ -309,6 +310,7 @@ export const planetsPage: ListPageDef = {
 
 export const charactersPage: ListPageDef = {
   page: 'characters',
+  pictures: 'characters',
   title: 'Characters',
   intro: 'Order is load-bearing: day zero walks the roster in file order.',
   file: 'characters.json',
@@ -392,6 +394,7 @@ export const weaponsPage: ListPageDef = {
 
 export const unitsPage: ListPageDef = {
   page: 'units',
+  pictures: 'units',
   title: 'Units',
   file: 'units.json',
   listPath: ['units'],
@@ -427,6 +430,7 @@ export const unitsPage: ListPageDef = {
 
 export const facilitiesPage: ListPageDef = {
   page: 'facilities',
+  pictures: 'facilities',
   title: 'Facilities',
   file: 'facilities.json',
   listPath: ['facilities'],
@@ -465,6 +469,7 @@ export const facilitiesPage: ListPageDef = {
 
 export const missionsPage: ListPageDef = {
   page: 'missions',
+  pictures: 'missions',
   title: 'Missions',
   file: 'missions.json',
   listPath: ['missions'],
