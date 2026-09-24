@@ -20,7 +20,7 @@ One correction to item 5 below: `troop_decoy` is **not** read by the engine. It 
 
 ## New, 2026-09-24: found by the editor's game check (game main `d4c01e2`)
 
-For another agent, as before. Confirm each against current main, and get TeeJ's go-ahead per item.
+**Status: both done.** Item 8 merged as game PR #177, item 9 as #178 (2026-09-24).
 
 ### 8. A player's first faction-pack import fails (a regression from #161)
 
