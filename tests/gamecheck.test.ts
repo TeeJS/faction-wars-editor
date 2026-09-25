@@ -3,7 +3,7 @@
 // then lands as a folder the game's own validator and soak can load.
 // Runs only when FWE_GAMECHECK_DIR is set.
 
-import { mkdirSync, rmSync, writeFileSync } from 'node:fs'
+import { mkdirSync, realpathSync, rmSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { PackDocument } from '../src/core/document'
@@ -81,8 +81,9 @@ function writeParity(doc: PackDocument, expectErrors: boolean): void {
     mkdirSync(dirname(join(target, f.path)), { recursive: true })
     writeFileSync(join(target, f.path), f.bytes)
   }
-  // The game prints the folder as it was given, with '/' separators.
-  const errors = validatePack(doc, { packDirLabel: target.replace(/\\/g, '/') }).map((e) => e.message)
+  // The game prints the folder's full name with '/' separators - a Windows short
+  // name (C:/Users/RUNNER~1/...) comes out long - so the expected text does too.
+  const errors = validatePack(doc, { packDirLabel: realpathSync.native(target).replace(/\\/g, '/') }).map((e) => e.message)
   expect(errors.length > 0, errors.join('\n')).toBe(expectErrors)
   writeFileSync(join(dir, `${doc.packId}.expected.txt`), errors.map((e) => e + '\n').join(''))
 }
