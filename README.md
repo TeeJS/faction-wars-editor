@@ -22,7 +22,7 @@ It follows the tradition of [REBED](https://swrebellion.net/files/file/2-rebed/)
   - The pack's picture is drawn at `map_image_rect`, with sectors and planets on top.
   - Drag a planet to move it. Drag a sector to move it along with all its planets.
   - Shift-click a second planet to see the travel days between them, calculated the way the engine does.
-- **Cockpit menu editor:** draw and resize the clickable regions on the menu picture, and drag the four corners of a screen seen at an angle so the selection brackets follow it.
+- **Cockpit menu editor:** draw and resize the clickable regions on the menu picture, and drag the four corners of a screen seen at an angle so the selection brackets follow it. The monitor pictures (animated strips) have their own form, with a preview of each strip's first frame.
 - **Modding the built-in packs:** "Make my own copy" copies the open pack under an id of your own and saves it as a new folder. The copy sits beside the original in the game's pack picker and exports as a zip anyone can import. (The game always uses its built-in pack when two share an id, so a mod needs its own.)
 - **Pictures on every character, unit, facility, mission and planet**
   - Each picture slot (Encyclopedia, portrait, miniature, mission pictures per side, planet sprite) shows the picture the game would use and whether it comes from this pack or from your art set.

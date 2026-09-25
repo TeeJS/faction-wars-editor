@@ -168,6 +168,30 @@ test("the Cockpit's screen corners: drawn, and a corner drags", async () => {
   await page.screenshot({ path: join(scratch, '09-cockpit-corners.png') })
 })
 
+test('forms for the faction adjective and the Cockpit monitors', async () => {
+  test.skip(!existsSync(join(FW, 'packs', 'star-wars-rebellion', 'pack.json')), 'needs a faction-wars checkout')
+  // The Star Wars copy the previous test opened.
+  await page.getByRole('button', { name: 'Factions', exact: true }).click()
+  await page.getByRole('listbox', { name: 'Factions' }).getByRole('option', { name: /empire/i }).click()
+  await expect(page.getByLabel('Adjective')).toHaveValue('Imperial')
+
+  await page.getByRole('button', { name: 'Cockpit Menu' }).click()
+  await expect(page.getByText('Monitor pictures')).toBeVisible()
+  await page.getByRole('button', { name: /^▸ 1: easy\.png/ }).click()
+  const frames = page.getByLabel('Frames', { exact: true })
+  await expect(frames).toHaveValue('30')
+  await expect(page.getByLabel('Top-left x')).toHaveValue('61')
+  // A bad value is the game's error, word for word; fixing it clears it.
+  await frames.fill('0')
+  await frames.press('Enter')
+  await expect(page.locator('.problems')).toContainText("pack.json menu.monitors[0]: 'frames' must be 1 or more.")
+  await page.screenshot({ path: join(scratch, '11-monitors.png') })
+  await frames.fill('30')
+  await frames.press('Enter')
+  await expect(page.locator('.problems')).not.toContainText("'frames' must be 1 or more")
+  await page.screenshot({ path: join(scratch, '12-monitor-preview.png') })
+})
+
 test("the original's pictures are never copied in, and the card picture has a field", async () => {
   // A stand-in art set holding one portrait (the real one is the player's own).
   const portrait = starfieldPng(80, 80, 11)

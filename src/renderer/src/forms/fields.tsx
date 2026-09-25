@@ -5,7 +5,7 @@
 import { useEffect, useId, useRef, useState, type ReactNode } from 'react'
 import { originalOf } from '../../../core/artset'
 import type { JSONPath } from '../../../core/jsontext'
-import { ci, isDict } from '../../../core/model'
+import { ci, gdInt, isDict } from '../../../core/model'
 import { findUsages, renameUsages } from '../../../core/refs'
 import { parseArtRef, splitArtRef } from '../../../core/validate'
 import { ARC_KEYS, RATING_KEYS, type PackJsonFile } from '../../../core/vocab'
@@ -242,6 +242,8 @@ function renderControl(p: FieldProps): ReactNode {
       return <RectField {...p} />
     case 'quad':
       return <QuadField {...p} />
+    case 'point':
+      return <PointField {...p} />
     case 'art':
       return <ArtField {...p} />
     case 'file':
@@ -742,6 +744,22 @@ function RectField(p: FieldProps): ReactNode {
   )
 }
 
+function PointField(p: FieldProps): ReactNode {
+  const { def, rec } = p
+  const raw = ci(rec, def.key)
+  const arr = Array.isArray(raw) ? raw : []
+  const set = (i: number, t: string) => commit(p, [0, 1].map((j) => (j === i ? parseInt(t || '0', 10) : Number(arr[j] ?? 0))), false)
+  return (
+    <span className="rect">
+      {['x', 'y'].map((l, i) => (
+        <label key={l}>
+          {l} <CommitInput className="num" value={arr[i] === undefined ? '' : String(arr[i])} invalid={intProblem} ariaLabel={`${def.label} ${l}`} onCommit={(t) => set(i, t)} />
+        </label>
+      ))}
+    </span>
+  )
+}
+
 const CORNERS = ['top-left', 'top-right', 'bottom-right', 'bottom-left']
 
 /** A rect's four corners, in quad order. */
@@ -871,16 +889,29 @@ function FileField(p: FieldProps): ReactNode {
         </select>
       )}
       <button onClick={() => void importFile()}>Add picture…</button>
-      {def.preview && v !== '' && <Thumb src={v} version={c.doc.version} alt={def.label} />}
+      {def.preview && v !== '' && (
+        <Thumb src={v} version={c.doc.version} alt={def.label} frames={def.preview === 'strip' ? gdInt(ci(rec, 'frames') ?? 1) : 1} />
+      )}
     </span>
   )
 }
 
-/** A small preview of a pack picture or an art-set one. */
-function Thumb(props: { src: string; version: number; alt: string }): ReactNode {
+/** A small preview of a pack picture or an art-set one; for a strip of frames, its first frame. */
+function Thumb(props: { src: string; version: number; alt: string; frames?: number }): ReactNode {
   const { image, missing } = useImage(props.src, props.version)
-  if (image) return <img className="file-thumb" src={image.url} alt={props.alt} title={`${image.width}×${image.height}`} />
-  return missing ? <span className="muted">not found</span> : null
+  if (!image) return missing ? <span className="muted">not found</span> : null
+  const n = Math.max(1, props.frames ?? 1)
+  if (n === 1) return <img className="file-thumb" src={image.url} alt={props.alt} title={`${image.width}×${image.height}`} />
+  const w = image.width / n
+  return (
+    <span
+      className="file-thumb strip"
+      role="img"
+      aria-label={props.alt}
+      title={`${n} frames of ${Math.round(w)}×${image.height}`}
+      style={{ backgroundImage: `url(${image.url})`, backgroundSize: `${n * 100}% 100%`, aspectRatio: `${w} / ${image.height}` }}
+    />
+  )
 }
 
 /** A record's own id: renaming it rewrites every reference (the "Used by" list). */

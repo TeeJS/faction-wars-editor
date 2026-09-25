@@ -572,6 +572,12 @@ tr.bad td {
   align-items: center;
   color: var(--muted);
 }
+.file-thumb.strip {
+  display: inline-block;
+  height: 48px;
+  background-repeat: no-repeat;
+  background-position: 0 0;
+}
 .file-thumb {
   max-width: 96px;
   max-height: 64px;

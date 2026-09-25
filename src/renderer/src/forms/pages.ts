@@ -180,6 +180,13 @@ export const factionsPage: ListPageDef = {
   fields: [
     { key: 'id', label: 'Id', kind: 'id', refKind: 'faction' },
     { key: 'display_name', label: 'Display name', kind: 'text', required: true },
+    {
+      key: 'adjective',
+      label: 'Adjective',
+      kind: 'text',
+      placeholder: '(the display name)',
+      help: `The side as an adjective in the game's own sentences: "the Imperial fleet", "Alliance forces" (the battle alert and results). Optional; the display name when empty.`
+    },
     { key: 'color', label: 'Colour', kind: 'color', required: true, help: 'Map markers and the GID legend.' },
     { key: 'loyalty_label', label: 'Loyalty label', kind: 'text', required: true, help: 'GID title for modes with title_from: loyalty_label.' },
     { key: 'agent_name', label: 'Agent name', kind: 'text', placeholder: 'Agent' },
@@ -843,8 +850,67 @@ export const menuFields: FieldDef[] = [
       { key: 'selected_color', label: 'Selection colour', kind: 'color' }
     ]
   },
+  {
+    key: 'monitor_fps',
+    label: 'Monitor speed',
+    kind: 'float',
+    placeholder: '10',
+    help: 'Frames per second for every monitor picture below. Optional; 10 when empty. Must be above 0.'
+  },
+  {
+    key: 'monitors',
+    label: 'Monitor pictures',
+    kind: 'list',
+    help: "Pictures on the Cockpit's monitors (the rotating side icon of the manual's Fig. 2.2). Each is a strip of equal frames side by side, played in a loop. A monitor whose picture is missing stays dark.",
+    itemTitle: (it, i) => {
+      const img = String(ci(it, 'image') ?? '')
+      const region = String(ci(it, 'region') ?? '')
+      return `${i + 1}: ${img.split('/').pop() || '(no picture)'}${region ? ' - while ' + region : ''}`
+    },
+    newItem: () => ({ image: '', at: [0, 0], frames: 1 }),
+    fields: [
+      {
+        key: 'image',
+        label: 'Picture strip',
+        kind: 'file',
+        extensions: ['png', 'jpg', 'jpeg', 'webp', 'bmp'],
+        allowArtSet: true,
+        preview: 'strip',
+        required: true,
+        help: 'A file in the pack, or "<art set>:<path>" (e.g. swr-original:menu/easy.png).'
+      },
+      { key: 'at', label: 'Top-left', kind: 'point', required: true, help: "Where the strip's first frame sits, in the Cockpit picture's pixels." },
+      { key: 'frames', label: 'Frames', kind: 'int', min: 1, placeholder: '1', help: 'How many equal frames the strip holds, side by side. 1 when empty.' },
+      { key: 'still', label: 'Hold frame', kind: 'int', min: 0, help: 'Optional: show only this frame (0 is the first) instead of playing the strip.' },
+      {
+        key: 'region',
+        label: 'While chosen',
+        kind: 'select',
+        allowEmpty: true,
+        emptyLabel: '(always)',
+        options: (c) => regionKeys(c),
+        help: 'Optional: the region whose choice switches this monitor to its selected picture.'
+      },
+      {
+        key: 'selected_image',
+        label: 'Selected picture strip',
+        kind: 'file',
+        extensions: ['png', 'jpg', 'jpeg', 'webp', 'bmp'],
+        allowArtSet: true,
+        preview: 'strip',
+        showIf: (r) => String(ci(r, 'region') ?? '') !== '' || ci(r, 'selected_image') !== undefined,
+        help: 'Shown instead while that region is chosen.'
+      }
+    ]
+  },
   { key: 'credits', label: 'Credits', kind: 'strings', help: "The Cockpit's credits. When this has any lines, the game shows them instead of the pack's own credits (Pack page)." }
 ]
+
+/** A Cockpit region's key, as a monitor names it: its action, or action:value. */
+function regionKeys(c: Ctx): string[] {
+  const keys = (c.pack.manifest.menu?.regions ?? []).map((r) => (r.value ? `${r.action}:${r.value}` : r.action))
+  return [...new Set(keys)]
+}
 
 export const LIST_PAGES: ListPageDef[] = [
   factionsPage,

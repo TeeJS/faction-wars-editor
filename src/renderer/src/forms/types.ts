@@ -59,10 +59,12 @@ export type FieldDef =
   | (Base & { kind: 'ratings' })
   | (Base & { kind: 'unitWeapons' })
   | (Base & { kind: 'rect'; float?: boolean })
+  /** One [x, y] point, in whole pixels. */
+  | (Base & { kind: 'point' })
   /** Four [x, y] corners: top-left, top-right, bottom-right, bottom-left. Optional; starts from the record's rect. */
   | (Base & { kind: 'quad' })
   | (Base & { kind: 'art'; artKind: string })
-  | (Base & { kind: 'file'; extensions: string[]; allowArtSet?: boolean; preview?: boolean })
+  | (Base & { kind: 'file'; extensions: string[]; allowArtSet?: boolean; preview?: boolean | 'strip' })
   | (Base & { kind: 'id'; refKind?: RefKind; numeric?: boolean; readonly?: boolean })
   | (Base & { kind: 'custom'; render: (p: FieldProps) => ReactNode })
 
