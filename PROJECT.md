@@ -3,6 +3,14 @@
 Signed off by TeeJ on 2026-09-23. The full plan it came from is summarised here; this file is the
 contract every change is checked against.
 
+## 0. Modding comes first (TeeJ, 2026-09-25, standing rule)
+
+Star Wars: Rebellion has a **modding culture**, and the original game came with an editor. This
+editor exists to give modders full control of their packs. **Never refuse, warn about, strip or
+second-guess what a user puts in their pack**, the original game's pictures included. Checks are
+only for things that would stop the game loading or playing the pack. If something has a hard
+consequence outside the editor, say so once, then let the user decide.
+
 ## 1. The one thing it must do
 
 Open any Faction Wars faction pack (a folder or a `.zip`), or start a new one. Edit every field
@@ -27,8 +35,8 @@ accepts and plays.
 - **Changing the `TeeJS/faction-wars` repo.** Changes it needs go into
   `docs/handoffs/faction-wars.md` for another agent.
 - **Exporting while validation errors exist.**
-- **Bundling LucasArts art.** The zip leak guard refuses anything under `original/` or matching an
-  art set.
+- **Shipping LucasArts art in the editor itself.** The editor's repo and releases carry none. What a
+  user's own pack carries is the user's call (section 0).
 - **Silently rewriting files that weren't edited.** They are written back byte-for-byte.
 
 ## 4. Deployment and backup
