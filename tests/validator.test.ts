@@ -76,6 +76,7 @@ function menu(over: O): O {
     credits: ['A line.']
   }
   if (over.no_readout) delete m.readout
+  if (over.monitor) m.monitors = [over.monitor]
   return m
 }
 
@@ -94,6 +95,7 @@ function pack(sectorOver: O, planetOver: O, other: O): PackDocument {
     setup: { difficulty_default: 'medium', galaxy_sizes: g('sizes', ['standard', 'large', 'huge']), galaxy_size_default: g('size_default', 'standard') }
   }
   if ('menu' in other) manifest.menu = other.menu
+  if ('card_image' in other) manifest.card_image = other.card_image
   if ('victory_tips' in other) manifest.victory_tips = other.victory_tips
   const s1: O = { id: 'core', display_name: 'Core', ring: 1, starts_neutral: false, map: { x: 1, y: 1 }, min_size: 'standard', intel_tier: 'live', source_id: 1, ...sectorOver }
   const s2: O = { id: 'rim', display_name: 'Rim', ring: 2, starts_neutral: true, map: { x: 2, y: 2 }, min_size: 'large', intel_tier: 'presence', source_id: 2 }
@@ -267,6 +269,22 @@ const cases: [string, PackDocument, string][] = [
   ['menu region with a bad selected_color', pack({}, {}, { menu: menu({ bad_color: true }) }), "selected_color: 'red' is not a #rrggbb color"],
   ['victory_tips missing a text', pack({}, {}, { victory_tips: { standard: 'Win.', hq_only: '' } }), "victory_tips: 'standard' and 'hq_only' texts are both required"],
   ['menu with no readout', pack({}, {}, { menu: menu({ no_readout: true }) }), "'readout' is required"],
+  [
+    'menu monitor for a region the menu does not have',
+    pack({}, {}, { menu: menu({ monitor: { image: 'galaxyShaded.bmp', at: [0, 0], frames: 1, region: 'nowhere' } }) }),
+    "region 'nowhere' is not a region of the menu"
+  ],
+  ['menu monitor with no frames', pack({}, {}, { menu: menu({ monitor: { image: 'galaxyShaded.bmp', at: [0, 0], frames: 0 } }) }), "'frames' must be 1 or more"],
+  [
+    'menu monitor with a selected_image and no region',
+    pack({}, {}, { menu: menu({ monitor: { image: 'galaxyShaded.bmp', at: [0, 0], frames: 1, selected_image: 'galaxyShaded.bmp' } }) }),
+    "'selected_image' needs the 'region' it shows for"
+  ],
+  [
+    'menu monitor from an art set the pack does not declare',
+    pack({}, {}, { menu: menu({ monitor: { image: 'swr-original:menu/empire.png', at: [0, 0], frames: 15 } }) }),
+    "menu.monitors image: 'swr-original:menu/empire.png' names art set 'swr-original', which art_sets does not declare"
+  ],
   ['galaxy_size_default not offered', pack({}, {}, { size_default: 'enormous' }), "galaxy_size_default 'enormous' is not one of"],
   // Rule 12
   ['character with an unknown role', pack({}, {}, { char_roles: ['chosen_one'] }), "unknown role 'chosen_one'"],
@@ -434,5 +452,40 @@ describe('new rules, word for word', () => {
     const doc = pack({}, {}, { logistics: ok })
     doc.edit('hidden hq', (e) => e.set('factions.json', ['factions', 0, 'hq'], { kind: 'hidden' }))
     expect(errorsOfNew(doc)).toContain("factions.json[test_side]: hq.kind 'hidden' requires hq.placement (a planet id or 'random_rim').")
+  })
+})
+
+describe('Cockpit monitors, word for word', () => {
+  const ok = { core_system_facilities: {}, rim_system_facilities: {}, garrison: {} }
+  const baseline = new Set(errorsOf(pack({}, {}, { logistics: ok, menu: menu({}) })))
+  const monitorErrors = (monitor: O, extra: O = {}) => {
+    const m = menu({ monitor })
+    Object.assign(m, extra)
+    return errorsOf(pack({}, {}, { logistics: ok, menu: m })).filter((e) => !baseline.has(e))
+  }
+  it('a good monitor passes', () => {
+    expect(monitorErrors({ image: 'galaxyShaded.bmp', at: [0, 0], frames: 3, still: 2, region: 'difficulty:easy', selected_image: 'galaxyShaded.bmp' })).toEqual([])
+  })
+  it('every check, in the game order', () => {
+    expect(monitorErrors({ at: [1], frames: 2, still: 2, selected_image: 'no-such.png' }, { monitor_fps: 0 })).toEqual([
+      'pack.json menu.monitor_fps: must be above 0.',
+      "pack.json menu.monitors[0]: 'image' is required.",
+      "pack.json menu.monitors[0]: selected_image 'no-such.png' is not in res://packs/star-wars-rebellion.",
+      "pack.json menu.monitors[0]: 'at' must be [x, y].",
+      "pack.json menu.monitors[0]: 'still' must be a frame of the strip (0 to 1).",
+      "pack.json menu.monitors[0]: 'selected_image' needs the 'region' it shows for."
+    ])
+  })
+})
+
+describe('card_image, as the game checks it', () => {
+  const ok = { core_system_facilities: {}, rim_system_facilities: {}, garrison: {} }
+  it('a missing file is not an error', () => {
+    expect(errorsOf(pack({}, {}, { logistics: ok, card_image: 'no-such-picture.jpg' }))).toEqual(errorsOf(pack({}, {}, { logistics: ok })))
+  })
+  it('an art-set reference must name a declared set', () => {
+    expect(errorsOf(pack({}, {}, { logistics: ok, card_image: 'swr-original:screens/card.png' }))).toContain(
+      "pack.json card_image: 'swr-original:screens/card.png' names art set 'swr-original', which art_sets does not declare."
+    )
   })
 })

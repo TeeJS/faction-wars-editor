@@ -139,6 +139,30 @@ suite("the game's validator says what the editor's says, word for word", () => {
     writeParity(doc, true)
   })
 
+  it.runIf(haveGameRepo)('Cockpit monitors: every check', () => {
+    const doc = clonePack(loadShipped('star-wars-rebellion'), 'parity-monitors', 'Parity monitors')
+    const n = (doc.get('pack.json', ['menu', 'monitors']) as unknown[]).length
+    doc.edit('break monitors', (e) => {
+      e.set('pack.json', ['menu', 'monitor_fps'], 0)
+      e.insert('pack.json', ['menu', 'monitors'], n, { at: [1], frames: 2, still: 2, selected_image: 'no-such.png' })
+      e.insert('pack.json', ['menu', 'monitors'], n + 1, { image: 'nowhere.png', at: [0, 0], frames: 0, region: 'nowhere' })
+      e.insert('pack.json', ['menu', 'monitors'], n + 2, { image: 'other-set:menu/x.png', at: [0, 0] })
+    })
+    writeParity(doc, true)
+  })
+
+  it('a card picture from an art set the pack does not declare', () => {
+    const doc = starter('parity-card')
+    doc.edit('card', (e) => e.set('pack.json', ['card_image'], 'swr-original:screens/card.png'))
+    writeParity(doc, true)
+  })
+
+  it('a card picture the pack left behind still loads', () => {
+    const doc = starter('parity-card-missing')
+    doc.edit('card', (e) => e.set('pack.json', ['card_image'], 'no-such-picture.jpg'))
+    writeParity(doc, false)
+  })
+
   it.runIf(haveGameRepo)('WW2 with a comment in every JSON object loads clean', () => {
     const { doc } = commentedCopy(clonePack(loadShipped('ww2'), 'parity-comments', 'Parity comments'), 'parity-comments')
     writeParity(doc, false)

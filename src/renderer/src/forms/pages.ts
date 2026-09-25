@@ -97,6 +97,15 @@ export const packFields: FieldDef[] = [
     help: 'The galaxy backdrop: a file in the pack, or "<art set>:<path>" (e.g. swr-original:screens/galaxy.png).'
   },
   {
+    key: 'card_image',
+    label: 'Card picture',
+    kind: 'file',
+    extensions: ['jpg', 'jpeg', 'png'],
+    allowArtSet: true,
+    preview: true,
+    help: "The picture on this pack's card in the game's launch screen, shown when the map picture can't be (its art set isn't imported). A JPG or PNG in the pack, or \"<art set>:<path>\". Optional: if the file is missing, the card just has no picture."
+  },
+  {
     key: 'map_image_rect',
     label: 'Map picture placement',
     kind: 'rect',

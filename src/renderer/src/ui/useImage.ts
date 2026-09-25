@@ -12,22 +12,27 @@ export interface LoadedImage {
 }
 
 const artCache = new Map<string, Promise<Uint8Array | null>>()
-let defaultArtSet: Promise<string | null> | null = null
 
-async function artSetPath(): Promise<string | null> {
-  if (store.artSet) return store.artSet.path
-  defaultArtSet ??= window.api.defaultArtSet()
-  return defaultArtSet
+/** Where art-set previews come from: every art set found on this computer, a chosen one first. */
+export async function artSetPaths(): Promise<string[]> {
+  return (store.art ?? (await store.loadArt())).sources.map((s) => s.path)
+}
+
+/** A file from the first art set that has it. */
+export async function artSetFile(rel: string): Promise<Uint8Array | null> {
+  for (const setPath of await artSetPaths()) {
+    const key = `${setPath}|${rel}`
+    if (!artCache.has(key)) artCache.set(key, window.api.artSetFile(setPath, rel))
+    const bytes = await artCache.get(key)!
+    if (bytes) return bytes
+  }
+  return null
 }
 
 async function bytesFor(ref: string): Promise<Uint8Array | null> {
   const [set, rel] = splitArtRef(ref)
   if (!set) return store.doc?.fileBytes(ref) ?? null
-  const setPath = await artSetPath()
-  if (!setPath) return null
-  const key = `${setPath}|${rel}`
-  if (!artCache.has(key)) artCache.set(key, window.api.artSetFile(setPath, rel))
-  return artCache.get(key)!
+  return artSetFile(rel)
 }
 
 function mimeFor(ref: string): string {

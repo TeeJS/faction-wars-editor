@@ -62,7 +62,7 @@ export type FieldDef =
   /** Four [x, y] corners: top-left, top-right, bottom-right, bottom-left. Optional; starts from the record's rect. */
   | (Base & { kind: 'quad' })
   | (Base & { kind: 'art'; artKind: string })
-  | (Base & { kind: 'file'; extensions: string[]; allowArtSet?: boolean })
+  | (Base & { kind: 'file'; extensions: string[]; allowArtSet?: boolean; preview?: boolean })
   | (Base & { kind: 'id'; refKind?: RefKind; numeric?: boolean; readonly?: boolean })
   | (Base & { kind: 'custom'; render: (p: FieldProps) => ReactNode })
 

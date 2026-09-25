@@ -261,14 +261,15 @@ export async function exportZip(): Promise<void> {
   const out = await window.api.pickSaveZip(`${d.packId}.zip`)
   if (!out) return
   try {
-    const art = store.artSet ?? (await loadDefaultArtSet())
+    const art = store.art ?? (await store.loadArt())
+    const hashes = art.byHash.size > 0 ? new Set(art.byHash.keys()) : null
     const title = String(d.get('pack.json', ['display_name']) ?? d.packId)
-    const r = await buildPackZip(d.allFiles(), { id: d.packId, title, exporter: `faction-wars-editor ${appVersion}`, artSetHashes: art?.hashes ?? null })
+    const r = await buildPackZip(d.allFiles(), { id: d.packId, title, exporter: `faction-wars-editor ${appVersion}`, artSetHashes: hashes })
     if (!r.ok || !r.bytes) {
       await alertDialog('Not exported', r.message)
       return
     }
-    const refusal = await checkImportable(r.bytes, art?.hashes ?? null)
+    const refusal = await checkImportable(r.bytes, hashes)
     if (refusal) {
       await alertDialog('Not exported', `The game's importer would refuse this zip: ${refusal}`)
       return
@@ -276,30 +277,23 @@ export async function exportZip(): Promise<void> {
     await window.api.writeFile(out, r.bytes)
     store.notify(
       'success',
-      `Exported ${r.files} files to ${out}.${art ? '' : ' (No art set was found to check against; the game checks again on import.)'} Import it in Faction Wars from the pack picker.`
+      `Exported ${r.files} files to ${out}.${hashes ? '' : ' (No art set was found to check against; the game checks again on import.)'} In Faction Wars, drag it onto the first screen, or use the + card (Add your own pack).`
     )
   } catch (e) {
     fail('Could not export', e)
   }
 }
 
-async function loadDefaultArtSet(): Promise<{ path: string; hashes: Set<string> } | null> {
-  const r = await window.api.artSetHashes(null)
-  if (!r) return null
-  store.artSet = { path: r.path, hashes: new Set(r.hashes) }
-  return store.artSet
-}
-
 export async function chooseArtSet(): Promise<void> {
   const p = await window.api.pickArtSet()
   if (!p) return
-  const r = await window.api.artSetHashes(p)
-  if (!r) {
+  if (!(await window.api.isArtSet(p))) {
     await alertDialog('Not an art set', `${p} has no art-set manifest.json.`)
     return
   }
-  store.artSet = { path: r.path, hashes: new Set(r.hashes) }
-  store.notify('success', `Export will check against ${r.hashes.length} pictures in ${r.path}.`)
+  store.artChosen = p
+  const art = await store.loadArt(true)
+  store.notify('success', `Using the art set at ${p}. The editor now knows ${art.byHash.size} of the original's pictures, from ${art.sources.length} art set${art.sources.length === 1 ? '' : 's'}.`)
 }
 
 export function undo(): void {

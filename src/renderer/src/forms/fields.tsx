@@ -3,13 +3,15 @@
 // typing session is one undo step.
 
 import { useEffect, useId, useRef, useState, type ReactNode } from 'react'
+import { originalOf } from '../../../core/artset'
 import type { JSONPath } from '../../../core/jsontext'
 import { ci, isDict } from '../../../core/model'
 import { findUsages, renameUsages } from '../../../core/refs'
 import { parseArtRef, splitArtRef } from '../../../core/validate'
 import { ARC_KEYS, RATING_KEYS, type PackJsonFile } from '../../../core/vocab'
 import { store } from '../store'
-import { confirmDialog } from '../ui/Modal'
+import { alertDialog, choiceDialog, confirmDialog } from '../ui/Modal'
+import { useImage } from '../ui/useImage'
 import type { Ctx, Dict, FieldDef, FieldProps, Opt, OptSource } from './types'
 
 // ---- helpers ----
@@ -826,7 +828,19 @@ function FileField(p: FieldProps): ReactNode {
     const picked = await window.api.pickFiles(`Add a picture for ${def.label}`, def.extensions)
     if (!picked.length) return
     const f = picked[0]
-    const target = c.doc.hasFile(f.name) ? f.name : f.name
+    // The game refuses a pack that carries the original's pictures: name it from the art set instead.
+    const original = await originalOf(f.bytes, store.art ?? (await store.loadArt()))
+    if (original) {
+      if (def.allowArtSet && artSets.includes(splitArtRef(original)[0])) {
+        const r = await choiceDialog("That's the original's picture", `It is already in your art set as ${original}. Use that name, and the game shows it from your art set.`, [
+          { label: 'Cancel', value: 'cancel' },
+          { label: `Use ${original}`, value: 'use', primary: true }
+        ])
+        if (r === 'use') commit(p, original, false)
+      } else await alertDialog("That's the original's picture", 'Leave it empty: it is already in your art set.')
+      return
+    }
+    const target = f.name
     c.doc.edit(`Add ${target}`, (e) => {
       e.setFile(target, f.bytes)
       e.set(file, [...path, def.key], target)
@@ -857,8 +871,16 @@ function FileField(p: FieldProps): ReactNode {
         </select>
       )}
       <button onClick={() => void importFile()}>Add picture…</button>
+      {def.preview && v !== '' && <Thumb src={v} version={c.doc.version} alt={def.label} />}
     </span>
   )
+}
+
+/** A small preview of a pack picture or an art-set one. */
+function Thumb(props: { src: string; version: number; alt: string }): ReactNode {
+  const { image, missing } = useImage(props.src, props.version)
+  if (image) return <img className="file-thumb" src={image.url} alt={props.alt} title={`${image.width}×${image.height}`} />
+  return missing ? <span className="muted">not found</span> : null
 }
 
 /** A record's own id: renaming it rewrites every reference (the "Used by" list). */

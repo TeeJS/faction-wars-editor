@@ -4,7 +4,8 @@
 
 import type { PackDocument } from './document'
 import { ci, hydrate, isDict, type LoadedPack } from './model'
-import type { Issue } from './validate'
+import { normalizePath } from './document'
+import { splitArtRef, type Issue } from './validate'
 import {
   ENGINE_MISSION_TABLES,
   FACILITY_STAT_KEYS,
@@ -42,6 +43,9 @@ export function lintLoaded(pack: LoadedPack, doc?: PackDocument): Issue[] {
     })
   if (m.displayName.trim() === '') warn('pack.json: display_name is empty - the pack picker card will have no title.', 'pack')
   if (m.neutral && m.neutral.displayName.trim() === '') warn('pack.json: neutral.display_name is empty.', 'pack')
+  // The game shows no picture on the card then, and loads the pack anyway.
+  if (doc && m.cardImage !== '' && splitArtRef(m.cardImage)[0] === '' && !doc.hasFile(normalizePath(m.cardImage)))
+    warn(`pack.json: card_image '${m.cardImage}' is not in the pack - the launch screen card will have no picture (the pack still loads).`, 'pack')
   if (m.schemaVersion !== 1) warn(`pack.json: schema_version is ${m.schemaVersion}; write 1 (a missing or 0 version passes today but is not the contract).`, 'pack')
 
   // Faction count: day zero places only the first two sides (day_zero_generator.gd:172-256).

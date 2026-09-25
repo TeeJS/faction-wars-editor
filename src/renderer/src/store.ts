@@ -2,6 +2,7 @@
 // showing, and the latest validation. React reads it through useStore().
 
 import { useSyncExternalStore } from 'react'
+import { findOriginals, indexArtSets, type ArtSets } from '../../core/artset'
 import type { PackDocument } from '../../core/document'
 import { lintPack } from '../../core/lint'
 import { hydrate, type LoadedPack } from '../../core/model'
@@ -29,8 +30,15 @@ class AppStore {
   selection: Record<string, number | string | undefined> = {}
   issues: Issue[] = []
   notices: Notice[] = []
-  artSet: { path: string; hashes: Set<string> } | null = null
+  /** The player's art sets on this computer (null until looked for; empty sources when none). */
+  art: ArtSets | null = null
+  /** An art set the author pointed the editor at, looked in first. */
+  artChosen: string | null = null
   showIssues = true
+  /** Pack files that are the original's pictures (found asynchronously, by hash). */
+  private originals: Issue[] = []
+  private originalsRun = 0
+  private artLoading: Promise<ArtSets> | null = null
 
   private _version = 0
   private listeners = new Set<() => void>()
@@ -60,6 +68,7 @@ class AppStore {
     this.selection = {}
     this.cache = null
     this.issues = []
+    this.originals = []
     if (doc) {
       this.unsubDoc = doc.subscribe(() => {
         this.cache = null
@@ -113,7 +122,40 @@ class AppStore {
   validateNow(): void {
     if (!this.doc) return
     const label = this.source.folder ?? undefined
-    this.issues = [...validatePack(this.doc, { packDirLabel: label }), ...lintPack(this.doc)]
+    this.issues = [...validatePack(this.doc, { packDirLabel: label }), ...lintPack(this.doc), ...this.originals]
+    this.emit()
+    void this.checkOriginals()
+  }
+
+  /** Finds the art sets (once; again after the author chooses one). */
+  loadArt(force = false): Promise<ArtSets> {
+    if (!this.artLoading || force)
+      this.artLoading = window.api.findArtSets(this.artChosen).then((sources) => {
+        this.art = indexArtSets(sources)
+        this.emit()
+        void this.checkOriginals()
+        return this.art
+      })
+    return this.artLoading
+  }
+
+  /** Warns about every pack file that is identical to one of the art set's: the
+   * game refuses to import a pack that carries one. */
+  async checkOriginals(): Promise<void> {
+    const doc = this.doc
+    const run = ++this.originalsRun
+    const art = this.art ?? (await this.loadArt())
+    const found = doc ? await findOriginals(doc.allFiles(), art) : []
+    if (run !== this.originalsRun || doc !== this.doc) return
+    const next: Issue[] = found.map((f) => ({
+      severity: 'warning',
+      message: `${f.path}: this is the original's picture (${f.original} in your art set). The game won't import a pack that carries it: remove it, and the game uses the art set's.`,
+      target: { page: 'files' },
+      fix: { label: 'Remove it', action: 'removeFile', arg: f.path }
+    }))
+    if (JSON.stringify(next) === JSON.stringify(this.originals)) return
+    this.issues = [...this.issues.filter((i) => !this.originals.includes(i)), ...next]
+    this.originals = next
     this.emit()
   }
 

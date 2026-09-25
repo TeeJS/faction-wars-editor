@@ -135,7 +135,13 @@ export interface MenuRegionDef {
   quadGiven: boolean
 }
 export interface MenuReadoutDef { rect: number[]; standard: string; hqOnly: string; color: string }
-export interface MenuDef { image: string; selectedColor: string; regions: MenuRegionDef[]; readout: MenuReadoutDef | null; credits: string[] }
+/** A picture on a Cockpit monitor: a strip of `frames` frames with its top-left at `at`. */
+export interface MenuMonitorDef { image: string; at: number[]; frames: number; still: number; region: string; selectedImage: string; index: number }
+export interface MenuDef {
+  image: string; selectedColor: string; regions: MenuRegionDef[]; readout: MenuReadoutDef | null; credits: string[]
+  monitors: MenuMonitorDef[]
+  monitorFps: number
+}
 export interface VictoryTipsDef { standard: string; hqOnly: string }
 export interface PackManifest {
   id: string
@@ -148,6 +154,8 @@ export interface PackManifest {
   /** [x, y, w, h], or null when absent (the picture's own pixels). */
   mapImageRect: number[] | null
   summary: string
+  /** The launch screen card's picture when map_image's art set is not imported. Optional. */
+  cardImage: string
   setup: PackSetupDef | null
   menu: MenuDef | null
   victoryTips: VictoryTipsDef | null
@@ -274,6 +282,7 @@ export function readManifest(d: unknown): PackManifest {
     mapImage: strOr(d, 'map_image'),
     mapImageRect: Array.isArray(r) && r.length === 4 ? r.map(gdFloat) : null,
     summary: strOr(d, 'summary'),
+    cardImage: strOr(d, 'card_image'),
     setup:
       setupD == null
         ? null
@@ -308,7 +317,24 @@ export function readManifest(d: unknown): PackManifest {
                     hqOnly: strOr(readoutD, 'hq_only'),
                     color: strOr(readoutD, 'color', '#40ff40')
                   },
-            credits: Array.isArray(ci(menuD, 'credits')) ? (ci(menuD, 'credits') as unknown[]).map(gdStr) : []
+            credits: Array.isArray(ci(menuD, 'credits')) ? (ci(menuD, 'credits') as unknown[]).map(gdStr) : [],
+            monitors: Array.isArray(ci(menuD, 'monitors'))
+              ? (ci(menuD, 'monitors') as unknown[]).map((e, index) => {
+                  const at = ci(e, 'at')
+                  const frames = ci(e, 'frames')
+                  const still = ci(e, 'still')
+                  return {
+                    image: strOr(e, 'image'),
+                    at: Array.isArray(at) ? at.map(gdInt) : [],
+                    frames: frames === null || frames === undefined ? 1 : gdInt(frames),
+                    still: still === null || still === undefined ? -1 : gdInt(still),
+                    region: strOr(e, 'region'),
+                    selectedImage: strOr(e, 'selected_image'),
+                    index
+                  }
+                })
+              : [],
+            monitorFps: floatOr(menuD, 'monitor_fps', 10)
           },
     victoryTips: tipsD == null ? null : { standard: strOr(tipsD, 'standard'), hqOnly: strOr(tipsD, 'hq_only') },
     artSets: Array.isArray(ci(d, 'art_sets')) ? (ci(d, 'art_sets') as unknown[]).map(gdStr) : [],

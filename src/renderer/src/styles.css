@@ -572,6 +572,14 @@ tr.bad td {
   align-items: center;
   color: var(--muted);
 }
+.file-thumb {
+  max-width: 96px;
+  max-height: 64px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  object-fit: contain;
+  background: #000;
+}
 .quad {
   display: flex;
   flex-direction: column;

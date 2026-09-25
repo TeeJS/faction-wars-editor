@@ -1,5 +1,7 @@
 // The bridge's shape, shared by the preload (which implements it) and the page.
 
+import type { ArtSetSource } from '../core/artset'
+
 export interface RecentEntry {
   path: string
   kind: 'folder' | 'zip'
@@ -31,10 +33,11 @@ export interface EditorApi {
   readFile(path: string): Promise<Uint8Array>
   writeFile(path: string, bytes: Uint8Array): Promise<void>
   saveTree(dir: string, files: [string, Uint8Array][], remove: string[], replace: boolean): Promise<{ backup: string | null }>
-  artSetHashes(path: string | null): Promise<{ path: string; hashes: string[] } | null>
+  /** The art sets on this computer (a chosen one first), with each file's sha256. */
+  findArtSets(chosen: string | null): Promise<ArtSetSource[]>
+  isArtSet(path: string): Promise<boolean>
   /** A picture from an art set (zip or folder), for previews. */
   artSetFile(setPath: string, rel: string): Promise<Uint8Array | null>
-  defaultArtSet(): Promise<string | null>
   showItem(path: string): Promise<void>
   recent(): Promise<RecentEntry[]>
   addRecent(entry: RecentEntry): Promise<void>

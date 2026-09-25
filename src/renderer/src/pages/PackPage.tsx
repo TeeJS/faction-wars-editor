@@ -64,8 +64,19 @@ export function PackPage(): ReactNode {
               'Not saved to a folder yet.'
             )}
             {' · '}
-            Art set for previews and the export check:{' '}
-            {s.artSet ? <code>{s.artSet.path}</code> : <span>the Exporter's default (Documents/Faction Wars/swr-original.art.zip), if present</span>}{' '}
+            Your art set, for previews and the original-picture check:{' '}
+            {s.art === null ? (
+              <span>looking…</span>
+            ) : s.art.sources.length > 0 ? (
+              s.art.sources.map((a, i) => (
+                <span key={a.path}>
+                  {i > 0 && ', '}
+                  <code>{a.path}</code>
+                </span>
+              ))
+            ) : (
+              <span>none found (the editor looks in Documents/Faction Wars and in the game's own data folder)</span>
+            )}{' '}
             <button className="link" onClick={() => void chooseArtSet()}>
               choose…
             </button>

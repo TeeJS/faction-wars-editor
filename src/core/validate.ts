@@ -301,6 +301,28 @@ export function validateMenu(pack: LoadedPack, packDir: string, hasFile: (p: str
     if (n === 0) c.err(`pack.json menu: no region for '${key}' - every Cockpit function needs one (manual p021, Fig. 2.2).`, M)
     else if (n > 1) c.err(`pack.json menu: '${key}' has ${n} regions; one each.`, M)
   }
+
+  // The monitors' pictures (manual p021, Fig. 2.2): a strip of frames, where it
+  // sits, and - for a picture that changes with a choice - the region.
+  if (menu.monitorFps <= 0) c.err('pack.json menu.monitor_fps: must be above 0.', M)
+  for (const m of menu.monitors) {
+    const ctx = `pack.json menu.monitors[${m.index}]`
+    for (const [name, value] of [
+      ['image', m.image],
+      ['selected_image', m.selectedImage]
+    ]) {
+      if (value === '') {
+        if (name === 'image') c.err(`${ctx}: 'image' is required.`, M)
+        continue
+      }
+      if (splitArtRef(value)[0] === '' && !hasFile(value)) c.err(`${ctx}: ${name} '${value}' is not in ${packDir}.`, M)
+    }
+    if (m.at.length !== 2) c.err(`${ctx}: 'at' must be [x, y].`, M)
+    if (m.frames < 1) c.err(`${ctx}: 'frames' must be 1 or more.`, M)
+    if (m.still >= m.frames) c.err(`${ctx}: 'still' must be a frame of the strip (0 to ${m.frames - 1}).`, M)
+    if (m.region !== '' && !seen.has(m.region)) c.err(`${ctx}: region '${m.region}' is not a region of the menu.`, M)
+    if (m.selectedImage !== '' && m.region === '') c.err(`${ctx}: 'selected_image' needs the 'region' it shows for.`, M)
+  }
 }
 
 // Rules 4, 8, 14, 16.
@@ -640,10 +662,18 @@ export function validateArt(pack: LoadedPack, c: Collector): void {
         c.err(`${ctx}: '${row.art}' must be [<art set>:]<kind>/<id>, the art set one of ${join(sets)} and the kind one of ${join(ART_KINDS)}.`, T)
     }
   }
+  // card_image is only the launch-screen card's picture: a missing file is not an
+  // error (a copy of a shipped pack that leaves it behind must still load), but an
+  // art-set reference must name a declared set, like every other picture.
   const pairs: [string, string][] = [
     ['map_image', pack.manifest.mapImage],
+    ['card_image', pack.manifest.cardImage],
     ['menu.image', pack.manifest.menu !== null ? pack.manifest.menu.image : '']
   ]
+  for (const m of pack.manifest.menu?.monitors ?? []) {
+    pairs.push(['menu.monitors image', m.image])
+    pairs.push(['menu.monitors selected_image', m.selectedImage])
+  }
   for (const [name, value] of pairs) {
     const [set] = splitArtRef(value)
     if (set !== '' && !sets.includes(set)) c.err(`pack.json ${name}: '${value}' names art set '${set}', which art_sets does not declare.`, P)

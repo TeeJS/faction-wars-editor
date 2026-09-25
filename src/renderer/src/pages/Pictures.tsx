@@ -3,13 +3,14 @@
 // for reference and never copied into the pack; a mod adds its own to override.
 
 import { useEffect, useState, type ReactNode } from 'react'
+import { originalOf } from '../../../core/artset'
 import { ci, isDict } from '../../../core/model'
 import { alias, DESCRIPTIONS, pictureSlots, pngSize, readDescription, writeDescription, type PictureKind, type PictureSlot } from '../../../core/pictures'
 import { CommitInput } from '../forms/fields'
 import type { Ctx, Dict } from '../forms/types'
 import { store } from '../store'
 import { alertDialog, confirmDialog } from '../ui/Modal'
-import { useImage } from '../ui/useImage'
+import { artSetFile, useImage } from '../ui/useImage'
 
 export function PicturesPanel(props: { c: Ctx; kind: PictureKind; rec: Dict }): ReactNode {
   const { c, kind, rec } = props
@@ -24,7 +25,7 @@ export function PicturesPanel(props: { c: Ctx; kind: PictureKind; rec: Dict }): 
         <h3>Pictures</h3>
         <span className="muted">
           The game uses this pack's own picture first, then {c.pack.manifest.artSets.length ? 'your art set' : 'the engine\'s own art'}. Adding your own
-          overrides it; the original's pictures are never copied into the pack.
+          overrides it; the original's pictures are never copied into the pack. To show a different original picture, set the Art reference.
         </span>
       </header>
       <div className="picture-slots">
@@ -42,13 +43,25 @@ function PictureCard({ c, slot }: { c: Ctx; slot: PictureSlot }): ReactNode {
   const ownImg = useImage(own ? slot.own : null, c.doc.version)
   const setImg = useImage(!own && slot.set.length ? slot.set[0] : null, 0)
   const shown = own ? ownImg.image : setImg.image
-  const source = own ? 'this pack' : setImg.image ? `your art set (${slot.set[0].split(':')[0]})` : 'none'
+  const noArtHere = !!store.art && store.art.sources.length === 0
+  const source = own
+    ? 'this pack'
+    : setImg.image
+      ? 'from your art set (not copied)'
+      : slot.set.length && noArtHere
+        ? 'from the art set, not on this computer'
+        : 'none'
   const sizeOff = own && shown && slot.size && (shown.width !== slot.size[0] || shown.height !== slot.size[1])
 
   const choose = async () => {
     const picked = await window.api.pickFiles(`${slot.label}`, ['png'])
     if (!picked.length) return
     const f = picked[0]
+    // The game refuses a pack that carries the original's pictures; this one needs no copy.
+    if (await originalOf(f.bytes, store.art ?? (await store.loadArt()))) {
+      await alertDialog("That's the original's picture", 'Leave it empty: it is already in your art set.')
+      return
+    }
     const size = pngSize(f.bytes)
     if (!size) {
       await alertDialog('Not a PNG', `The game reads ${slot.own} as a PNG image, and ${f.name} is not one. Save it as .png first.`)
@@ -104,9 +117,7 @@ function Description({ c, kind, id, artRef }: { c: Ctx; kind: PictureKind; id: s
     setOriginal(null)
     void (async () => {
       if (!sets.length) return
-      const path = store.artSet?.path ?? (await window.api.defaultArtSet())
-      if (!path) return
-      const bytes = await window.api.artSetFile(path, 'descriptions.json')
+      const bytes = await artSetFile('descriptions.json')
       if (!bytes || cancelled) return
       try {
         const all = JSON.parse(new TextDecoder().decode(bytes)) as unknown

@@ -4,7 +4,8 @@
 import { _electron as electron, expect, test, type ElectronApplication, type Page } from '@playwright/test'
 import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { join, resolve } from 'node:path'
-import { unzipSync, strFromU8 } from 'fflate'
+import { createHash } from 'node:crypto'
+import { strFromU8, strToU8, unzipSync, zipSync } from 'fflate'
 import { starfieldPng } from '../../src/core/png'
 import { checkImportable } from '../../src/core/zip'
 
@@ -165,4 +166,56 @@ test("the Cockpit's screen corners: drawn, and a corner drags", async () => {
   expect(Number(after!.split(' ')[0].split(',')[0])).toBeGreaterThan(Number(before!.split(' ')[0].split(',')[0]))
   await expect(page.locator('.toolbar .status')).toContainText('Valid')
   await page.screenshot({ path: join(scratch, '09-cockpit-corners.png') })
+})
+
+test("the original's pictures are never copied in, and the card picture has a field", async () => {
+  // A stand-in art set holding one portrait (the real one is the player's own).
+  const portrait = starfieldPng(80, 80, 11)
+  const manifest = {
+    format: 1,
+    kind: 'art_set',
+    id: 'swr-original',
+    title: 'Test art set',
+    exporter: 'e2e',
+    created_utc: '2026-09-24T00:00:00Z',
+    files: { 'portraits/characters/test_hero.png': createHash('sha256').update(portrait).digest('hex') }
+  }
+  const setZip = join(scratch, 'test.art.zip')
+  writeFileSync(setZip, zipSync({ 'portraits/characters/test_hero.png': portrait, 'manifest.json': strToU8(JSON.stringify(manifest)) }))
+  const copied = join(scratch, 'copied-portrait.png')
+  writeFileSync(copied, portrait)
+
+  // Point the editor at it (the Pack page's "choose…").
+  await page.getByRole('button', { name: 'Pack', exact: true }).click()
+  await answerDialogs({ open: [setZip] })
+  await page.getByRole('button', { name: 'choose…' }).click()
+  await expect(page.locator('.notice.success').last()).toContainText('Using the art set at')
+  await expect(page.getByText('Card picture')).toBeVisible()
+  await page.getByText('Card picture').scrollIntoViewIfNeeded()
+  await page.screenshot({ path: join(scratch, '10-card-picture.png') })
+
+  // Adding that portrait to a character is refused, and nothing is written.
+  await page.getByRole('button', { name: 'Characters', exact: true }).click()
+  const card = page.locator('.picture-card', { hasText: 'Portrait' })
+  await answerDialogs({ open: [copied] })
+  await card.getByRole('button', { name: /Add my own|Replace/ }).click()
+  const dialog = page.getByRole('dialog')
+  await expect(dialog).toContainText("That's the original's picture")
+  await expect(dialog).toContainText('Leave it empty: it is already in your art set.')
+  await page.screenshot({ path: join(scratch, '10-original-refused.png') })
+  await dialog.getByRole('button').last().click()
+  await expect(card).not.toContainText('this pack')
+
+  // A pack folder that already carries it gets an early warning, with a fix.
+  const carrier = join(scratch, 'e2e-pack')
+  mkdirSync(join(carrier, 'art', 'portraits', 'characters'), { recursive: true })
+  writeFileSync(join(carrier, 'art', 'portraits', 'characters', 'copied.png'), portrait)
+  await answerDialogs({ open: [carrier] })
+  await page.getByRole('button', { name: 'Open Folder' }).click()
+  const discard = page.getByRole('dialog').getByRole('button', { name: 'Discard' })
+  if (await discard.isVisible().catch(() => false)) await discard.click()
+  await expect(page.locator('.toolbar .pack-name')).toContainText('e2e-pack')
+  const warning = page.locator('.problems', { hasText: "art/portraits/characters/copied.png: this is the original's picture" })
+  await expect(warning).toBeVisible()
+  await expect(page.locator('.problems button.fix', { hasText: 'Remove it' })).toBeVisible()
 })

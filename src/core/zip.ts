@@ -299,23 +299,25 @@ export async function checkImportable(bytes: Uint8Array, artSetHashes: Set<strin
   return ''
 }
 
-/** The hashes an art set's manifest lists (Manifest.ArtSetHashes), or null when it is not one. */
-export function artSetHashesFromManifest(text: string): Set<string> | null {
+/** An art set's id and its files (path -> sha256) from its manifest, or null when it is not one. */
+export function artSetFromManifest(text: string): { id: string; files: Record<string, string> } | null {
   try {
-    const m = JSON.parse(text) as { kind?: unknown; files?: unknown }
-    if (m.kind !== KIND_ART_SET || !m.files || typeof m.files !== 'object') return null
-    return new Set(Object.values(m.files as Record<string, unknown>).map((h) => String(h).toLowerCase()))
+    const m = JSON.parse(text) as { kind?: unknown; id?: unknown; files?: unknown }
+    if (m.kind !== KIND_ART_SET || !m.files || typeof m.files !== 'object' || Array.isArray(m.files)) return null
+    const files: Record<string, string> = {}
+    for (const [path, hash] of Object.entries(m.files as Record<string, unknown>)) files[path] = String(hash).toLowerCase()
+    return { id: typeof m.id === 'string' && m.id ? m.id : 'art-set', files }
   } catch {
     return null
   }
 }
 
 /** Reads only manifest.json out of an art-set zip. */
-export function artSetHashesFromZip(bytes: Uint8Array): Set<string> | null {
+export function artSetFromZip(bytes: Uint8Array): { id: string; files: Record<string, string> } | null {
   try {
     const entries = unzipSync(bytes, { filter: (f) => f.name === MANIFEST })
     const m = entries[MANIFEST]
-    return m ? artSetHashesFromManifest(strFromU8(m)) : null
+    return m ? artSetFromManifest(strFromU8(m)) : null
   } catch {
     return null
   }

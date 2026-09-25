@@ -4,9 +4,11 @@
 
 import { app, BrowserWindow, dialog, ipcMain, Menu, shell, type MenuItemConstructorOptions } from 'electron'
 import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync, rmSync, statSync, writeFileSync } from 'node:fs'
+import { homedir } from 'node:os'
 import { basename, dirname, join, relative, resolve, sep } from 'node:path'
 import { unzipSync, zipSync } from 'fflate'
-import { artSetHashesFromManifest, artSetHashesFromZip } from '../core/zip'
+import type { ArtSetSource } from '../core/artset'
+import { artSetFromManifest, artSetFromZip } from '../core/zip'
 
 let win: BrowserWindow | null = null
 let rendererDirty = false
@@ -129,6 +131,56 @@ function ensureDir(d: string): string {
 
 function factionWarsDocs(): string {
   return join(app.getPath('documents'), 'Faction Wars')
+}
+
+/** Where the game keeps what a player imports (Godot's user://, per its data-paths docs;
+ * the project is named faction-wars). Art sets land in <this>/art/<set>/. */
+function gameUserDirs(): string[] {
+  const names = ['faction-wars', 'Faction Wars']
+  const root =
+    process.platform === 'linux'
+      ? join(process.env.XDG_DATA_HOME || join(homedir(), '.local', 'share'), 'godot', 'app_userdata')
+      : join(app.getPath('appData'), 'Godot', 'app_userdata')
+  return names.map((n) => join(root, n))
+}
+
+/** An art set at `p`: a zip, or a folder with its manifest.json. */
+function readArtSet(p: string): ArtSetSource | null {
+  try {
+    if (!existsSync(p)) return null
+    if (statSync(p).isDirectory()) {
+      const m = join(p, 'manifest.json')
+      const set = existsSync(m) ? artSetFromManifest(readFileSync(m, 'utf8')) : null
+      return set ? { ...set, path: p } : null
+    }
+    const set = artSetFromZip(new Uint8Array(readFileSync(p)))
+    return set ? { ...set, path: p } : null
+  } catch {
+    return null
+  }
+}
+
+/** Every art set on this computer: a chosen one, the Exporter's zips in
+ * Documents/Faction Wars, and the ones imported into the game. */
+function findArtSets(chosen: string | null): ArtSetSource[] {
+  const candidates: string[] = []
+  if (chosen) candidates.push(chosen)
+  const docs = factionWarsDocs()
+  if (existsSync(docs)) for (const n of readdirSync(docs)) if (n.toLowerCase().endsWith('.art.zip')) candidates.push(join(docs, n))
+  for (const d of gameUserDirs()) {
+    const art = join(d, 'art')
+    if (existsSync(art)) for (const n of readdirSync(art)) if (!n.endsWith('.importing')) candidates.push(join(art, n))
+  }
+  const out: ArtSetSource[] = []
+  const seen = new Set<string>()
+  for (const p of candidates) {
+    const key = resolve(p).toLowerCase()
+    if (seen.has(key)) continue
+    seen.add(key)
+    const set = readArtSet(p)
+    if (set) out.push(set)
+  }
+  return out
 }
 
 function backupsDir(): string {
@@ -303,20 +355,11 @@ function registerIpc(): void {
     }
   )
 
-  /** The art-set hashes for the export leak guard: a chosen art set, or the Exporter's default. */
-  ipcMain.handle('artset:hashes', (_e, path: string | null) => {
-    const candidates = path ? [path] : [join(factionWarsDocs(), 'swr-original.art.zip')]
-    for (const p of candidates) {
-      if (!existsSync(p)) continue
-      let set: Set<string> | null = null
-      if (statSync(p).isDirectory()) {
-        const m = join(p, 'manifest.json')
-        if (existsSync(m)) set = artSetHashesFromManifest(readFileSync(m, 'utf8'))
-      } else set = artSetHashesFromZip(new Uint8Array(readFileSync(p)))
-      if (set) return { path: p, hashes: [...set] }
-    }
-    return null
-  })
+  /** The art sets on this computer, for previews and the original-picture checks. */
+  ipcMain.handle('artset:find', (_e, chosen: string | null) => findArtSets(chosen))
+
+  /** Whether `path` is an art set (a zip or folder with an art-set manifest). */
+  ipcMain.handle('artset:check', (_e, path: string) => readArtSet(path) !== null)
 
   /** One file out of an art set (zip or folder), for previews only - never copied into a pack.
    * The zip is read once and kept (a Pictures panel asks for several files at a time). */
@@ -335,12 +378,6 @@ function registerIpc(): void {
     }
     const entries = unzipSync(cached.bytes, { filter: (f) => f.name === rel })
     return entries[rel] ?? null
-  })
-
-  /** The default art set's location (the Exporter writes it to Documents\Faction Wars). */
-  ipcMain.handle('artset:default', () => {
-    const p = join(factionWarsDocs(), 'swr-original.art.zip')
-    return existsSync(p) ? p : null
   })
 
   ipcMain.handle('shell:showItem', (_e, path: string) => shell.showItemInFolder(path))
