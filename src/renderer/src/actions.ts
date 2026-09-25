@@ -261,15 +261,14 @@ export async function exportZip(): Promise<void> {
   const out = await window.api.pickSaveZip(`${d.packId}.zip`)
   if (!out) return
   try {
-    const art = store.art ?? (await store.loadArt())
-    const hashes = art.byHash.size > 0 ? new Set(art.byHash.keys()) : null
+    // What pictures a pack carries is the author's call; the editor does not check them.
     const title = String(d.get('pack.json', ['display_name']) ?? d.packId)
-    const r = await buildPackZip(d.allFiles(), { id: d.packId, title, exporter: `faction-wars-editor ${appVersion}`, artSetHashes: hashes })
+    const r = await buildPackZip(d.allFiles(), { id: d.packId, title, exporter: `faction-wars-editor ${appVersion}`, artSetHashes: null, ignoreOriginals: true })
     if (!r.ok || !r.bytes) {
       await alertDialog('Not exported', r.message)
       return
     }
-    const refusal = await checkImportable(r.bytes, hashes)
+    const refusal = await checkImportable(r.bytes, null, { ignoreOriginals: true })
     if (refusal) {
       await alertDialog('Not exported', `The game's importer would refuse this zip: ${refusal}`)
       return
@@ -277,7 +276,7 @@ export async function exportZip(): Promise<void> {
     await window.api.writeFile(out, r.bytes)
     store.notify(
       'success',
-      `Exported ${r.files} files to ${out}.${hashes ? '' : ' (No art set was found to check against; the game checks again on import.)'} In Faction Wars, drag it onto the first screen, or use the + card (Add your own pack).`
+      `Exported ${r.files} files to ${out}. In Faction Wars, drag it onto the first screen, or use the + card (Add your own pack).`
     )
   } catch (e) {
     fail('Could not export', e)
@@ -293,7 +292,7 @@ export async function chooseArtSet(): Promise<void> {
   }
   store.artChosen = p
   const art = await store.loadArt(true)
-  store.notify('success', `Using the art set at ${p}. The editor now knows ${art.byHash.size} of the original's pictures, from ${art.sources.length} art set${art.sources.length === 1 ? '' : 's'}.`)
+  store.notify('success', `Using the art set at ${p} for previews (${art.sources.length} art set${art.sources.length === 1 ? '' : 's'} found).`)
 }
 
 export function undo(): void {

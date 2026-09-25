@@ -192,7 +192,7 @@ test('forms for the faction adjective and the Cockpit monitors', async () => {
   await page.screenshot({ path: join(scratch, '12-monitor-preview.png') })
 })
 
-test("the original's pictures are never copied in, and the card picture has a field", async () => {
+test('any picture can be added, and the card picture has a field', async () => {
   // A stand-in art set holding one portrait (the real one is the player's own).
   const portrait = starfieldPng(80, 80, 11)
   const manifest = {
@@ -218,19 +218,15 @@ test("the original's pictures are never copied in, and the card picture has a fi
   await page.getByText('Card picture').scrollIntoViewIfNeeded()
   await page.screenshot({ path: join(scratch, '10-card-picture.png') })
 
-  // Adding that portrait to a character is refused, and nothing is written.
+  // Any picture can be added, the art set's own included: that is the author's call.
   await page.getByRole('button', { name: 'Characters', exact: true }).click()
   const card = page.locator('.picture-card', { hasText: 'Portrait' })
   await answerDialogs({ open: [copied] })
   await card.getByRole('button', { name: /Add my own|Replace/ }).click()
-  const dialog = page.getByRole('dialog')
-  await expect(dialog).toContainText("That's the original's picture")
-  await expect(dialog).toContainText('Leave it empty: it is already in your art set.')
-  await page.screenshot({ path: join(scratch, '10-original-refused.png') })
-  await dialog.getByRole('button').last().click()
-  await expect(card).not.toContainText('this pack')
+  await expect(card).toContainText('this pack')
+  await expect(page.getByRole('dialog')).toHaveCount(0)
 
-  // A pack folder that already carries it gets an early warning, with a fix.
+  // A pack folder that already carries one opens with no warning about it.
   const carrier = join(scratch, 'e2e-pack')
   mkdirSync(join(carrier, 'art', 'portraits', 'characters'), { recursive: true })
   writeFileSync(join(carrier, 'art', 'portraits', 'characters', 'copied.png'), portrait)
@@ -239,7 +235,5 @@ test("the original's pictures are never copied in, and the card picture has a fi
   const discard = page.getByRole('dialog').getByRole('button', { name: 'Discard' })
   if (await discard.isVisible().catch(() => false)) await discard.click()
   await expect(page.locator('.toolbar .pack-name')).toContainText('e2e-pack')
-  const warning = page.locator('.problems', { hasText: "art/portraits/characters/copied.png: this is the original's picture" })
-  await expect(warning).toBeVisible()
-  await expect(page.locator('.problems button.fix', { hasText: 'Remove it' })).toBeVisible()
+  await expect(page.locator('.problems')).not.toContainText('copied.png')
 })

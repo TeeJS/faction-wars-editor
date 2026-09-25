@@ -28,7 +28,7 @@ It follows the tradition of [REBED](https://swrebellion.net/files/file/2-rebed/)
   - Each picture slot (Encyclopedia, portrait, miniature, mission pictures per side, planet sprite) shows the picture the game would use and whether it comes from this pack or from your art set.
   - **Add my own** puts a PNG where the game looks first (`art/…`), overriding the art set's picture.
   - Encyclopedia text is edited beside the pictures (`art/descriptions.json`).
-  - The original's pictures and text are shown for reference only and never copied into a pack. Adding one of the original's own pictures is refused ("Leave it empty: it is already in your art set."), and any pack file that is one of them gets a warning with a **Remove it** fix. The game refuses to import a pack that carries them.
+  - Any picture can go in a pack. What a pack carries is its author's call.
   - The editor finds your art set in `Documents/Faction Wars` and in the game's own data folder, or wherever you point it on the Pack page.
   - The launch screen card's picture (`card_image`) is set on the Pack page.
 - **Rename with references:** renaming an id (a faction, planet, unit, weapon, logistics table and so on) updates every place that uses it. Deleting a record first shows where it is used.
@@ -44,7 +44,6 @@ It follows the tradition of [REBED](https://swrebellion.net/files/file/2-rebed/)
 - **Safe export**
   - Uses the game's zip layout, with a `manifest.json` that lists a SHA-256 for every file.
   - Checks the result against a copy of the game's importer before writing it, including the validator pass the importer runs.
-  - Refuses anything under `original/`, and any file identical to a picture in your art set, so the original game's art never ships in a pack.
 - **Backups:** before the editor first overwrites a pack folder in a session, it saves a zip copy to `Documents/Faction Wars/editor-backups/`.
 
 ## Build from source

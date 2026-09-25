@@ -69,7 +69,7 @@ export interface BuildResult {
  */
 export async function buildPackZip(
   input: { path: string; bytes: Uint8Array }[],
-  opts: { id: string; title: string; exporter: string; artSetHashes: Set<string> | null; now?: Date }
+  opts: { id: string; title: string; exporter: string; artSetHashes: Set<string> | null; now?: Date; ignoreOriginals?: boolean }
 ): Promise<BuildResult> {
   if (!opts.id) return { ok: false, message: 'pack.json has no "id".', files: 0 }
   const files = input
@@ -77,7 +77,7 @@ export async function buildPackZip(
     .filter((f) => isExportable(f.path))
     .sort((a, b) => (a.path < b.path ? -1 : a.path > b.path ? 1 : 0))
 
-  const leaked = await findLeaks(files, opts.artSetHashes)
+  const leaked = opts.ignoreOriginals ? [] : await findLeaks(files, opts.artSetHashes)
   if (leaked.length > 0)
     return {
       ok: false,
@@ -243,7 +243,7 @@ export function safePath(p: string): boolean {
  * it, or the reason it would refuse. `artSetHashes`: the player's installed art
  * set, for the leak check.
  */
-export async function checkImportable(bytes: Uint8Array, artSetHashes: Set<string> | null = null): Promise<string> {
+export async function checkImportable(bytes: Uint8Array, artSetHashes: Set<string> | null = null, opts: { ignoreOriginals?: boolean } = {}): Promise<string> {
   let entries: Record<string, Uint8Array>
   try {
     entries = unzipSync(bytes)
@@ -274,7 +274,7 @@ export async function checkImportable(bytes: Uint8Array, artSetHashes: Set<strin
     contents.set(rel, data)
   }
   if (kind === KIND_FACTION_PACK) {
-    const leaked = await findLeaks([...contents].map(([path, b]) => ({ path, bytes: b })), artSetHashes)
+    const leaked = opts.ignoreOriginals ? [] : await findLeaks([...contents].map(([path, b]) => ({ path, bytes: b })), artSetHashes)
     if (leaked.length)
       return "Not imported: a faction pack must not carry the original's art (refer to the art set instead). These files are the original's:\n  " + leaked.join('\n  ')
     if (!contents.has('pack.json')) return 'It is a faction pack with no pack.json.'

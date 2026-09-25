@@ -153,17 +153,6 @@ export function lintLoaded(pack: LoadedPack, doc?: PackDocument): Issue[] {
         if (!families.has(fam)) warn(`display.json modes[${md.id}]: facility_count family '${fam}' is not a facility family.`, 'display', cat.index, 'categories')
       }
 
-  // The leak guard refuses these on export and on import.
-  if (doc)
-    for (const f of doc.otherFiles())
-      if (f.toLowerCase().startsWith('original/'))
-        out.push({
-          severity: 'warning',
-          message: `${f}: not pack content (it belongs to the original game) - the game won't import a pack that carries an original/ folder, so it has to go before you export.`,
-          target: { page: 'files' },
-          fix: { label: 'Remove it', action: 'removeFile', arg: f }
-        })
-
   // Hyperdrive 0 on something that must jump.
   for (const u of pack.units)
     if ((u.kind === 'capital_ship') && typeof u.stats['hyperdrive'] === 'number' && u.stats['hyperdrive'] === 0)

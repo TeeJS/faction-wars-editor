@@ -64,7 +64,7 @@ export function PackPage(): ReactNode {
               'Not saved to a folder yet.'
             )}
             {' · '}
-            Your art set, for previews and the original-picture check:{' '}
+            Your art set, for previews:{' '}
             {s.art === null ? (
               <span>looking…</span>
             ) : s.art.sources.length > 0 ? (

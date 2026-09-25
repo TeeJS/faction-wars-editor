@@ -1,9 +1,7 @@
 // A record's pictures and Encyclopedia text, where the game finds them: the
-// pack's own art/ first, then the player's art set. Art-set pictures are shown
-// for reference and never copied into the pack; a mod adds its own to override.
+// pack's own art/ first, then the player's art set. A mod adds its own to override.
 
 import { useEffect, useState, type ReactNode } from 'react'
-import { originalOf } from '../../../core/artset'
 import { ci, isDict } from '../../../core/model'
 import { alias, DESCRIPTIONS, pictureSlots, pngSize, readDescription, writeDescription, type PictureKind, type PictureSlot } from '../../../core/pictures'
 import { CommitInput } from '../forms/fields'
@@ -25,7 +23,7 @@ export function PicturesPanel(props: { c: Ctx; kind: PictureKind; rec: Dict }): 
         <h3>Pictures</h3>
         <span className="muted">
           The game uses this pack's own picture first, then {c.pack.manifest.artSets.length ? 'your art set' : 'the engine\'s own art'}. Adding your own
-          overrides it; the original's pictures are never copied into the pack. To show a different original picture, set the Art reference.
+          overrides it. To show a different original picture, set the Art reference.
         </span>
       </header>
       <div className="picture-slots">
@@ -47,7 +45,7 @@ function PictureCard({ c, slot }: { c: Ctx; slot: PictureSlot }): ReactNode {
   const source = own
     ? 'this pack'
     : setImg.image
-      ? 'from your art set (not copied)'
+      ? 'from your art set'
       : slot.set.length && noArtHere
         ? 'from the art set, not on this computer'
         : 'none'
@@ -57,11 +55,6 @@ function PictureCard({ c, slot }: { c: Ctx; slot: PictureSlot }): ReactNode {
     const picked = await window.api.pickFiles(`${slot.label}`, ['png'])
     if (!picked.length) return
     const f = picked[0]
-    // The game refuses a pack that carries the original's pictures; this one needs no copy.
-    if (await originalOf(f.bytes, store.art ?? (await store.loadArt()))) {
-      await alertDialog("That's the original's picture", 'Leave it empty: it is already in your art set.')
-      return
-    }
     const size = pngSize(f.bytes)
     if (!size) {
       await alertDialog('Not a PNG', `The game reads ${slot.own} as a PNG image, and ${f.name} is not one. Save it as .png first.`)
@@ -146,7 +139,7 @@ function Description({ c, kind, id, artRef }: { c: Ctx; kind: PictureKind; id: s
       />
       {original && (
         <details>
-          <summary className="muted">The original's text (from your art set; for reference, never copied)</summary>
+          <summary className="muted">The original's text (from your art set)</summary>
           <p className="original-text">{original}</p>
         </details>
       )}
