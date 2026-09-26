@@ -56,11 +56,15 @@ export const KNOWN_TERMS = [
   // the five ship systems tactical damage tracks
   'system_shield_recharge', 'system_weapon_recharge', 'system_tractor', 'system_engines', 'system_hyperdrive',
   // a standing defence's state tag in the Defenses window
-  'shield_active', 'weapon_armed'
+  'shield_active', 'weapon_armed',
+  // the word under a sector's name on the map (the game's KNOWN_TERMS, pack_loader.gd)
+  'sector'
 ]
 export const KNOWN_MENU_ACTIONS = [
-  'difficulty', 'galaxy_size', 'start', 'load_game', 'credits', 'hq_only_victory', 'multiplayer', 'exit'
+  'difficulty', 'galaxy_size', 'start', 'load_game', 'credits', 'hq_only_victory', 'multiplayer', 'exit', 'cycle'
 ]
+/** A `cycle` region's value: a choice the Cockpit offers several regions for (the game's CYCLE_CHOICES). */
+export const CYCLE_CHOICES = ['difficulty', 'galaxy_size']
 export const KNOWN_DIFFICULTIES = ['easy', 'medium', 'hard']
 export const KNOWN_CHARACTER_ROLES = [
   'starts_at_first_world', 'starts_at_hq', 'starts_at_random_holding',

@@ -72,6 +72,21 @@ export const packFields: FieldDef[] = [
   { key: 'id', label: 'Pack id', kind: 'text', required: true, help: 'Must equal the folder name; the game installs an imported pack under it. Letters, digits, - and _.' },
   { key: 'display_name', label: 'Display name', kind: 'text', required: true, help: "The pack picker card's title." },
   { key: 'summary', label: 'Summary', kind: 'text', multiline: true, wide: true, help: 'One sentence on the setting, for the picker card.' },
+  {
+    key: 'version',
+    label: 'Version',
+    kind: 'text',
+    placeholder: '1.0',
+    help: "This pack's own version, e.g. 1.3. The game shows it on the pack's card, and keeps every version a player has installed so they can join a game on any of them. Raise it each time you share a changed copy: numbers with dots are put in order (1.10 comes after 1.9)."
+  },
+  {
+    key: 'download_url',
+    label: 'Download page',
+    kind: 'text',
+    wide: true,
+    placeholder: 'a page where players can download this pack',
+    help: 'A page where players can get this pack - a folder, a forum topic, a channel - that stays the same from version to version. The game offers it to a player who joins a game on this pack without having it. Only an http:// or https:// link is offered.'
+  },
   { key: 'schema_version', label: 'Schema version', kind: 'int', required: true, help: 'The engine reads version 1.' },
   { key: 'faction_count', label: 'Faction count', kind: 'int', required: true, help: 'Must equal the number of factions (2-4). The Factions page keeps it in step.' },
   {

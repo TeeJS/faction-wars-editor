@@ -11,6 +11,7 @@ import {
   ART_KINDS,
   KNOWN_ART_SETS,
   KNOWN_BEHAVIOURS,
+  CYCLE_CHOICES,
   KNOWN_CHARACTER_ROLES,
   KNOWN_COMMAND_RANKS,
   KNOWN_CORNER_ICONS,
@@ -288,6 +289,10 @@ export function validateMenu(pack: LoadedPack, packDir: string, hasFile: (p: str
     } else if (r.action === 'start') {
       if (!factionIds.includes(r.value)) c.err(`${ctx}: start value '${r.value}' is not a faction id in factions.json.`, T)
       key = `start:${r.value}`
+    } else if (r.action === 'cycle') {
+      // Steps through a choice's regions (the game's pack_loader.gd, SCHEMA.md row 70).
+      if (!CYCLE_CHOICES.includes(r.value)) c.err(`${ctx}: cycle value '${r.value}' is not one of ${join(CYCLE_CHOICES)}.`, T)
+      key = `cycle:${r.value}`
     }
     seen.set(key, (seen.get(key) ?? 0) + 1)
   }

@@ -162,6 +162,10 @@ export interface PackManifest {
   artSets: string[]
   /** Top-level credits; menu.credits wins when it has any (menu.gd). */
   credits: string[]
+  /** The pack's own version, plain text ("1.3"); the game shows it as v1.3 and orders dotted numbers. Optional. */
+  version: string
+  /** A page where players can get the pack (the game offers only an http(s) link). Optional. */
+  downloadUrl: string
 }
 
 // ---- factions.json ----
@@ -338,8 +342,21 @@ export function readManifest(d: unknown): PackManifest {
           },
     victoryTips: tipsD == null ? null : { standard: strOr(tipsD, 'standard'), hqOnly: strOr(tipsD, 'hq_only') },
     artSets: Array.isArray(ci(d, 'art_sets')) ? (ci(d, 'art_sets') as unknown[]).map(gdStr) : [],
-    credits: Array.isArray(ci(d, 'credits')) ? (ci(d, 'credits') as unknown[]).map(gdStr) : []
+    credits: Array.isArray(ci(d, 'credits')) ? (ci(d, 'credits') as unknown[]).map(gdStr) : [],
+    // As PackManifest.from_dict (pack_defs.gd): a number for a version is its
+    // text; anything but text for the link is no link. Never an error.
+    version: versionOf(ci(d, 'version')),
+    downloadUrl: typeof ci(d, 'download_url') === 'string' ? (ci(d, 'download_url') as string).trim() : ''
   }
+}
+
+function versionOf(v: unknown): string {
+  return typeof v === 'string' || typeof v === 'number' ? String(v).trim() : ''
+}
+
+/** "<title> v<version>" for the export message, or the title alone when the pack has no version. */
+export function exportedName(title: string, version: string): string {
+  return version ? `${title} v${version}` : title
 }
 
 /** MenuRegionDef.from_dict's quad: four [x, y] pairs, or nothing usable. */
