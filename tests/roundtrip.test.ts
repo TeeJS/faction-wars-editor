@@ -2,6 +2,27 @@ import { describe, expect, it } from 'vitest'
 import { PackDocument } from '../src/core/document'
 import { JsonText } from '../src/core/jsontext'
 import { SHIPPED_PACKS, bytesEqual, haveGameRepo, loadShipped, packDir, readTree } from './helpers'
+import { exportedName, readManifest } from '../src/core/model'
+
+// pack.json `version` and `download_url` (the game's strangers plan, PR 7):
+// read as the game reads them, never an error.
+describe('pack version and download page', () => {
+  it('reads both as the game does: trimmed; a number for a version is its text; a link that is not text is none', () => {
+    const m = readManifest({ id: 'x', version: ' 1.3 ', download_url: ' https://example.com/p ' })
+    expect(m.version).toBe('1.3')
+    expect(m.downloadUrl).toBe('https://example.com/p')
+    const odd = readManifest({ id: 'x', version: 2, download_url: 7 })
+    expect(odd.version).toBe('2')
+    expect(odd.downloadUrl).toBe('')
+    const none = readManifest({ id: 'x' })
+    expect(none.version).toBe('')
+    expect(none.downloadUrl).toBe('')
+  })
+  it('the export message names the version', () => {
+    expect(exportedName('My Pack', '1.3')).toBe('My Pack v1.3')
+    expect(exportedName('My Pack', '')).toBe('My Pack')
+  })
+})
 
 const suite = haveGameRepo ? describe : describe.skip
 

@@ -1,6 +1,7 @@
 // What the menu and toolbar do: open, new, save, save as, export.
 
 import { PackDocument } from '../../core/document'
+import { exportedName } from '../../core/model'
 import { clonePack, createStarterPack } from '../../core/starter'
 import { SHIPPED_PACK_IDS } from '../../core/vocab'
 import { buildPackZip, checkImportable, openPackZip } from '../../core/zip'
@@ -274,9 +275,11 @@ export async function exportZip(): Promise<void> {
       return
     }
     await window.api.writeFile(out, r.bytes)
+    // Which version went out, so an author sharing copies can tell them apart.
+    const version = String(d.get('pack.json', ['version']) ?? '').trim()
     store.notify(
       'success',
-      `Exported ${r.files} files to ${out}. In Faction Wars, drag it onto the first screen, or use the + card (Add your own pack).`
+      `Exported ${exportedName(title, version)}: ${r.files} files to ${out}. In Faction Wars, drag it onto the first screen, or use the + card (Add your own pack).`
     )
   } catch (e) {
     fail('Could not export', e)

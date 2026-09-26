@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { strToU8, zipSync } from 'fflate'
 import { PackDocument } from '../src/core/document'
 import { buildPackZip, checkImportable, openPackZip, sha256Hex } from '../src/core/zip'
+import { readManifest } from '../src/core/model'
 import { bytesEqual, haveGameRepo, loadShipped } from './helpers'
 
 describe('sha256', () => {
@@ -87,5 +88,18 @@ suite('the shipped WW2 pack exported under a new id', () => {
       if (f.path.endsWith('.import')) continue
       expect(bytesEqual(reopened.fileBytes(f.path)!, f.bytes), f.path).toBe(true)
     }
+  })
+
+  it('with a version and a download page: exports, and the zip keeps both', async () => {
+    const doc = loadShipped('ww2')
+    doc.edit('new id', (e) => e.set('pack.json', ['id'], 'ww2-remix'))
+    doc.edit('version', (e) => e.set('pack.json', ['version'], '1.3'))
+    doc.edit('link', (e) => e.set('pack.json', ['download_url'], 'https://example.com/packs/ww2-remix'))
+    const r = await buildPackZip(doc.allFiles(), { id: doc.packId, title: 'WW2 Remix', exporter: 'test', artSetHashes: null })
+    expect(r.ok).toBe(true)
+    const back = await openPackZip(r.bytes!)
+    const m = readManifest(JSON.parse(new TextDecoder().decode(back.files.get('pack.json')!)))
+    expect(m.version).toBe('1.3')
+    expect(m.downloadUrl).toBe('https://example.com/packs/ww2-remix')
   })
 })
