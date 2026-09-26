@@ -171,6 +171,11 @@ export interface PackManifest {
   /** Whether pack.json has `movies` at all, and what it said, for rule 23. */
   moviesGiven: boolean
   moviesRaw: unknown
+  /** Which track plays at which moment: moment -> reference. Optional (rule 24). */
+  music: Record<string, string>
+  /** Whether pack.json has `music` at all, and what it said, for rule 24. */
+  musicGiven: boolean
+  musicRaw: unknown
 }
 
 // ---- factions.json ----
@@ -354,8 +359,22 @@ export function readManifest(d: unknown): PackManifest {
     downloadUrl: typeof ci(d, 'download_url') === 'string' ? (ci(d, 'download_url') as string).trim() : '',
     movies: moviesOf(ci(d, 'movies')),
     moviesGiven: ci(d, 'movies') !== undefined && ci(d, 'movies') !== null,
-    moviesRaw: withoutComments(ci(d, 'movies'))
+    moviesRaw: withoutComments(ci(d, 'movies')),
+    music: musicOf(ci(d, 'music')),
+    musicGiven: ci(d, 'music') !== undefined && ci(d, 'music') !== null,
+    musicRaw: withoutComments(ci(d, 'music'))
   }
+}
+
+/** As PackManifest.from_dict: one reference per moment ("" when it is not text); `_` keys are comments. */
+function musicOf(raw: unknown): Record<string, string> {
+  const out: Record<string, string> = {}
+  if (!isDict(raw)) return out
+  for (const [moment, v] of Object.entries(raw)) {
+    if (moment.startsWith('_')) continue
+    out[moment] = typeof v === 'string' ? v.trim() : ''
+  }
+  return out
 }
 
 /** The map as written, less its `_` comment keys (they are never data). */
