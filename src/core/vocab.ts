@@ -69,6 +69,8 @@ export const CYCLE_CHOICES = ['difficulty', 'galaxy_size']
 export const KNOWN_MOVIE_EVENTS = ['launch', 'credits', 'system_destroyed', 'superweapon_sabotaged']
 /** ... and those that take a faction id: "victory.empire" (KNOWN_MOVIE_SIDE_EVENTS). */
 export const KNOWN_MOVIE_SIDE_EVENTS = ['start.', 'victory.', 'defeat.', 'headquarters_lost.']
+/** pack.json `music`: the moments a track can play at (the game's KNOWN_MUSIC_EVENTS). */
+export const KNOWN_MUSIC_EVENTS = ['menu']
 export const KNOWN_DIFFICULTIES = ['easy', 'medium', 'hard']
 export const KNOWN_CHARACTER_ROLES = [
   'starts_at_first_world', 'starts_at_hq', 'starts_at_random_holding',

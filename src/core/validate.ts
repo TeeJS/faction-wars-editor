@@ -23,6 +23,7 @@ import {
   KNOWN_MENU_ACTIONS,
   KNOWN_MOVIE_EVENTS,
   KNOWN_MOVIE_SIDE_EVENTS,
+  KNOWN_MUSIC_EVENTS,
   KNOWN_OCCUPATION_POLICIES,
   KNOWN_TERMS,
   KNOWN_UNIT_KINDS,
@@ -191,7 +192,40 @@ export function runValidate(
   validateRoles(pack, c)
   validateArt(pack, c)
   validateMovies(pack, packDir, hasFile, c)
+  validateMusic(pack, packDir, hasFile, c)
   return c.issues
+}
+
+// Rule 24 (PackLoader._validate_music): `music` maps known moments to a track
+// each - a file the pack ships, or "<art set>:<path>.ogg" in a declared art set.
+export function validateMusic(pack: LoadedPack, packDir: string, hasFile: (p: string) => boolean, c: Collector): void {
+  const m = pack.manifest
+  const P = { page: 'pack' }
+  if (!m.musicGiven) return
+  if (!isDict(m.musicRaw)) {
+    c.err('pack.json music: must be an object of moment -> track.', P)
+    return
+  }
+  for (const [e, v] of Object.entries(m.musicRaw)) {
+    if (e.startsWith('_')) continue // an author's comment (SCHEMA.md section 1)
+    if (!KNOWN_MUSIC_EVENTS.includes(e)) {
+      c.err(`pack.json music: '${e}' is not a moment. Known: ${join(KNOWN_MUSIC_EVENTS)}.`, P)
+      continue
+    }
+    if (typeof v !== 'string' || blank(v)) {
+      c.err(`pack.json music['${e}']: a track is a text reference.`, P)
+      continue
+    }
+    const ref = v.trim()
+    const [set, path] = splitArtRef(ref)
+    if (set === '') {
+      if (!hasFile(ref)) c.err(`pack.json music['${e}']: '${ref}' is not in ${packDir}.`, P)
+    } else if (!m.artSets.includes(set)) {
+      c.err(`pack.json music['${e}']: '${ref}' is from art set '${set}', which art_sets does not declare.`, P)
+    } else if (!path.toLowerCase().endsWith('.ogg')) {
+      c.err(`pack.json music['${e}']: '${ref}' is not an .ogg track (Ogg Vorbis).`, P)
+    }
+  }
 }
 
 // Rule 23 (PackLoader._validate_movies): `movies` maps known events to movies -

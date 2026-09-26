@@ -97,6 +97,7 @@ function pack(sectorOver: O, planetOver: O, other: O): PackDocument {
   if ('menu' in other) manifest.menu = other.menu
   if ('card_image' in other) manifest.card_image = other.card_image
   if ('movies' in other) manifest.movies = other.movies
+  if ('music' in other) manifest.music = other.music
   if ('victory_tips' in other) manifest.victory_tips = other.victory_tips
   const s1: O = { id: 'core', display_name: 'Core', ring: 1, starts_neutral: false, map: { x: 1, y: 1 }, min_size: 'standard', intel_tier: 'live', source_id: 1, ...sectorOver }
   const s2: O = { id: 'rim', display_name: 'Rim', ring: 2, starts_neutral: true, map: { x: 2, y: 2 }, min_size: 'large', intel_tier: 'presence', source_id: 2 }
@@ -518,6 +519,37 @@ describe('movies (rule 23), as the game checks it', () => {
       credits: ['swr-original:movies/005.ogv']
     })
     expect(p.manifest.moviesGiven).toBe(true)
+  })
+})
+
+// Rule 24, the game's tests/music.gd cases word for word (pack_loader.gd
+// _validate_music).
+describe('music (rule 24), as the game checks it', () => {
+  const ok = { core_system_facilities: {}, rim_system_facilities: {}, garrison: {} }
+  const base = { logistics: ok, art_sets: ['swr-original'], skin: 'empire' }
+  const baseline = new Set(errorsOf(pack({}, {}, base)))
+  const musicErrors = (music: unknown) => errorsOf(pack({}, {}, { ...base, music })).filter((e) => !baseline.has(e))
+  const cases: [unknown, string][] = [
+    [{ menu: 'swr-original:music/300.ogg' }, ''],
+    [{ _comment: "an author's note", menu: 'swr-original:music/301.ogg' }, ''],
+    ['not an object', 'pack.json music: must be an object of moment -> track.'],
+    [{ intro: 'swr-original:music/300.ogg' }, "pack.json music: 'intro' is not a moment. Known: menu."],
+    [{ menu: ['swr-original:music/300.ogg'] }, "pack.json music['menu']: a track is a text reference."],
+    [
+      { menu: 'other-set:music/300.ogg' },
+      "pack.json music['menu']: 'other-set:music/300.ogg' is from art set 'other-set', which art_sets does not declare."
+    ],
+    [{ menu: 'swr-original:music/300.wav' }, "pack.json music['menu']: 'swr-original:music/300.wav' is not an .ogg track (Ogg Vorbis)."],
+    [{ menu: 'no-such-file.ogg' }, "pack.json music['menu']: 'no-such-file.ogg' is not in res://packs/star-wars-rebellion."]
+  ]
+  for (const [music, want] of cases)
+    it(`${JSON.stringify(music)} -> ${want === '' ? 'accepted' : 'refused'}`, () => {
+      expect(musicErrors(music)).toEqual(want === '' ? [] : [want])
+    })
+  it('reads the map as the game does: one track per moment, trimmed, comments skipped', () => {
+    const { pack: p } = hydrate(pack({}, {}, { ...base, music: { menu: ' swr-original:music/300.ogg ', _comment: 'x' } }))
+    expect(p.manifest.music).toEqual({ menu: 'swr-original:music/300.ogg' })
+    expect(p.manifest.musicGiven).toBe(true)
   })
 })
 
