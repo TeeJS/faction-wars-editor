@@ -24,6 +24,7 @@ import {
   KNOWN_MOVIE_EVENTS,
   KNOWN_MOVIE_SIDE_EVENTS,
   KNOWN_MUSIC_EVENTS,
+  KNOWN_MUSIC_SIDE_EVENTS,
   KNOWN_OCCUPATION_POLICIES,
   KNOWN_TERMS,
   KNOWN_UNIT_KINDS,
@@ -196,8 +197,9 @@ export function runValidate(
   return c.issues
 }
 
-// Rule 24 (PackLoader._validate_music): `music` maps known moments to a track
-// each - a file the pack ships, or "<art set>:<path>.ogg" in a declared art set.
+// Rule 24 (PackLoader._validate_music): `music` maps known moments to a track or
+// a pool of tracks - each a file the pack ships, or "<art set>:<path>.ogg" in a
+// declared art set.
 export function validateMusic(pack: LoadedPack, packDir: string, hasFile: (p: string) => boolean, c: Collector): void {
   const m = pack.manifest
   const P = { page: 'pack' }
@@ -206,24 +208,40 @@ export function validateMusic(pack: LoadedPack, packDir: string, hasFile: (p: st
     c.err('pack.json music: must be an object of moment -> track.', P)
     return
   }
+  const factionIds = pack.factions.map((f) => f.id)
   for (const [e, v] of Object.entries(m.musicRaw)) {
     if (e.startsWith('_')) continue // an author's comment (SCHEMA.md section 1)
-    if (!KNOWN_MUSIC_EVENTS.includes(e)) {
-      c.err(`pack.json music: '${e}' is not a moment. Known: ${join(KNOWN_MUSIC_EVENTS)}.`, P)
+    let ok = KNOWN_MUSIC_EVENTS.includes(e)
+    let sided = false
+    for (const prefix of KNOWN_MUSIC_SIDE_EVENTS) {
+      if (e.startsWith(prefix)) {
+        sided = true
+        ok = factionIds.includes(e.slice(prefix.length))
+        if (!ok) c.err(`pack.json music: '${e}' names no faction in factions.json.`, P)
+        break
+      }
+    }
+    if (!ok) {
+      if (!sided)
+        c.err(`pack.json music: '${e}' is not a moment. Known: ${join(KNOWN_MUSIC_EVENTS)}, and ${KNOWN_MUSIC_SIDE_EVENTS.join('/')}<faction id>.`, P)
       continue
     }
-    if (typeof v !== 'string' || blank(v)) {
-      c.err(`pack.json music['${e}']: a track is a text reference.`, P)
-      continue
-    }
-    const ref = v.trim()
-    const [set, path] = splitArtRef(ref)
-    if (set === '') {
-      if (!hasFile(ref)) c.err(`pack.json music['${e}']: '${ref}' is not in ${packDir}.`, P)
-    } else if (!m.artSets.includes(set)) {
-      c.err(`pack.json music['${e}']: '${ref}' is from art set '${set}', which art_sets does not declare.`, P)
-    } else if (!path.toLowerCase().endsWith('.ogg')) {
-      c.err(`pack.json music['${e}']: '${ref}' is not an .ogg track (Ogg Vorbis).`, P)
+    const list: unknown[] = Array.isArray(v) ? v : [v]
+    if (list.length === 0) c.err(`pack.json music['${e}']: names no track.`, P)
+    for (const t of list) {
+      if (typeof t !== 'string' || blank(t)) {
+        c.err(`pack.json music['${e}']: each track is a text reference.`, P)
+        continue
+      }
+      const ref = t.trim()
+      const [set, path] = splitArtRef(ref)
+      if (set === '') {
+        if (!hasFile(ref)) c.err(`pack.json music['${e}']: '${ref}' is not in ${packDir}.`, P)
+      } else if (!m.artSets.includes(set)) {
+        c.err(`pack.json music['${e}']: '${ref}' is from art set '${set}', which art_sets does not declare.`, P)
+      } else if (!path.toLowerCase().endsWith('.ogg')) {
+        c.err(`pack.json music['${e}']: '${ref}' is not an .ogg track (Ogg Vorbis).`, P)
+      }
     }
   }
 }

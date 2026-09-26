@@ -171,8 +171,8 @@ export interface PackManifest {
   /** Whether pack.json has `movies` at all, and what it said, for rule 23. */
   moviesGiven: boolean
   moviesRaw: unknown
-  /** Which track plays at which moment: moment -> reference. Optional (rule 24). */
-  music: Record<string, string>
+  /** Which track plays at which moment: moment -> references (several are a pool). Optional (rule 24). */
+  music: Record<string, string[]>
   /** Whether pack.json has `music` at all, and what it said, for rule 24. */
   musicGiven: boolean
   musicRaw: unknown
@@ -366,13 +366,15 @@ export function readManifest(d: unknown): PackManifest {
   }
 }
 
-/** As PackManifest.from_dict: one reference per moment ("" when it is not text); `_` keys are comments. */
-function musicOf(raw: unknown): Record<string, string> {
-  const out: Record<string, string> = {}
+/** As PackManifest.from_dict: one reference or a list per moment; `_` keys are comments. */
+function musicOf(raw: unknown): Record<string, string[]> {
+  const out: Record<string, string[]> = {}
   if (!isDict(raw)) return out
   for (const [moment, v] of Object.entries(raw)) {
     if (moment.startsWith('_')) continue
-    out[moment] = typeof v === 'string' ? v.trim() : ''
+    if (typeof v === 'string') out[moment] = [v.trim()]
+    else if (Array.isArray(v)) out[moment] = v.filter((r): r is string => typeof r === 'string').map((r) => r.trim())
+    else out[moment] = []
   }
   return out
 }

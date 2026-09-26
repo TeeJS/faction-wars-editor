@@ -523,7 +523,7 @@ describe('movies (rule 23), as the game checks it', () => {
 })
 
 // Rule 24, the game's tests/music.gd cases word for word (pack_loader.gd
-// _validate_music).
+// _validate_music; the test pack's one side is test_side).
 describe('music (rule 24), as the game checks it', () => {
   const ok = { core_system_facilities: {}, rim_system_facilities: {}, garrison: {} }
   const base = { logistics: ok, art_sets: ['swr-original'], skin: 'empire' }
@@ -532,9 +532,17 @@ describe('music (rule 24), as the game checks it', () => {
   const cases: [unknown, string][] = [
     [{ menu: 'swr-original:music/300.ogg' }, ''],
     [{ _comment: "an author's note", menu: 'swr-original:music/301.ogg' }, ''],
+    [{ play: ['swr-original:music/301.ogg', 'swr-original:music/302.ogg'], battle_alert: 'swr-original:music/307.ogg' }, ''],
+    [{ 'strong_advantage.test_side': 'swr-original:music/311.ogg', 'battle_draw.test_side': ['swr-original:music/315.ogg'] }, ''],
     ['not an object', 'pack.json music: must be an object of moment -> track.'],
-    [{ intro: 'swr-original:music/300.ogg' }, "pack.json music: 'intro' is not a moment. Known: menu."],
-    [{ menu: ['swr-original:music/300.ogg'] }, "pack.json music['menu']: a track is a text reference."],
+    [
+      { intro: 'swr-original:music/300.ogg' },
+      "pack.json music: 'intro' is not a moment. Known: menu, play, battle_alert, and strong_advantage./advantage./disadvantage./battle_victory./battle_defeat./battle_draw.<faction id>."
+    ],
+    [{ 'advantage.rebels': 'swr-original:music/306.ogg' }, "pack.json music: 'advantage.rebels' names no faction in factions.json."],
+    [{ menu: [] }, "pack.json music['menu']: names no track."],
+    [{ menu: 5 }, "pack.json music['menu']: each track is a text reference."],
+    [{ play: ['swr-original:music/301.ogg', ''] }, "pack.json music['play']: each track is a text reference."],
     [
       { menu: 'other-set:music/300.ogg' },
       "pack.json music['menu']: 'other-set:music/300.ogg' is from art set 'other-set', which art_sets does not declare."
@@ -546,9 +554,11 @@ describe('music (rule 24), as the game checks it', () => {
     it(`${JSON.stringify(music)} -> ${want === '' ? 'accepted' : 'refused'}`, () => {
       expect(musicErrors(music)).toEqual(want === '' ? [] : [want])
     })
-  it('reads the map as the game does: one track per moment, trimmed, comments skipped', () => {
-    const { pack: p } = hydrate(pack({}, {}, { ...base, music: { menu: ' swr-original:music/300.ogg ', _comment: 'x' } }))
-    expect(p.manifest.music).toEqual({ menu: 'swr-original:music/300.ogg' })
+  it('reads the map as the game does: one or a list per moment, trimmed, comments skipped', () => {
+    const { pack: p } = hydrate(
+      pack({}, {}, { ...base, music: { menu: ' swr-original:music/300.ogg ', play: ['swr-original:music/301.ogg', 5], _comment: 'x' } })
+    )
+    expect(p.manifest.music).toEqual({ menu: ['swr-original:music/300.ogg'], play: ['swr-original:music/301.ogg'] })
     expect(p.manifest.musicGiven).toBe(true)
   })
 })
