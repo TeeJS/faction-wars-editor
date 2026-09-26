@@ -21,6 +21,8 @@ import {
   KNOWN_GID_KINDS,
   KNOWN_HQ_KINDS,
   KNOWN_MENU_ACTIONS,
+  KNOWN_MOVIE_EVENTS,
+  KNOWN_MOVIE_SIDE_EVENTS,
   KNOWN_OCCUPATION_POLICIES,
   KNOWN_TERMS,
   KNOWN_UNIT_KINDS,
@@ -188,7 +190,56 @@ export function runValidate(
   validateIcons(pack, packDir, hasFile, c)
   validateRoles(pack, c)
   validateArt(pack, c)
+  validateMovies(pack, packDir, hasFile, c)
   return c.issues
+}
+
+// Rule 23 (PackLoader._validate_movies): `movies` maps known events to movies -
+// each a file the pack ships, or "<art set>:<path>.ogv" in a declared art set.
+export function validateMovies(pack: LoadedPack, packDir: string, hasFile: (p: string) => boolean, c: Collector): void {
+  const m = pack.manifest
+  const P = { page: 'pack' }
+  if (!m.moviesGiven) return
+  if (!isDict(m.moviesRaw)) {
+    c.err('pack.json movies: must be an object of event -> movie.', P)
+    return
+  }
+  const factionIds = pack.factions.map((f) => f.id)
+  for (const [e, v] of Object.entries(m.moviesRaw)) {
+    if (e.startsWith('_')) continue // an author's comment (SCHEMA.md section 1)
+    let ok = KNOWN_MOVIE_EVENTS.includes(e)
+    let sided = false
+    for (const prefix of KNOWN_MOVIE_SIDE_EVENTS) {
+      if (e.startsWith(prefix)) {
+        sided = true
+        ok = factionIds.includes(e.slice(prefix.length))
+        if (!ok) c.err(`pack.json movies: '${e}' names no faction in factions.json.`, P)
+        break
+      }
+    }
+    if (!ok) {
+      if (!sided)
+        c.err(`pack.json movies: '${e}' is not an event. Known: ${join(KNOWN_MOVIE_EVENTS)}, and start./victory./defeat./headquarters_lost.<faction id>.`, P)
+      continue
+    }
+    const list: unknown[] = Array.isArray(v) ? v : [v]
+    if (list.length === 0) c.err(`pack.json movies['${e}']: names no movie.`, P)
+    for (const r of list) {
+      if (typeof r !== 'string' || blank(r)) {
+        c.err(`pack.json movies['${e}']: each movie is a text reference.`, P)
+        continue
+      }
+      const ref = r.trim()
+      const [set, path] = splitArtRef(ref)
+      if (set === '') {
+        if (!hasFile(ref)) c.err(`pack.json movies['${e}']: '${ref}' is not in ${packDir}.`, P)
+      } else if (!m.artSets.includes(set)) {
+        c.err(`pack.json movies['${e}']: '${ref}' is from art set '${set}', which art_sets does not declare.`, P)
+      } else if (!path.toLowerCase().endsWith('.ogv')) {
+        c.err(`pack.json movies['${e}']: '${ref}' is not an .ogv movie (Ogg Theora, the only kind the engine plays).`, P)
+      }
+    }
+  }
 }
 
 // Rule 12.
