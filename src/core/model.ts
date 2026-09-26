@@ -166,6 +166,11 @@ export interface PackManifest {
   version: string
   /** A page where players can get the pack (the game offers only an http(s) link). Optional. */
   downloadUrl: string
+  /** Which movie plays at which engine event: event -> references, in order. Optional (rule 23). */
+  movies: Record<string, string[]>
+  /** Whether pack.json has `movies` at all, and what it said, for rule 23. */
+  moviesGiven: boolean
+  moviesRaw: unknown
 }
 
 // ---- factions.json ----
@@ -346,8 +351,30 @@ export function readManifest(d: unknown): PackManifest {
     // As PackManifest.from_dict (pack_defs.gd): a number for a version is its
     // text; anything but text for the link is no link. Never an error.
     version: versionOf(ci(d, 'version')),
-    downloadUrl: typeof ci(d, 'download_url') === 'string' ? (ci(d, 'download_url') as string).trim() : ''
+    downloadUrl: typeof ci(d, 'download_url') === 'string' ? (ci(d, 'download_url') as string).trim() : '',
+    movies: moviesOf(ci(d, 'movies')),
+    moviesGiven: ci(d, 'movies') !== undefined && ci(d, 'movies') !== null,
+    moviesRaw: withoutComments(ci(d, 'movies'))
   }
+}
+
+/** The map as written, less its `_` comment keys (they are never data). */
+function withoutComments(raw: unknown): unknown {
+  if (!isDict(raw)) return raw
+  return Object.fromEntries(Object.entries(raw).filter(([k]) => !k.startsWith('_')))
+}
+
+/** As PackManifest.from_dict: one reference or a list per event; `_` keys are comments. */
+function moviesOf(raw: unknown): Record<string, string[]> {
+  const out: Record<string, string[]> = {}
+  if (!isDict(raw)) return out
+  for (const [event, v] of Object.entries(raw)) {
+    if (event.startsWith('_')) continue
+    if (typeof v === 'string') out[event] = [v.trim()]
+    else if (Array.isArray(v)) out[event] = v.filter((r): r is string => typeof r === 'string').map((r) => r.trim())
+    else out[event] = []
+  }
+  return out
 }
 
 function versionOf(v: unknown): string {

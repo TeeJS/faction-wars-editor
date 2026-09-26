@@ -65,6 +65,10 @@ export const KNOWN_MENU_ACTIONS = [
 ]
 /** A `cycle` region's value: a choice the Cockpit offers several regions for (the game's CYCLE_CHOICES). */
 export const CYCLE_CHOICES = ['difficulty', 'galaxy_size']
+/** pack.json `movies`: the engine events a movie can play at (the game's KNOWN_MOVIE_EVENTS). */
+export const KNOWN_MOVIE_EVENTS = ['launch', 'credits', 'system_destroyed', 'superweapon_sabotaged']
+/** ... and those that take a faction id: "victory.empire" (KNOWN_MOVIE_SIDE_EVENTS). */
+export const KNOWN_MOVIE_SIDE_EVENTS = ['start.', 'victory.', 'defeat.', 'headquarters_lost.']
 export const KNOWN_DIFFICULTIES = ['easy', 'medium', 'hard']
 export const KNOWN_CHARACTER_ROLES = [
   'starts_at_first_world', 'starts_at_hq', 'starts_at_random_holding',

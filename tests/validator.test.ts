@@ -96,6 +96,7 @@ function pack(sectorOver: O, planetOver: O, other: O): PackDocument {
   }
   if ('menu' in other) manifest.menu = other.menu
   if ('card_image' in other) manifest.card_image = other.card_image
+  if ('movies' in other) manifest.movies = other.movies
   if ('victory_tips' in other) manifest.victory_tips = other.victory_tips
   const s1: O = { id: 'core', display_name: 'Core', ring: 1, starts_neutral: false, map: { x: 1, y: 1 }, min_size: 'standard', intel_tier: 'live', source_id: 1, ...sectorOver }
   const s2: O = { id: 'rim', display_name: 'Rim', ring: 2, starts_neutral: true, map: { x: 2, y: 2 }, min_size: 'large', intel_tier: 'presence', source_id: 2 }
@@ -475,6 +476,48 @@ describe('Cockpit monitors, word for word', () => {
       "pack.json menu.monitors[0]: 'still' must be a frame of the strip (0 to 1).",
       "pack.json menu.monitors[0]: 'selected_image' needs the 'region' it shows for."
     ])
+  })
+})
+
+// Rule 23, the game's tests/movies.gd cases word for word (pack_loader.gd
+// _validate_movies; the test pack's one side is test_side).
+describe('movies (rule 23), as the game checks it', () => {
+  const ok = { core_system_facilities: {}, rim_system_facilities: {}, garrison: {} }
+  const base = { logistics: ok, art_sets: ['swr-original'], skin: 'empire' }
+  const baseline = new Set(errorsOf(pack({}, {}, base)))
+  const movieErrors = (movies: unknown) => errorsOf(pack({}, {}, { ...base, movies })).filter((e) => !baseline.has(e))
+  const cases: [unknown, string][] = [
+    [{ launch: 'swr-original:movies/000.ogv' }, ''],
+    [{ 'victory.test_side': ['swr-original:movies/108.ogv'] }, ''],
+    [{ 'headquarters_lost.test_side': 'swr-original:movies/102.ogv', _comment: 'a note' }, ''],
+    ['not an object', 'pack.json movies: must be an object of event -> movie.'],
+    [
+      { intro: 'swr-original:movies/000.ogv' },
+      "pack.json movies: 'intro' is not an event. Known: launch, credits, system_destroyed, superweapon_sabotaged, and start./victory./defeat./headquarters_lost.<faction id>."
+    ],
+    [{ 'victory.rebels': 'swr-original:movies/105.ogv' }, "pack.json movies: 'victory.rebels' names no faction in factions.json."],
+    [
+      { launch: 'other-set:movies/000.ogv' },
+      "pack.json movies['launch']: 'other-set:movies/000.ogv' is from art set 'other-set', which art_sets does not declare."
+    ],
+    [
+      { launch: 'swr-original:movies/000.smk' },
+      "pack.json movies['launch']: 'swr-original:movies/000.smk' is not an .ogv movie (Ogg Theora, the only kind the engine plays)."
+    ],
+    [{ launch: 'no-such-file.ogv' }, "pack.json movies['launch']: 'no-such-file.ogv' is not in res://packs/star-wars-rebellion."],
+    [{ launch: [] }, "pack.json movies['launch']: names no movie."]
+  ]
+  for (const [movies, want] of cases)
+    it(`${JSON.stringify(movies)} -> ${want === '' ? 'accepted' : 'refused'}`, () => {
+      expect(movieErrors(movies)).toEqual(want === '' ? [] : [want])
+    })
+  it('reads the map as the game does: one or a list per event, comments skipped', () => {
+    const { pack: p } = hydrate(pack({}, {}, { ...base, movies: { launch: [' swr-original:movies/000.ogv ', 'swr-original:movies/001.ogv'], credits: 'swr-original:movies/005.ogv', _comment: 'x' } }))
+    expect(p.manifest.movies).toEqual({
+      launch: ['swr-original:movies/000.ogv', 'swr-original:movies/001.ogv'],
+      credits: ['swr-original:movies/005.ogv']
+    })
+    expect(p.manifest.moviesGiven).toBe(true)
   })
 })
 
