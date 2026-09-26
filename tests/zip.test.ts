@@ -90,13 +90,14 @@ suite('the shipped WW2 pack exported under a new id', () => {
     }
   })
 
-  it('with a version and a download page: exports, and the zip keeps both', async () => {
+  it('with a version and a download page: exports, passes the importer checks, and keeps both', async () => {
     const doc = loadShipped('ww2')
     doc.edit('new id', (e) => e.set('pack.json', ['id'], 'ww2-remix'))
     doc.edit('version', (e) => e.set('pack.json', ['version'], '1.3'))
     doc.edit('link', (e) => e.set('pack.json', ['download_url'], 'https://example.com/packs/ww2-remix'))
     const r = await buildPackZip(doc.allFiles(), { id: doc.packId, title: 'WW2 Remix', exporter: 'test', artSetHashes: null })
     expect(r.ok).toBe(true)
+    expect(await checkImportable(r.bytes!)).toBe('')
     const back = await openPackZip(r.bytes!)
     const m = readManifest(JSON.parse(new TextDecoder().decode(back.files.get('pack.json')!)))
     expect(m.version).toBe('1.3')
