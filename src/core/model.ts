@@ -354,8 +354,14 @@ export function readManifest(d: unknown): PackManifest {
     downloadUrl: typeof ci(d, 'download_url') === 'string' ? (ci(d, 'download_url') as string).trim() : '',
     movies: moviesOf(ci(d, 'movies')),
     moviesGiven: ci(d, 'movies') !== undefined && ci(d, 'movies') !== null,
-    moviesRaw: ci(d, 'movies')
+    moviesRaw: withoutComments(ci(d, 'movies'))
   }
+}
+
+/** The map as written, less its `_` comment keys (they are never data). */
+function withoutComments(raw: unknown): unknown {
+  if (!isDict(raw)) return raw
+  return Object.fromEntries(Object.entries(raw).filter(([k]) => !k.startsWith('_')))
 }
 
 /** As PackManifest.from_dict: one reference or a list per event; `_` keys are comments. */
