@@ -21,14 +21,19 @@ import {
   KNOWN_GID_KINDS,
   KNOWN_HQ_KINDS,
   KNOWN_MENU_ACTIONS,
+  KNOWN_ADVISOR_CHARACTER_EVENTS,
+  KNOWN_ADVISOR_EVENTS,
+  KNOWN_ADVISOR_SETTINGS,
   KNOWN_MOVIE_EVENTS,
   KNOWN_MOVIE_SIDE_EVENTS,
   KNOWN_MUSIC_EVENTS,
   KNOWN_MUSIC_SIDE_EVENTS,
   KNOWN_OCCUPATION_POLICIES,
+  KNOWN_SOUND_EVENTS,
   KNOWN_TERMS,
   KNOWN_UNIT_KINDS,
   KNOWN_UNIT_ROLES,
+  KNOWN_VOICE_LINES,
   KNOWN_WEAPON_ROLES,
   PACK_JSON_FILES,
   SINGLETON_CHARACTER_ROLES,
@@ -194,7 +199,195 @@ export function runValidate(
   validateArt(pack, c)
   validateMovies(pack, packDir, hasFile, c)
   validateMusic(pack, packDir, hasFile, c)
+  validateAdvisor(pack, packDir, hasFile, c)
+  validateVoices(pack, packDir, hasFile, c)
+  validateSounds(pack, packDir, hasFile, c)
+  validateBriefing(pack, packDir, hasFile, c)
   return c.issues
+}
+
+// One reference (PackLoader._check_ref, rules 24-28): a file the pack ships, or
+// "<art set>:<path>" in a declared art set, ending in `ext`. `where` names it.
+function checkRef(v: unknown, ext: string, kind: string, where: string, pack: LoadedPack, packDir: string, hasFile: (p: string) => boolean, c: Collector): void {
+  const P = { page: 'pack' }
+  if (typeof v !== 'string' || blank(v)) {
+    c.err(`${where}: ${kind} is a text reference.`, P)
+    return
+  }
+  const ref = v.trim()
+  const [set, path] = splitArtRef(ref)
+  if (set === '') {
+    if (!hasFile(ref)) c.err(`${where}: '${ref}' is not in ${packDir}.`, P)
+  } else if (!pack.manifest.artSets.includes(set)) {
+    c.err(`${where}: '${ref}' is from art set '${set}', which art_sets does not declare.`, P)
+  } else if (!path.toLowerCase().endsWith(ext)) {
+    c.err(`${where}: '${ref}' is not a ${ext} file.`, P)
+  }
+}
+
+// A reference or a non-empty list of them (PackLoader._check_refs, a pool).
+function checkRefs(v: unknown, ext: string, kind: string, where: string, pack: LoadedPack, packDir: string, hasFile: (p: string) => boolean, c: Collector): void {
+  const list: unknown[] = Array.isArray(v) ? v : [v]
+  if (list.length === 0) c.err(`${where}: names no ${kind}.`, { page: 'pack' })
+  for (const r of list) checkRef(r, ext, kind, where, pack, packDir, hasFile, c)
+}
+
+const isNumber = (v: unknown): v is number => typeof v === 'number'
+
+// Rule 25 (PackLoader._validate_advisor): `advisor` - the droids' part in each
+// piece of news, per side.
+export function validateAdvisor(pack: LoadedPack, packDir: string, hasFile: (p: string) => boolean, c: Collector): void {
+  const m = pack.manifest
+  const P = { page: 'pack' }
+  if (!m.advisorGiven) return
+  if (!isDict(m.advisorRaw)) {
+    c.err('pack.json advisor: must be an object of side -> news.', P)
+    return
+  }
+  const factionIds = pack.factions.map((f) => f.id)
+  const characters = pack.characters.map((ch) => ch.id)
+  for (const [k, v] of Object.entries(m.advisorRaw)) {
+    if (KNOWN_ADVISOR_SETTINGS.includes(k)) {
+      if (!isNumber(v) || v < 0 || (k === 'frame_seconds' && v <= 0)) c.err(`pack.json advisor.${k}: must be a positive number.`, P)
+      continue
+    }
+    if (!factionIds.includes(k)) {
+      c.err(`pack.json advisor: '${k}' is neither a faction in factions.json nor one of ${join(KNOWN_ADVISOR_SETTINGS)}.`, P)
+      continue
+    }
+    if (!isDict(v)) {
+      c.err(`pack.json advisor.${k}: must be an object of news -> the droids' part.`, P)
+      continue
+    }
+    for (const [e, entry] of Object.entries(v)) {
+      const where = `pack.json advisor.${k}['${e}']`
+      let known = KNOWN_ADVISOR_EVENTS.includes(e)
+      for (const prefix of KNOWN_ADVISOR_CHARACTER_EVENTS) {
+        if (e.startsWith(prefix)) {
+          known = characters.includes(e.slice(prefix.length))
+          if (!known) c.err(`${where}: names no character in characters.json.`, P)
+          break
+        }
+      }
+      if (!known) {
+        if (!KNOWN_ADVISOR_CHARACTER_EVENTS.some((p) => e.startsWith(p)))
+          c.err(
+            `pack.json advisor.${k}: '${e}' is not news the droids speak about. Known: ${join(KNOWN_ADVISOR_EVENTS)}, and ${KNOWN_ADVISOR_CHARACTER_EVENTS.join('/')}<character id>.`,
+            P
+          )
+        continue
+      }
+      if (!isDict(entry)) {
+        c.err(`${where}: must be an object (days, messenger, agent).`, P)
+        continue
+      }
+      if ('days' in entry && (!isNumber(entry.days) || entry.days < 0)) c.err(`${where}: days must be a number of days.`, P)
+      for (const role of ['messenger', 'agent']) {
+        if (!(role in entry)) continue
+        const part = entry[role]
+        if (!isDict(part)) {
+          c.err(`${where}.${role}: must be an object (anim, sound).`, P)
+          continue
+        }
+        if ('anim' in part) checkRef(part.anim, '.fwa', 'an animation', `${where}.${role}.anim`, pack, packDir, hasFile, c)
+        if ('sound' in part) checkRef(part.sound, '.ogg', 'a sound', `${where}.${role}.sound`, pack, packDir, hasFile, c)
+        if ('translated' in part && typeof part.translated !== 'boolean') c.err(`${where}.${role}.translated: must be true or false.`, P)
+      }
+    }
+  }
+}
+
+// Rule 26 (PackLoader._validate_voices): `voices` - a character's own lines.
+export function validateVoices(pack: LoadedPack, packDir: string, hasFile: (p: string) => boolean, c: Collector): void {
+  const m = pack.manifest
+  const P = { page: 'pack' }
+  if (!m.voicesGiven) return
+  if (!isDict(m.voicesRaw)) {
+    c.err('pack.json voices: must be an object of character -> lines.', P)
+    return
+  }
+  const characters = pack.characters.map((ch) => ch.id)
+  for (const [ch, lines] of Object.entries(m.voicesRaw)) {
+    if (!characters.includes(ch)) {
+      c.err(`pack.json voices: '${ch}' is no character in characters.json.`, P)
+      continue
+    }
+    if (!isDict(lines)) {
+      c.err(`pack.json voices.${ch}: must be an object of line -> sound.`, P)
+      continue
+    }
+    for (const [l, refs] of Object.entries(lines)) {
+      if (!KNOWN_VOICE_LINES.includes(l)) {
+        c.err(`pack.json voices.${ch}: '${l}' is not a line. Known: ${join(KNOWN_VOICE_LINES)}.`, P)
+        continue
+      }
+      checkRefs(refs, '.ogg', 'sound', `pack.json voices.${ch}.${l}`, pack, packDir, hasFile, c)
+    }
+  }
+}
+
+// Rule 27 (PackLoader._validate_sounds): `sounds` - the controls' sounds.
+export function validateSounds(pack: LoadedPack, packDir: string, hasFile: (p: string) => boolean, c: Collector): void {
+  const m = pack.manifest
+  const P = { page: 'pack' }
+  if (!m.soundsGiven) return
+  if (!isDict(m.soundsRaw)) {
+    c.err('pack.json sounds: must be an object of moment -> sound.', P)
+    return
+  }
+  for (const [s, refs] of Object.entries(m.soundsRaw)) {
+    if (!KNOWN_SOUND_EVENTS.includes(s)) {
+      c.err(`pack.json sounds: '${s}' is not a moment. Known: ${join(KNOWN_SOUND_EVENTS)}.`, P)
+      continue
+    }
+    checkRefs(refs, '.ogg', 'sound', `pack.json sounds.${s}`, pack, packDir, hasFile, c)
+  }
+}
+
+// Rule 28 (PackLoader._validate_briefing): `briefing` - the opening briefing,
+// per side: `steps` and `skip`, each a list whose items are a line (anim,
+// sound) or a `focus` (a number).
+export function validateBriefing(pack: LoadedPack, packDir: string, hasFile: (p: string) => boolean, c: Collector): void {
+  const m = pack.manifest
+  const P = { page: 'pack' }
+  if (!m.briefingGiven) return
+  if (!isDict(m.briefingRaw)) {
+    c.err('pack.json briefing: must be an object of side -> the briefing.', P)
+    return
+  }
+  const factionIds = pack.factions.map((f) => f.id)
+  for (const [k, side] of Object.entries(m.briefingRaw)) {
+    if (!factionIds.includes(k)) {
+      c.err(`pack.json briefing: '${k}' is not a faction in factions.json.`, P)
+      continue
+    }
+    if (!isDict(side)) {
+      c.err(`pack.json briefing.${k}: must be an object (steps, skip).`, P)
+      continue
+    }
+    for (const [part, list] of Object.entries(side)) {
+      const where = `pack.json briefing.${k}.${part}`
+      if (!['steps', 'skip'].includes(part)) {
+        c.err(`pack.json briefing.${k}: '${part}' is neither steps nor skip.`, P)
+        continue
+      }
+      if (!Array.isArray(list)) {
+        c.err(`${where}: must be a list of steps.`, P)
+        continue
+      }
+      list.forEach((step, i) => {
+        const at = `${where}[${i}]`
+        if (!isDict(step)) c.err(`${at}: must be an object (a focus, or anim and sound).`, P)
+        else if ('focus' in step) {
+          if (!isNumber(step.focus) || step.focus < 0) c.err(`${at}.focus: must be a number.`, P)
+        } else if (!('anim' in step || 'sound' in step)) c.err(`${at}: is neither a focus nor a line (anim, sound).`, P)
+        else {
+          if ('anim' in step) checkRef(step.anim, '.fwa', 'an animation', `${at}.anim`, pack, packDir, hasFile, c)
+          if ('sound' in step) checkRef(step.sound, '.ogg', 'a sound', `${at}.sound`, pack, packDir, hasFile, c)
+        }
+      })
+    }
+  }
 }
 
 // Rule 24 (PackLoader._validate_music): `music` maps known moments to a track or

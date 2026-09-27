@@ -80,6 +80,28 @@ export const KNOWN_MUSIC_SIDE_EVENTS = [
   'battle_defeat.',
   'battle_draw.'
 ]
+/** pack.json `advisor`: the news the droids speak about (the game's KNOWN_ADVISOR_EVENTS). */
+export const KNOWN_ADVISOR_EVENTS = [
+  'support_gained', 'support_lost', 'production', 'research',
+  'fleet_arrived', 'units_arrived', 'ship_repaired', 'squadron_repaired', 'maintenance',
+  'blockade_started', 'blockade_detected', 'personnel_report', 'agent_report', 'captured',
+  'released', 'planet_status', 'intercepted', 'bombardment', 'assault'
+]
+/** ... and those that take a character id: "report.luke_skywalker". */
+export const KNOWN_ADVISOR_CHARACTER_EVENTS = ['report.', 'captured.', 'released.']
+/** `advisor`'s own settings beside the sides. */
+export const KNOWN_ADVISOR_SETTINGS = ['repeat_days', 'frame_seconds']
+/** pack.json `voices`: the lines a character speaks (the game's KNOWN_VOICE_LINES). */
+export const KNOWN_VOICE_LINES = [
+  'order', 'personnel_arrived', 'mission_success', 'mission_failure',
+  'mission_abort', 'released', 'recovered', 'enemy_detected', 'traitor_discovered',
+  'force_growth', 'force_ability_revealed', 'force_user_discovered', 'rescue_attempt',
+  'bounty_attack', 'dagobah_completed', 'seat_of_power', 'advanced_personnel_arrived',
+  'advanced_mission_abort', 'advanced_released', 'advanced_recovered',
+  'advanced_enemy_detected', 'advanced_force_growth', 'advanced_rescue_attempt'
+]
+/** pack.json `sounds`: the controls' sounds (the game's KNOWN_SOUND_EVENTS). */
+export const KNOWN_SOUND_EVENTS = ['cockpit_galaxy_size', 'cockpit_load', 'cockpit_exit', 'cockpit_control']
 export const KNOWN_DIFFICULTIES = ['easy', 'medium', 'hard']
 export const KNOWN_CHARACTER_ROLES = [
   'starts_at_first_world', 'starts_at_hq', 'starts_at_random_holding',
