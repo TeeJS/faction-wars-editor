@@ -437,7 +437,10 @@ export function validateBriefing(pack: LoadedPack, packDir: string, hasFile: (p:
 // Rule 29 (PackLoader._validate_advice): `advice` - the agent's advice messages,
 // per side: `messages` the file holding them (.json, needed), `list` its list for
 // this side (needed), `opening` the group posted when a game starts, `picture`
-// what a message shows (.png).
+// what a message shows (.png), `events` known window kinds -> the group each
+// releases, `periodic` the group always due, `every` the ticks between tips.
+const ADVICE_KEYS = ['messages', 'list', 'opening', 'picture', 'events', 'periodic', 'every']
+export const KNOWN_ADVICE_EVENTS = ['sector', 'manufacturing', 'fleet', 'defenses', 'missions']
 export function validateAdvice(pack: LoadedPack, packDir: string, hasFile: (p: string) => boolean, c: Collector): void {
   const m = pack.manifest
   const P = { page: 'pack' }
@@ -454,15 +457,25 @@ export function validateAdvice(pack: LoadedPack, packDir: string, hasFile: (p: s
       continue
     }
     if (!isDict(side)) {
-      c.err(`${where}: must be an object (messages, list, opening, picture).`, P)
+      c.err(`${where}: must be an object (messages, list, opening, picture, events, periodic, every).`, P)
       continue
     }
     for (const part of Object.keys(side))
-      if (!['messages', 'list', 'opening', 'picture'].includes(part)) c.err(`${where}: '${part}' is none of messages, list, opening, picture.`, P)
+      if (!ADVICE_KEYS.includes(part)) c.err(`${where}: '${part}' is none of ${ADVICE_KEYS.join(', ')}.`, P)
     if (!('messages' in side)) c.err(`${where}: names no messages file.`, P)
     else checkRef(side.messages, '.json', 'a messages file', `${where}.messages`, pack, packDir, hasFile, c)
     if (typeof side.list !== 'string' || blank(side.list)) c.err(`${where}.list: must name the file's list for this side.`, P)
-    if ('opening' in side && (!isNumber(side.opening) || side.opening < 0)) c.err(`${where}.opening: must be a group number.`, P)
+    for (const part of ['opening', 'periodic'])
+      if (part in side && (!isNumber(side[part]) || (side[part] as number) < 0)) c.err(`${where}.${part}: must be a group number.`, P)
+    if ('every' in side && (!isNumber(side.every) || side.every <= 0)) c.err(`${where}.every: must be a number of ticks.`, P)
+    if ('events' in side) {
+      if (!isDict(side.events)) c.err(`${where}.events: must be an object of window -> group.`, P)
+      else
+        for (const [kind, group] of Object.entries(side.events)) {
+          if (!KNOWN_ADVICE_EVENTS.includes(kind)) c.err(`${where}.events: '${kind}' is not a window. Known: ${KNOWN_ADVICE_EVENTS.join(', ')}.`, P)
+          else if (!isNumber(group) || group < 0) c.err(`${where}.events.${kind}: must be a group number.`, P)
+        }
+    }
     if ('picture' in side) checkRef(side.picture, '.png', 'a picture', `${where}.picture`, pack, packDir, hasFile, c)
   }
 }
