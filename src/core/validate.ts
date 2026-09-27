@@ -386,7 +386,8 @@ function validateBriefingViews(pack: LoadedPack, views: unknown, where: string, 
 
 // Rule 28 (PackLoader._validate_briefing): `briefing` - the opening briefing,
 // per side: `steps` and `skip`, each a list whose items are a line (anim,
-// sound) or a `focus` (a number).
+// sound) or a `focus` (a number); `views`; `release`, the focus number that
+// lets the clock go.
 export function validateBriefing(pack: LoadedPack, packDir: string, hasFile: (p: string) => boolean, c: Collector): void {
   const m = pack.manifest
   const P = { page: 'pack' }
@@ -411,8 +412,12 @@ export function validateBriefing(pack: LoadedPack, packDir: string, hasFile: (p:
         validateBriefingViews(pack, list, where, c)
         continue
       }
+      if (part === 'release') {
+        if (!isNumber(list) || list < 0) c.err(`${where}: must be a focus number.`, P)
+        continue
+      }
       if (!['steps', 'skip'].includes(part)) {
-        c.err(`pack.json briefing.${k}: '${part}' is neither steps, skip nor views.`, P)
+        c.err(`pack.json briefing.${k}: '${part}' is neither steps, skip, views nor release.`, P)
         continue
       }
       if (!Array.isArray(list)) {
