@@ -14,6 +14,7 @@ import {
   validatePack,
   runValidate
 } from '../src/core/validate'
+import { KNOWN_ADVISOR_EVENTS, KNOWN_VOICE_LINES } from '../src/core/vocab'
 import { SHIPPED_PACKS, docFromObjects, haveGameRepo, loadShipped } from './helpers'
 
 const PACK_DIR = 'res://packs/star-wars-rebellion'
@@ -98,6 +99,7 @@ function pack(sectorOver: O, planetOver: O, other: O): PackDocument {
   if ('card_image' in other) manifest.card_image = other.card_image
   if ('movies' in other) manifest.movies = other.movies
   if ('music' in other) manifest.music = other.music
+  for (const k of ['advisor', 'voices', 'sounds', 'briefing']) if (k in other) manifest[k] = other[k]
   if ('victory_tips' in other) manifest.victory_tips = other.victory_tips
   const s1: O = { id: 'core', display_name: 'Core', ring: 1, starts_neutral: false, map: { x: 1, y: 1 }, min_size: 'standard', intel_tier: 'live', source_id: 1, ...sectorOver }
   const s2: O = { id: 'rim', display_name: 'Rim', ring: 2, starts_neutral: true, map: { x: 2, y: 2 }, min_size: 'large', intel_tier: 'presence', source_id: 2 }
@@ -560,6 +562,65 @@ describe('music (rule 24), as the game checks it', () => {
     )
     expect(p.manifest.music).toEqual({ menu: ['swr-original:music/300.ogg'], play: ['swr-original:music/301.ogg'] })
     expect(p.manifest.musicGiven).toBe(true)
+  })
+})
+
+// Rules 25-28, the game's tests/advisor.gd and tests/briefing.gd cases (pack_loader.gd
+// _validate_advisor / _voices / _sounds / _briefing; the test pack's one side is
+// test_side, its major character first_person).
+describe('advisor, voices, sounds, briefing (rules 25-28), as the game checks them', () => {
+  const ok = { core_system_facilities: {}, rim_system_facilities: {}, garrison: {} }
+  const base = { logistics: ok, art_sets: ['swr-original'], skin: 'empire' }
+  const baseline = new Set(errorsOf(pack({}, {}, base)))
+  const errs = (field: string, v: unknown) => errorsOf(pack({}, {}, { ...base, [field]: v })).filter((e) => !baseline.has(e))
+  const events = KNOWN_ADVISOR_EVENTS.join(', ')
+  const lines = KNOWN_VOICE_LINES.join(', ')
+  const line = { anim: 'swr-original:anim/albrief/2101.fwa', sound: 'swr-original:sound/albrief/1155.ogg' }
+  const cases: [string, unknown, string][] = [
+    ['advisor', { repeat_days: 60, test_side: { research: { days: 10, messenger: { anim: 'swr-original:anim/alsprite/3331.fwa', sound: 'swr-original:sound/alsprite/1505.ogg' } } } }, ''],
+    ['advisor', { test_side: { 'report.first_person': { agent: { sound: 'swr-original:sound/alsprite/1128.ogg', translated: true } } } }, ''],
+    ['advisor', { _comment: 'a note', test_side: { _comment: 'another', research: { _note: 'x', days: 5 } } }, ''],
+    ['advisor', 'no', 'pack.json advisor: must be an object of side -> news.'],
+    ['advisor', { rebels: {} }, "pack.json advisor: 'rebels' is neither a faction in factions.json nor one of repeat_days, frame_seconds."],
+    ['advisor', { test_side: { gossip: {} } }, `pack.json advisor.test_side: 'gossip' is not news the droids speak about. Known: ${events}, and report./captured./released.<character id>.`],
+    ['advisor', { test_side: { 'report.yoda_the_great': {} } }, "pack.json advisor.test_side['report.yoda_the_great']: names no character in characters.json."],
+    ['advisor', { test_side: { research: { messenger: { anim: 'swr-original:anim/alsprite/3331.png' } } } }, "pack.json advisor.test_side['research'].messenger.anim: 'swr-original:anim/alsprite/3331.png' is not a .fwa file."],
+    ['advisor', { test_side: { research: { agent: { translated: 'yes' } } } }, "pack.json advisor.test_side['research'].agent.translated: must be true or false."],
+    ['advisor', { test_side: { research: 'loud' } }, "pack.json advisor.test_side['research']: must be an object (days, messenger, agent)."],
+    ['advisor', { test_side: { research: { days: -1 } } }, "pack.json advisor.test_side['research']: days must be a number of days."],
+    ['advisor', { frame_seconds: 0 }, 'pack.json advisor.frame_seconds: must be a positive number.'],
+    ['voices', { first_person: { order: ['swr-original:sound/alsprite/1301.ogg', 'swr-original:sound/alsprite/1302.ogg'] } }, ''],
+    ['voices', { yoda_the_great: {} }, "pack.json voices: 'yoda_the_great' is no character in characters.json."],
+    ['voices', { first_person: { sings: 'swr-original:sound/alsprite/1.ogg' } }, `pack.json voices.first_person: 'sings' is not a line. Known: ${lines}.`],
+    ['voices', { first_person: { order: [] } }, 'pack.json voices.first_person.order: names no sound.'],
+    ['voices', { first_person: { order: 'other-set:sound/x/1.ogg' } }, "pack.json voices.first_person.order: 'other-set:sound/x/1.ogg' is from art set 'other-set', which art_sets does not declare."],
+    ['sounds', { cockpit_exit: 'swr-original:sound/common/8002.ogg' }, ''],
+    ['sounds', { cockpit_whistle: 'swr-original:sound/common/8003.ogg' }, "pack.json sounds: 'cockpit_whistle' is not a moment. Known: cockpit_galaxy_size, cockpit_load, cockpit_exit, cockpit_control."],
+    ['sounds', { cockpit_exit: 'swr-original:sound/common/8002.wav' }, "pack.json sounds.cockpit_exit: 'swr-original:sound/common/8002.wav' is not a .ogg file."],
+    ['sounds', { cockpit_exit: 'no-such-file.ogg' }, "pack.json sounds.cockpit_exit: 'no-such-file.ogg' is not in res://packs/star-wars-rebellion."],
+    ['briefing', { test_side: { steps: [{ focus: 12 }, line], skip: [line] } }, ''],
+    ['briefing', { _comment: 'a note', test_side: { steps: [{ _note: 'x', focus: 1 }] } }, ''],
+    ['briefing', 'no', 'pack.json briefing: must be an object of side -> the briefing.'],
+    ['briefing', { rebels: {} }, "pack.json briefing: 'rebels' is not a faction in factions.json."],
+    ['briefing', { test_side: [] }, 'pack.json briefing.test_side: must be an object (steps, skip).'],
+    ['briefing', { test_side: { prologue: [] } }, "pack.json briefing.test_side: 'prologue' is neither steps nor skip."],
+    ['briefing', { test_side: { steps: 'all of it' } }, 'pack.json briefing.test_side.steps: must be a list of steps.'],
+    ['briefing', { test_side: { steps: [7] } }, 'pack.json briefing.test_side.steps[0]: must be an object (a focus, or anim and sound).'],
+    ['briefing', { test_side: { steps: [{ focus: 'Yavin' }] } }, 'pack.json briefing.test_side.steps[0].focus: must be a number.'],
+    ['briefing', { test_side: { steps: [{ pause: 2 }] } }, 'pack.json briefing.test_side.steps[0]: is neither a focus nor a line (anim, sound).'],
+    ['briefing', { test_side: { steps: [{ sound: 'swr-original:sound/albrief/1155.wav' }] } }, "pack.json briefing.test_side.steps[0].sound: 'swr-original:sound/albrief/1155.wav' is not a .ogg file."],
+    ['briefing', { test_side: { steps: [{ anim: 'other-set:anim/albrief/2101.fwa' }] } }, "pack.json briefing.test_side.steps[0].anim: 'other-set:anim/albrief/2101.fwa' is from art set 'other-set', which art_sets does not declare."]
+  ]
+  for (const [field, v, want] of cases)
+    it(`${field} ${JSON.stringify(v)} -> ${want === '' ? 'accepted' : 'refused'}`, () => {
+      expect(errs(field, v)).toEqual(want === '' ? [] : [want])
+    })
+  it('reads them as the game does: comments left out at every level', () => {
+    const { pack: p } = hydrate(pack({}, {}, { ...base, briefing: { _comment: 'x', test_side: { steps: [{ _n: 1, focus: 12 }] } }, sounds: { _c: 'y', cockpit_exit: 'swr-original:sound/common/8002.ogg' } }))
+    expect(p.manifest.briefingRaw).toEqual({ test_side: { steps: [{ focus: 12 }] } })
+    expect(p.manifest.briefingGiven).toBe(true)
+    expect(p.manifest.soundsRaw).toEqual({ cockpit_exit: 'swr-original:sound/common/8002.ogg' })
+    expect(p.manifest.advisorGiven).toBe(false)
   })
 })
 

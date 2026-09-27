@@ -176,6 +176,18 @@ export interface PackManifest {
   /** Whether pack.json has `music` at all, and what it said, for rule 24. */
   musicGiven: boolean
   musicRaw: unknown
+  /** What the droids say for which news, per side; as written, less `_` keys at every level (rule 25). */
+  advisorGiven: boolean
+  advisorRaw: unknown
+  /** A character's own lines (rule 26). */
+  voicesGiven: boolean
+  voicesRaw: unknown
+  /** The controls' own sounds (rule 27). */
+  soundsGiven: boolean
+  soundsRaw: unknown
+  /** The opening briefing per side: its steps and the skip's (rule 28). */
+  briefingGiven: boolean
+  briefingRaw: unknown
 }
 
 // ---- factions.json ----
@@ -362,7 +374,15 @@ export function readManifest(d: unknown): PackManifest {
     moviesRaw: withoutComments(ci(d, 'movies')),
     music: musicOf(ci(d, 'music')),
     musicGiven: ci(d, 'music') !== undefined && ci(d, 'music') !== null,
-    musicRaw: withoutComments(ci(d, 'music'))
+    musicRaw: withoutComments(ci(d, 'music')),
+    advisorGiven: given(ci(d, 'advisor')),
+    advisorRaw: deepWithoutComments(ci(d, 'advisor')),
+    voicesGiven: given(ci(d, 'voices')),
+    voicesRaw: deepWithoutComments(ci(d, 'voices')),
+    soundsGiven: given(ci(d, 'sounds')),
+    soundsRaw: deepWithoutComments(ci(d, 'sounds')),
+    briefingGiven: given(ci(d, 'briefing')),
+    briefingRaw: deepWithoutComments(ci(d, 'briefing'))
   }
 }
 
@@ -377,6 +397,18 @@ function musicOf(raw: unknown): Record<string, string[]> {
     else out[moment] = []
   }
   return out
+}
+
+/** Whether pack.json has the field at all (null is not having it). */
+function given(v: unknown): boolean {
+  return v !== undefined && v !== null
+}
+
+/** As PackManifest._deep_without_comments: a map and every map inside it (lists too), less their `_` keys. */
+function deepWithoutComments(v: unknown): unknown {
+  if (Array.isArray(v)) return v.map(deepWithoutComments)
+  if (!isDict(v)) return v
+  return Object.fromEntries(Object.entries(v).filter(([k]) => !k.startsWith('_')).map(([k, x]) => [k, deepWithoutComments(x)]))
 }
 
 /** The map as written, less its `_` comment keys (they are never data). */
