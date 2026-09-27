@@ -188,6 +188,9 @@ export interface PackManifest {
   /** The opening briefing per side: its steps and the skip's (rule 28). */
   briefingGiven: boolean
   briefingRaw: unknown
+  /** The agent's advice messages per side: the list, the opening group, the picture (rule 29). */
+  adviceGiven: boolean
+  adviceRaw: unknown
 }
 
 // ---- factions.json ----
@@ -382,7 +385,9 @@ export function readManifest(d: unknown): PackManifest {
     soundsGiven: given(ci(d, 'sounds')),
     soundsRaw: deepWithoutComments(ci(d, 'sounds')),
     briefingGiven: given(ci(d, 'briefing')),
-    briefingRaw: deepWithoutComments(ci(d, 'briefing'))
+    briefingRaw: deepWithoutComments(ci(d, 'briefing')),
+    adviceGiven: given(ci(d, 'advice')),
+    adviceRaw: deepWithoutComments(ci(d, 'advice'))
   }
 }
 

@@ -99,7 +99,7 @@ function pack(sectorOver: O, planetOver: O, other: O): PackDocument {
   if ('card_image' in other) manifest.card_image = other.card_image
   if ('movies' in other) manifest.movies = other.movies
   if ('music' in other) manifest.music = other.music
-  for (const k of ['advisor', 'voices', 'sounds', 'briefing']) if (k in other) manifest[k] = other[k]
+  for (const k of ['advisor', 'voices', 'sounds', 'briefing', 'advice']) if (k in other) manifest[k] = other[k]
   if ('victory_tips' in other) manifest.victory_tips = other.victory_tips
   const s1: O = { id: 'core', display_name: 'Core', ring: 1, starts_neutral: false, map: { x: 1, y: 1 }, min_size: 'standard', intel_tier: 'live', source_id: 1, ...sectorOver }
   const s2: O = { id: 'rim', display_name: 'Rim', ring: 2, starts_neutral: true, map: { x: 2, y: 2 }, min_size: 'large', intel_tier: 'presence', source_id: 2 }
@@ -628,6 +628,38 @@ describe('advisor, voices, sounds, briefing (rules 25-28), as the game checks th
     expect(p.manifest.briefingGiven).toBe(true)
     expect(p.manifest.soundsRaw).toEqual({ cockpit_exit: 'swr-original:sound/common/8002.ogg' })
     expect(p.manifest.advisorGiven).toBe(false)
+  })
+})
+
+// Rule 29, the game's tests/advice.gd cases (pack_loader.gd _validate_advice).
+describe('advice (rule 29), as the game checks it', () => {
+  const ok = { core_system_facilities: {}, rim_system_facilities: {}, garrison: {} }
+  const base = { logistics: ok, art_sets: ['swr-original'], skin: 'empire' }
+  const baseline = new Set(errorsOf(pack({}, {}, base)))
+  const errs = (v: unknown) => errorsOf(pack({}, {}, { ...base, advice: v })).filter((e) => !baseline.has(e))
+  const good = { messages: 'swr-original:advice.json', list: 'alliance', opening: 7, picture: 'swr-original:windows/advice.alliance.png' }
+  const cases: [unknown, string][] = [
+    [{ test_side: good }, ''],
+    [{ test_side: { messages: 'swr-original:advice.json', list: 'alliance' } }, ''],
+    ['no', 'pack.json advice: must be an object of side -> the advice.'],
+    [{ rebels: good }, "pack.json advice: 'rebels' is not a faction in factions.json."],
+    [{ test_side: [] }, 'pack.json advice.test_side: must be an object (messages, list, opening, picture).'],
+    [{ test_side: { messages: 'swr-original:advice.json', list: 'alliance', voice: 'x' } }, "pack.json advice.test_side: 'voice' is none of messages, list, opening, picture."],
+    [{ test_side: { list: 'alliance' } }, 'pack.json advice.test_side: names no messages file.'],
+    [{ test_side: { messages: 'swr-original:advice.txt', list: 'alliance' } }, "pack.json advice.test_side.messages: 'swr-original:advice.txt' is not a .json file."],
+    [{ test_side: { messages: 'other-set:advice.json', list: 'alliance' } }, "pack.json advice.test_side.messages: 'other-set:advice.json' is from art set 'other-set', which art_sets does not declare."],
+    [{ test_side: { messages: 'swr-original:advice.json' } }, "pack.json advice.test_side.list: must name the file's list for this side."],
+    [{ test_side: { messages: 'swr-original:advice.json', list: 'alliance', opening: 'start' } }, 'pack.json advice.test_side.opening: must be a group number.'],
+    [{ test_side: { messages: 'swr-original:advice.json', list: 'alliance', picture: 'swr-original:windows/advice.bmp' } }, "pack.json advice.test_side.picture: 'swr-original:windows/advice.bmp' is not a .png file."]
+  ]
+  for (const [v, want] of cases)
+    it(`advice ${JSON.stringify(v)} -> ${want === '' ? 'accepted' : 'refused'}`, () => {
+      expect(errs(v)).toEqual(want === '' ? [] : [want])
+    })
+  it('reads it as the game does: comments left out', () => {
+    const { pack: p } = hydrate(pack({}, {}, { ...base, advice: { _comment: 'x', test_side: { _n: 1, ...good } } }))
+    expect(p.manifest.adviceRaw).toEqual({ test_side: good })
+    expect(p.manifest.adviceGiven).toBe(true)
   })
 })
 

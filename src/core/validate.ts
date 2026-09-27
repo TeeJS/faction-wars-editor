@@ -205,6 +205,7 @@ export function runValidate(
   validateVoices(pack, packDir, hasFile, c)
   validateSounds(pack, packDir, hasFile, c)
   validateBriefing(pack, packDir, hasFile, c)
+  validateAdvice(pack, packDir, hasFile, c)
   return c.issues
 }
 
@@ -430,6 +431,39 @@ export function validateBriefing(pack: LoadedPack, packDir: string, hasFile: (p:
         }
       })
     }
+  }
+}
+
+// Rule 29 (PackLoader._validate_advice): `advice` - the agent's advice messages,
+// per side: `messages` the file holding them (.json, needed), `list` its list for
+// this side (needed), `opening` the group posted when a game starts, `picture`
+// what a message shows (.png).
+export function validateAdvice(pack: LoadedPack, packDir: string, hasFile: (p: string) => boolean, c: Collector): void {
+  const m = pack.manifest
+  const P = { page: 'pack' }
+  if (!m.adviceGiven) return
+  if (!isDict(m.adviceRaw)) {
+    c.err('pack.json advice: must be an object of side -> the advice.', P)
+    return
+  }
+  const factionIds = pack.factions.map((f) => f.id)
+  for (const [k, side] of Object.entries(m.adviceRaw)) {
+    const where = `pack.json advice.${k}`
+    if (!factionIds.includes(k)) {
+      c.err(`pack.json advice: '${k}' is not a faction in factions.json.`, P)
+      continue
+    }
+    if (!isDict(side)) {
+      c.err(`${where}: must be an object (messages, list, opening, picture).`, P)
+      continue
+    }
+    for (const part of Object.keys(side))
+      if (!['messages', 'list', 'opening', 'picture'].includes(part)) c.err(`${where}: '${part}' is none of messages, list, opening, picture.`, P)
+    if (!('messages' in side)) c.err(`${where}: names no messages file.`, P)
+    else checkRef(side.messages, '.json', 'a messages file', `${where}.messages`, pack, packDir, hasFile, c)
+    if (typeof side.list !== 'string' || blank(side.list)) c.err(`${where}.list: must name the file's list for this side.`, P)
+    if ('opening' in side && (!isNumber(side.opening) || side.opening < 0)) c.err(`${where}.opening: must be a group number.`, P)
+    if ('picture' in side) checkRef(side.picture, '.png', 'a picture', `${where}.picture`, pack, packDir, hasFile, c)
   }
 }
 
