@@ -103,6 +103,10 @@ export const KNOWN_VOICE_LINES = [
   'advanced_mission_abort', 'advanced_released', 'advanced_recovered',
   'advanced_enemy_detected', 'advanced_force_growth', 'advanced_rescue_attempt'
 ]
+/** pack.json `briefing.<side>.views`: what the display shows at a focus step (the game's KNOWN_BRIEFING_VIEWS)... */
+export const KNOWN_BRIEFING_VIEWS = ['off', 'military', 'unexplored', 'defenses']
+/** ... and the kinds that name something: "system:yavin" (KNOWN_BRIEFING_VIEW_KINDS). */
+export const KNOWN_BRIEFING_VIEW_KINDS = ['mode:', 'loyal:', 'system:', 'hq:', 'character:']
 /** pack.json `sounds`: the controls' sounds (the game's KNOWN_SOUND_EVENTS). */
 export const KNOWN_SOUND_EVENTS = ['cockpit_galaxy_size', 'cockpit_load', 'cockpit_exit', 'cockpit_control']
 export const KNOWN_DIFFICULTIES = ['easy', 'medium', 'hard']

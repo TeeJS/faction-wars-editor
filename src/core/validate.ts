@@ -10,6 +10,8 @@ import { normalizePath } from './document'
 import {
   ART_KINDS,
   KNOWN_ART_SETS,
+  KNOWN_BRIEFING_VIEW_KINDS,
+  KNOWN_BRIEFING_VIEWS,
   KNOWN_BEHAVIOURS,
   CYCLE_CHOICES,
   KNOWN_CHARACTER_ROLES,
@@ -344,6 +346,43 @@ export function validateSounds(pack: LoadedPack, packDir: string, hasFile: (p: s
   }
 }
 
+// Rule 28's `views` (PackLoader._validate_briefing_views): each key a focus
+// number, each value {show, caption}; a show that names something names what
+// the pack has.
+function validateBriefingViews(pack: LoadedPack, views: unknown, where: string, c: Collector): void {
+  const P = { page: 'pack' }
+  if (!isDict(views)) {
+    c.err(`${where}: must be an object of focus number -> view.`, P)
+    return
+  }
+  const ids: Record<string, string[]> = {
+    'mode:': pack.display.categories.flatMap((cat) => cat.modes.map((m) => m.id)),
+    'loyal:': pack.factions.map((f) => f.id),
+    'hq:': pack.factions.map((f) => f.id),
+    'system:': pack.planets.map((p) => p.id),
+    'character:': pack.characters.map((ch) => ch.id)
+  }
+  for (const [key, v] of Object.entries(views)) {
+    const at = `${where}['${key}']`
+    if (!/^[+-]?\d+$/.test(key) || parseInt(key, 10) < 0) {
+      c.err(`${at}: the key must be a focus number.`, P)
+      continue
+    }
+    if (!isDict(v) || typeof v.show !== 'string') {
+      c.err(`${at}: must be an object with a show.`, P)
+      continue
+    }
+    if ('caption' in v && typeof v.caption !== 'string') c.err(`${at}.caption: must be text.`, P)
+    const show = v.show
+    if (KNOWN_BRIEFING_VIEWS.includes(show)) continue
+    let kind = ''
+    for (const k of KNOWN_BRIEFING_VIEW_KINDS) if (show.startsWith(k)) kind = k
+    if (kind === '')
+      c.err(`${at}.show: '${show}' is not a view. Known: ${join(KNOWN_BRIEFING_VIEWS)}, or ${KNOWN_BRIEFING_VIEW_KINDS.join('/')}<id>.`, P)
+    else if (!ids[kind].includes(show.slice(kind.length))) c.err(`${at}.show: '${show}' names nothing this pack has.`, P)
+  }
+}
+
 // Rule 28 (PackLoader._validate_briefing): `briefing` - the opening briefing,
 // per side: `steps` and `skip`, each a list whose items are a line (anim,
 // sound) or a `focus` (a number).
@@ -367,8 +406,12 @@ export function validateBriefing(pack: LoadedPack, packDir: string, hasFile: (p:
     }
     for (const [part, list] of Object.entries(side)) {
       const where = `pack.json briefing.${k}.${part}`
+      if (part === 'views') {
+        validateBriefingViews(pack, list, where, c)
+        continue
+      }
       if (!['steps', 'skip'].includes(part)) {
-        c.err(`pack.json briefing.${k}: '${part}' is neither steps nor skip.`, P)
+        c.err(`pack.json briefing.${k}: '${part}' is neither steps, skip nor views.`, P)
         continue
       }
       if (!Array.isArray(list)) {
