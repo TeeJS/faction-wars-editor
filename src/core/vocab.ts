@@ -85,7 +85,10 @@ export const KNOWN_ADVISOR_EVENTS = [
   'support_gained', 'support_lost', 'production', 'research',
   'fleet_arrived', 'units_arrived', 'ship_repaired', 'squadron_repaired', 'maintenance',
   'blockade_started', 'blockade_detected', 'personnel_report', 'agent_report', 'captured',
-  'released', 'planet_status', 'intercepted', 'bombardment', 'assault'
+  'released', 'planet_status', 'intercepted', 'bombardment', 'assault',
+  // The agent's answers (the game's phase 3): an order refused, and his toggles.
+  'answer_in_transit', 'answer_not_controlled', 'answer_no_mission', 'answer_no_maintenance',
+  'answer_garrisons_on', 'answer_garrisons_off', 'answer_production_on', 'answer_production_off'
 ]
 /** ... and those that take a character id: "report.luke_skywalker". */
 export const KNOWN_ADVISOR_CHARACTER_EVENTS = ['report.', 'captured.', 'released.']

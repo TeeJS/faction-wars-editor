@@ -579,6 +579,7 @@ describe('advisor, voices, sounds, briefing (rules 25-28), as the game checks th
   const cases: [string, unknown, string][] = [
     ['advisor', { repeat_days: 60, test_side: { research: { days: 10, messenger: { anim: 'swr-original:anim/alsprite/3331.fwa', sound: 'swr-original:sound/alsprite/1505.ogg' } } } }, ''],
     ['advisor', { test_side: { 'report.first_person': { agent: { sound: 'swr-original:sound/alsprite/1128.ogg', translated: true } } } }, ''],
+    ['advisor', { test_side: { answer_in_transit: { agent: { anim: 'swr-original:anim/alsprite/3002.fwa', sound: 'swr-original:sound/alsprite/1096.ogg' } } } }, ''],
     ['advisor', { _comment: 'a note', test_side: { _comment: 'another', research: { _note: 'x', days: 5 } } }, ''],
     ['advisor', 'no', 'pack.json advisor: must be an object of side -> news.'],
     ['advisor', { rebels: {} }, "pack.json advisor: 'rebels' is neither a faction in factions.json nor one of repeat_days, frame_seconds."],
