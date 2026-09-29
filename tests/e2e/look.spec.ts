@@ -69,7 +69,8 @@ test.beforeAll(async () => {
   const sandbox = process.platform === 'linux' ? ['--no-sandbox'] : []
   app = await electron.launch({
     args: [...sandbox, join(root, 'out', 'main', 'index.js')],
-    env: { ...process.env, NODE_ENV: 'test', FWE_BACKUPS_DIR: backups, FWE_USER_DATA: join(scratch, 'user-data') }
+    // FWE_RENDER_DIR: tests/look/render.test.ts's copy of the game, so it is not imported twice.
+    env: { ...process.env, NODE_ENV: 'test', FWE_BACKUPS_DIR: backups, FWE_USER_DATA: join(scratch, 'user-data'), FWE_RENDER_DIR: join(root, 'tests', '.scratch', 'render-cache') }
   })
   page = await app.firstWindow()
   await page.setViewportSize({ width: 1600, height: 1000 })
@@ -285,4 +286,31 @@ test('In the game: without Godot where the settings say, it says so and will not
   await expect(page.getByRole('button', { name: 'Render in the game' })).toBeDisabled()
   // The settings live in the test's own user data, never the user's.
   expect(existsSync(join(scratch, 'user-data', 'render-settings.json'))).toBe(true)
+})
+
+test('In the game: the look, an unsaved change included, rendered by the real game', async () => {
+  test.skip(process.env.FWE_RENDER !== '1' || !process.env.FWE_GODOT || !haveLook, 'FWE_RENDER=1 and FWE_GODOT render with the real game (a game window opens)')
+  test.setTimeout(900_000)
+  await openFolder(ww2('render'))
+  await page.getByRole('tab', { name: 'Colours and contrast' }).click()
+  await page.getByLabel('paper hex', { exact: true }).fill('#ffd0e0')
+  await page.getByRole('tab', { name: 'In the game' }).click()
+  for (const [label, value] of [
+    ['Godot', process.env.FWE_GODOT!],
+    ['Game folder', resolve(process.env.FACTION_WARS_DIR ?? join(root, '..', 'faction-wars'))]
+  ]) {
+    const field = page.getByLabel(label, { exact: true })
+    await field.fill(value)
+    await field.blur()
+  }
+  await expect(page.getByRole('button', { name: 'Render in the game' })).toBeEnabled()
+  await page.getByRole('button', { name: 'Render in the game' }).click()
+  await expect(page.locator('.shot')).toHaveCount(9, { timeout: 600_000 })
+  await expect(page.locator('.render-go')).toContainText('Rendered by the game at')
+  await page.screenshot({ path: join(scratch, '06-rendered.png') })
+  // A change after the render is flagged.
+  await page.getByRole('tab', { name: 'Colours and contrast' }).click()
+  await page.getByLabel('paper hex', { exact: true }).fill('#ffffff')
+  await page.getByRole('tab', { name: 'In the game' }).click()
+  await expect(page.locator('.render-go')).toContainText('The look has changed since this render')
 })

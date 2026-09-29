@@ -31,7 +31,9 @@ accepts and plays.
 
 - **Raw JSON as the only way to edit a field.** Raw JSON is an escape hatch; every schema field
   gets a form control.
-- **Depending on Godot or the game's source at runtime.** Players won't have them.
+- **Requiring Godot or the game's source at runtime.** Players won't have them. An optional
+  preview may use them when the user points the editor at them: the Look page's In the game tab
+  (TeeJ, 2026-09-29, approving the UI Builder merge). Nothing else in the editor needs them.
 - **Changing the `TeeJS/faction-wars` repo.** Changes it needs go into
   `docs/handoffs/faction-wars.md` for another agent.
 - **Exporting while validation errors exist.**
