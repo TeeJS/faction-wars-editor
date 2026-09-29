@@ -7,7 +7,16 @@ import { useEffect, useState } from 'react'
 import type { LookPack } from '@core/look/pack'
 import type { LookFile } from '@core/look/lookfile'
 import { isDict } from '@core/look/godot'
-import { DEFAULT_METRICS, DEFAULT_OVERLAY_ALPHA, DEFAULT_SIZES, KNOWN_LOOK_FONTS, KNOWN_LOOK_METRICS, KNOWN_LOOK_SIZES, KNOWN_LOOK_TEXTURES } from '@core/look/vocab'
+import {
+  DEFAULT_METRICS,
+  DEFAULT_OVERLAY_ALPHA,
+  DEFAULT_SIZES,
+  KNOWN_LOOK_FONTS,
+  KNOWN_LOOK_METRICS,
+  KNOWN_LOOK_SIZES,
+  KNOWN_LOOK_TEXTURES,
+  KNOWN_MESSAGE_CATEGORIES
+} from '@core/look/vocab'
 import { store } from '../store'
 import type { LookEdit } from './LookPage'
 import type { Env } from './mock/kit'
@@ -247,6 +256,94 @@ export function Settings(props: { look: LookFile; pack: LookPack; env: Env | nul
           </table>
         </section>
       </div>
+
+      <div className="section-head">
+        <h2>Dispatches</h2>
+        <span className="muted small">
+          The Message Index in the look: the word typed over every dispatch, each category's stamp, and which categories carry the red band. An empty
+          category shows the pack's <code>no_messages</code> term (Display Settings).
+        </span>
+      </div>
+      <Dispatches look={look} edit={edit} />
     </>
+  )
+}
+
+/** A text field that writes as it is typed; empty removes the value. */
+function TextField(props: { label: string; value: string | undefined; placeholder: string; onChange: (v: string | undefined) => void }) {
+  const { label, value, placeholder, onChange } = props
+  const [text, setText] = useState(value ?? '')
+  const [focused, setFocused] = useState(false)
+  useEffect(() => {
+    if (!focused) setText(value ?? '')
+  }, [value, focused])
+  return (
+    <input
+      type="text"
+      className="text-input"
+      aria-label={label}
+      placeholder={placeholder}
+      value={text}
+      spellCheck={false}
+      onFocus={() => setFocused(true)}
+      onBlur={() => setFocused(false)}
+      onChange={(e) => {
+        const t = e.currentTarget.value
+        setText(t)
+        onChange(t === '' ? undefined : t)
+      }}
+    />
+  )
+}
+
+/** look.json `messages`: header, stamps (category -> word), urgent (categories). */
+function Dispatches({ look, edit }: { look: LookFile; edit: LookEdit }) {
+  const v = look.value ?? {}
+  const m = v.messages
+  if (m !== undefined && !isDict(m))
+    return <p className="small below-text">look.json's `messages` is not an object; fix it in the file (the Problems panel names it).</p>
+  const messages = isDict(m) ? m : {}
+  const stamps = isDict(messages.stamps) ? messages.stamps : {}
+  const urgent = Array.isArray(messages.urgent) ? messages.urgent.filter((c): c is string => typeof c === 'string') : []
+  const str = (x: unknown) => (typeof x === 'string' ? x : undefined)
+  return (
+    <div className="settings">
+      <section className="group">
+        <h3>The word over a dispatch</h3>
+        <TextField label="Dispatch header word" value={str(messages.header)} placeholder="none" onChange={(t) => edit('Dispatch word', (l) => l.set(['messages', 'header'], t))} />
+        <p className="muted small">Typed in capitals above the subject, e.g. Dispatch. Empty: none.</p>
+      </section>
+      <section className="group">
+        <h3>Each category's stamp</h3>
+        <table>
+          <tbody>
+            {KNOWN_MESSAGE_CATEGORIES.map((c) => (
+              <tr key={c}>
+                <th scope="row">{c}</th>
+                <td>
+                  <span className="stamp-row">
+                    <TextField label={`${c} stamp`} value={str(stamps[c])} placeholder="no stamp" onChange={(t) => edit(`Stamp ${c}`, (l) => l.set(['messages', 'stamps', c], t))} />
+                    <label className="inline">
+                      <input
+                        type="checkbox"
+                        aria-label={`${c} is urgent`}
+                        checked={urgent.includes(c)}
+                        onChange={(e) => {
+                          const on = e.currentTarget.checked
+                          const next = on ? [...urgent, c] : urgent.filter((x) => x !== c)
+                          edit(`Urgent ${c}`, (l) => l.set(['messages', 'urgent'], next.length ? next : undefined))
+                        }}
+                      />
+                      Red band
+                    </label>
+                  </span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <p className="muted small">A category with no stamp shows none. The red band marks a row and its dispatch as urgent.</p>
+      </section>
+    </div>
   )
 }

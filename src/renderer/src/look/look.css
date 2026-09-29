@@ -26,6 +26,24 @@
 .look-page .path {
   word-break: break-all;
 }
+.look-page .text-input {
+  background: var(--input);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 3px 6px;
+  font: inherit;
+  color: inherit;
+  min-width: 0;
+  width: 100%;
+}
+.look-page .stamp-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.look-page .stamp-row .text-input {
+  flex: 1;
+}
 .look-page > .look-problems {
   margin: 10px 16px 0;
 }

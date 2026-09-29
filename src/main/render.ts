@@ -50,8 +50,34 @@ export interface RenderResult {
 
 export type Progress = (line: string) => void
 
-/** The order the pictures are shown in; the capture scripts' own names. */
-export const SHOT_ORDER = ['specimen', 'cockpit', 'cockpit_focus', 'credits', 'map', 'message', 'dialog', 'finder', 'menu']
+/** The order the pictures are shown in; the capture scripts' own names
+ * (tests/capture_look.gd, 23 since the WWII look's phase 6, after the specimen sheet). */
+export const SHOT_ORDER = [
+  'specimen',
+  'cockpit',
+  'cockpit_focus',
+  'credits',
+  'map',
+  'message',
+  'message_urgent',
+  'message_empty',
+  'dialog',
+  'finder',
+  'menu',
+  'popup',
+  'ency',
+  'economy',
+  'defense',
+  'fleet',
+  'sector',
+  'status',
+  'personnel',
+  'options',
+  'overview',
+  'objectives',
+  'mp_config',
+  'mp_host'
+]
 
 // ---------------------------------------------------------------------------
 // Processes
@@ -328,7 +354,7 @@ export async function renderLook(s: RenderSettings, req: RenderRequest, cacheRoo
     )
     if (r.timedOut) progress('The specimen sheet took too long and was stopped.')
   }
-  progress('Capturing the Cockpit, the Credits, the map screen, a message, a dialog, a finder and the menu.')
+  progress('Capturing the Cockpit, the Credits, the map screen, the dispatches, a dialog, the menus, every other window and the head-to-head screens.')
   const args = ['--path', fwd(dir), '--resolution', '1440x850', '-s', 'tests/capture_look.gd', '--', `--out=${fwd(join(out, 'shot'))}`, `--pack=${req.packId}`, '--record=user://fwe-capture.jsonl']
   if (req.faction) args.push(`--faction=${req.faction}`)
   const r = await run(s.godot, args, { timeoutMs: 300_000, onLine: collect })

@@ -14,10 +14,25 @@ const CAPTIONS: Record<string, string> = {
   cockpit_focus: 'Cockpit, keyboard focus on a launch plate',
   credits: 'Credits sheet',
   map: 'Map screen, a fresh game',
-  message: 'Message Index',
-  dialog: 'A dialog',
-  finder: 'A finder',
-  menu: 'Game Menu'
+  message: 'Message Index: dispatches',
+  message_urgent: 'Message Index: an urgent dispatch',
+  message_empty: 'Message Index: an empty category',
+  dialog: 'A dialog (an order sheet)',
+  finder: 'Planetary System Finder',
+  menu: 'Game Menu',
+  popup: 'A popup menu and a tooltip',
+  ency: 'Galactic Encyclopedia',
+  economy: 'Manufacturing and Production',
+  defense: 'System Defenses',
+  fleet: 'Fleet window',
+  sector: 'Sector window',
+  status: 'Character Status',
+  personnel: 'Personnel Finder',
+  options: 'Game Options',
+  overview: 'Galaxy Overview',
+  objectives: 'Objectives',
+  mp_config: 'Multiplayer Configuration',
+  mp_host: 'Host Game'
 }
 
 export interface RenderView {
@@ -84,8 +99,9 @@ export function RenderTab(props: {
       <div className="panel">
         <h2>The look, drawn by the game</h2>
         <p>
-          The game's own capture scripts draw your look as it is now, unsaved changes included: every shared piece on one sheet, then the Cockpit, the
-          Credits, the map screen, a message, a dialog, a finder and the Game Menu. A game window opens for a few seconds while each set is captured.
+          The game's own capture scripts draw your look as it is now, unsaved changes included: every shared piece on one sheet, then 23 screens: the
+          Cockpit, the Credits, the map screen, the dispatches, a dialog, the menus, every other kind of window and two head-to-head screens. A game
+          window opens for a minute or so while they are captured.
         </p>
         <p className="muted small">
           This needs Godot 4.7 (godotengine.org) and a copy of the game's source (github.com/TeeJS/faction-wars); point the editor at them once below.

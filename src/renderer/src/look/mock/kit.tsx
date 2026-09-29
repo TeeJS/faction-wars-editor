@@ -7,7 +7,28 @@
 
 import { createContext, useContext, type CSSProperties, type ReactNode } from 'react'
 import type { LookPack } from '@core/look/pack'
-import { BOXES, COLORS, FONTS, boxTokens, readBox, readColor, readFont, type Box, type BoxId, type ColorId, type FontId, type Metric, type Px } from '@core/look/theme'
+import {
+  BOXES,
+  COLORS,
+  FONTS,
+  PALETTE,
+  PLAIN,
+  boxTokens,
+  readBox,
+  readColor,
+  readFont,
+  readPalette,
+  readPlain,
+  readTolerance,
+  type Box,
+  type BoxId,
+  type ColorId,
+  type FontId,
+  type Metric,
+  type PaletteRow,
+  type PlainId,
+  type Px
+} from '@core/look/theme'
 import { DEFAULT_METRICS, DEFAULT_OVERLAY_ALPHA, DEFAULT_SIZES, type ColorToken } from '@core/look/vocab'
 
 export interface TexInfo {
@@ -32,10 +53,44 @@ export interface Env {
   pack: LookPack
   mapUrl: string | null
   dossier: { subtitle: string; mapRect: number[] | null; caption: string }
+  /** look.json `messages`, read as the game reads it (Look.DispatchHeader, Stamp, Urgent). */
+  messages: { header: string; stamp: (category: string) => string; urgent: (category: string) => boolean }
 }
 
 export const EnvContext = createContext<Env | null>(null)
 export const useEnv = (): Env => useContext(EnvContext)!
+
+// ---------------------------------------------------------------------------
+// The window dress's palette trade (look_window.gd Remap)
+// ---------------------------------------------------------------------------
+
+const BG_ROWS = readPalette(PALETTE.BG_MAP)
+const EDGE_ROWS = readPalette(PALETTE.EDGE_MAP)
+const TEXT_ROWS = readPalette(PALETTE.TEXT_MAP)
+const TOLERANCE = readTolerance(PALETTE.TOLERANCE)
+
+function rgbOf(hex: string): [number, number, number] | null {
+  const m = /^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(hex)
+  return m ? [parseInt(m[1], 16) / 255, parseInt(m[2], 16) / 255, parseInt(m[3], 16) / 255] : null
+}
+
+/** Within the game's TOLERANCE on each channel. */
+function near(a: string, b: [number, number, number]): boolean {
+  const x = rgbOf(a)
+  // Half a step of 8-bit rounding either side, so a colour written as #rrggbb still matches.
+  return !!x && x.every((v, i) => Math.abs(v - b[i]) <= TOLERANCE + 0.5 / 255)
+}
+
+function traded(rows: PaletteRow[], hex: string): PaletteRow | null {
+  return rows.find((r) => near(hex, r.rgb)) ?? null
+}
+
+/** Inside a window the game dresses (LookWindow.DressAny): its own colours are traded for the look's. */
+const DressedContext = createContext(false)
+export const Dressed = ({ children }: { children: ReactNode }) => <DressedContext.Provider value>{children}</DressedContext.Provider>
+
+/** Inside a dialog the game makes an order sheet (Look.SheetTheme): parchment, words in ink. */
+const SheetContext = createContext(false)
 
 export { DEFAULT_METRICS, DEFAULT_SIZES, DEFAULT_OVERLAY_ALPHA }
 
@@ -153,8 +208,33 @@ export function SideBox({ factionId, style, name = 'Side colour' }: { factionId:
   return <div className="part" data-part={name} data-side={factionId} style={{ background: env.side(factionId), ...style }} />
 }
 
-/** Text in a colour the look does not decide. */
-export function FixedText({ color, note, children, style }: { color: string; note: string; children: ReactNode; style?: CSSProperties }) {
+/** Text in a colour the window writes itself. In a window the game dresses, a
+ * colour in the dress's TEXT_MAP becomes its token and a playable side's
+ * colour becomes the side's look colour (LookWindow._text); any other colour
+ * (damage red, ready green, gold) stays as the window drew it. */
+export function FixedText({ color, note, children, style, drawn }: { color: string; note: string; children: ReactNode; style?: CSSProperties; drawn?: boolean }) {
+  const env = useEnv()
+  const dressed = useContext(DressedContext)
+  // Text the window paints itself (draw_string), not a label: the trade never sees it.
+  if (dressed && !drawn) {
+    const row = traded(TEXT_ROWS, color)
+    if (row)
+      return (
+        <span className="part" data-part="Text (its plain colour, traded for the look's)" data-src="look_window.gd:TEXT_MAP" data-tokens={row.token} style={{ color: env.c(row.token), ...style }}>
+          {children}
+        </span>
+      )
+    const side = env.pack.factions.find((f) => {
+      const rgb = rgbOf(f.color.toLowerCase())
+      return rgb !== null && near(color, rgb)
+    })
+    if (side)
+      return (
+        <span className="part" data-part="Text in a side's colour (traded for its look colour)" data-src="look_window.gd:_text" data-side={side.id} style={{ color: env.side(side.id), ...style }}>
+          {children}
+        </span>
+      )
+  }
   return (
     <span className="part" data-part="Fixed colour" data-fixed={note} style={{ color, ...style }}>
       {children}
@@ -162,8 +242,19 @@ export function FixedText({ color, note, children, style }: { color: string; not
   )
 }
 
-/** A block in a colour the look does not decide (a picture's frame, a map). */
-export function FixedBox({ color, note, style, children, name = 'Fixed colour' }: { color: string; note: string; style?: CSSProperties; children?: ReactNode; name?: string }) {
+/** A block in a colour the window writes itself (a picture's frame, a map).
+ * `scene`: a ColorRect or a style's fill written into the window, which the
+ * dress trades through BG_MAP; a block the window draws itself is left. */
+export function FixedBox({ color, note, style, children, name = 'Fixed colour', scene }: { color: string; note: string; style?: CSSProperties; children?: ReactNode; name?: string; scene?: boolean }) {
+  const env = useEnv()
+  const dressed = useContext(DressedContext)
+  const row = dressed && scene ? traded(BG_ROWS, color) : null
+  if (row)
+    return (
+      <div className="part" data-part={`${name} (its plain colour, traded for the look's)`} data-src="look_window.gd:BG_MAP" data-tokens={row.token} style={{ background: env.c(row.token), ...style }}>
+        {children}
+      </div>
+    )
   return (
     <div className="part" data-part={name} data-fixed={note} style={{ background: color, ...style }}>
       {children}
@@ -171,15 +262,51 @@ export function FixedBox({ color, note, style, children, name = 'Fixed colour' }
   )
 }
 
+/**
+ * A window the game builds in code without the scene template's title bar
+ * (Galaxy Overview, Objectives, the battle windows): its own frame and title
+ * as its script sets them (PLAIN), traded through the dress's BG_MAP,
+ * EDGE_MAP and TEXT_MAP where they match; kept where they do not.
+ */
+export function CodeWindow({ frame, heading, title, width, children }: { frame: PlainId; heading: PlainId; title: ReactNode; width: number; children: ReactNode }) {
+  const env = useEnv()
+  const f = readPlain(PLAIN[frame])
+  const h = readPlain(PLAIN[heading])
+  const bg = f.bg ? traded(BG_ROWS, f.bg) : null
+  const edge = f.edge ? traded(EDGE_ROWS, f.edge) : null
+  const tokens = [bg?.token, edge?.token].filter(Boolean).join(' ')
+  const src = [`${PLAIN[frame].file}:${frame}`, bg ? 'look_window.gd:BG_MAP' : '', edge ? 'look_window.gd:EDGE_MAP' : ''].filter(Boolean).join(' ')
+  return (
+    <Dressed>
+      <div
+        className="part"
+        data-part="Window frame (its own style)"
+        data-src={src}
+        data-tokens={tokens || undefined}
+        data-fixed={!bg || !edge ? "The window's own frame colour: the dress's tables do not list it, so it is kept." : undefined}
+        style={{ width, boxSizing: 'border-box', background: bg ? env.c(bg.token) : f.bg ?? 'transparent', border: `${f.width}px solid ${edge ? env.c(edge.token) : f.edge ?? 'transparent'}`, padding: 14, display: 'grid', gap: 8, alignContent: 'start', ...env.face('body'), fontSize: env.size('body') }}
+      >
+        <FixedText color={h.text ?? '#ffffff'} note="The window's own title colour." style={{ fontSize: h.size ?? env.size('body') }}>
+          {title}
+        </FixedText>
+        {children}
+      </div>
+    </Dressed>
+  )
+}
+
 // ---------------------------------------------------------------------------
 // Text
 // ---------------------------------------------------------------------------
 
-export const Label = ({ children, style }: { children: ReactNode; style?: CSSProperties }) => (
-  <Part name="Label" color="label" font="default" style={style}>
-    {children}
-  </Part>
-)
+export function Label({ children, style }: { children: ReactNode; style?: CSSProperties }) {
+  const sheet = useContext(SheetContext)
+  return (
+    <Part name={sheet ? 'Label on the order sheet' : 'Label'} color={sheet ? 'sheet_label' : 'label'} font="default" style={style}>
+      {children}
+    </Part>
+  )
+}
 
 export const Heading = ({ children, style }: { children: ReactNode; style?: CSSProperties }) => (
   <Part name="Heading" color="HEADING" font="HEADING" style={{ textTransform: 'uppercase', ...style }}>
@@ -307,8 +434,8 @@ export interface TabSpec {
   state?: 'selected' | 'normal' | 'hover' | 'disabled'
 }
 
-/** A tab bar; with `children`, a TabContainer's panel under it. */
-export function Tabs({ tabs, children, style }: { tabs: TabSpec[]; children?: ReactNode; style?: CSSProperties }) {
+/** A tab bar; with `children`, a TabContainer's panel under it (`panelBox`: a style the window gives it). */
+export function Tabs({ tabs, children, style, panelBox = 'tab_panel' }: { tabs: TabSpec[]; children?: ReactNode; style?: CSSProperties; panelBox?: BoxId }) {
   return (
     <div style={{ display: 'grid', ...style }}>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 0 }}>
@@ -324,7 +451,7 @@ export function Tabs({ tabs, children, style }: { tabs: TabSpec[]; children?: Re
         })}
       </div>
       {children !== undefined && (
-        <Part name="Tab panel" box="tab_panel" style={{ display: 'grid', gap: 6 }}>
+        <Part name="Tab panel" box={panelBox} style={{ display: 'grid', gap: 6, alignContent: 'start' }}>
           {children}
         </Part>
       )}
@@ -348,6 +475,7 @@ export function LineEdit({ value, placeholder, focus, readOnly, style }: { value
  * unless `lookIcon` (the Cockpit dossier draws its own). */
 export function Check({ label, checked, hover, lookIcon }: { label: string; checked?: boolean; hover?: boolean; lookIcon?: boolean }) {
   const env = useEnv()
+  const sheet = useContext(SheetContext)
   const icon = lookIcon ? (
     <Part name="Check box (the dossier's own)" color="check_frame" extra={checked ? ['brass'] : undefined} style={{ width: 18, height: 18, border: `2px solid ${env.c('text')}`, padding: 2, boxSizing: 'border-box', flex: 'none' }}>
       {checked && <Part name="Tick" color="check_tick" style={{ width: '100%', height: '100%', background: env.c('brass') }} />}
@@ -356,7 +484,13 @@ export function Check({ label, checked, hover, lookIcon }: { label: string; chec
     <FixedBox name="Check box icon" color={checked ? '#dfdfdf' : 'transparent'} note="Godot's own check box icon: the look does not draw it." style={{ width: 14, height: 14, border: '2px solid #dfdfdf', borderRadius: 3, flex: 'none', boxSizing: 'border-box' }} />
   )
   return (
-    <Part name={`Check box${hover ? ' (under the pointer)' : ''}`} box={hover ? 'check_hover' : 'check_bare'} color="button_text" font="default" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+    <Part
+      name={`Check box${sheet ? ' on the order sheet' : ''}${hover ? ' (under the pointer)' : ''}`}
+      box={hover ? (sheet ? 'sheet_check_hover' : 'check_hover') : 'check_bare'}
+      color={sheet ? 'sheet_check_text' : 'button_text'}
+      font="default"
+      style={{ display: 'flex', alignItems: 'center', gap: 8 }}
+    >
       {icon}
       <span>{label}</span>
     </Part>
@@ -417,9 +551,10 @@ export function Chip({ children, alert }: { children: ReactNode; alert?: boolean
 // Surfaces
 // ---------------------------------------------------------------------------
 
-/** A document (LookDocument): the paper_frame nine-slice when the look ships
- * one, else flat paper with a paper_edge border. */
-export function Doc({ children, style, name = 'Document' }: { children: ReactNode; style?: CSSProperties; name?: string }) {
+/** A document (Look.Paper): the paper_frame nine-slice when the look ships
+ * one, else flat paper with a paper_edge border. `box` names the line that
+ * asks for it (a dialog's order sheet: sheet_panel). */
+export function Doc({ children, style, name = 'Document', box: boxId = 'DOCUMENT' }: { children: ReactNode; style?: CSSProperties; name?: string; box?: BoxId }) {
   const env = useEnv()
   const frame = env.tex('paper_frame')
   if (frame) {
@@ -442,7 +577,7 @@ export function Doc({ children, style, name = 'Document' }: { children: ReactNod
     )
   }
   return (
-    <Part name={name} box="DOCUMENT" style={style}>
+    <Part name={name} box={boxId} style={style}>
       {children}
     </Part>
   )
@@ -475,10 +610,21 @@ export function Dim({ children }: { children?: ReactNode }) {
   )
 }
 
-/** A game window in the paused plan's dress (look_window.gd): the frame, the
- * dark title bar with its brass hairline, the title in the display face,
- * the minimise and close keys as console keys, the body in chassis. */
+/** A game window in the window dress (look_window.gd Dress): the frame, the
+ * dark title bar with its brass hairline, the title in the display face, the
+ * minimise and close keys as console keys, the body in chassis; and inside,
+ * the window's own colours traded for the look's (Remap). */
 export function Win({ title, width, children, bodyPad = 8, style }: { title: string; width: number; children: ReactNode; bodyPad?: number; style?: CSSProperties }) {
+  return (
+    <Dressed>
+      <WinFrame title={title} width={width} bodyPad={bodyPad} style={style}>
+        {children}
+      </WinFrame>
+    </Dressed>
+  )
+}
+
+function WinFrame({ title, width, children, bodyPad, style }: { title: string; width: number; children: ReactNode; bodyPad: number; style?: CSSProperties }) {
   const env = useEnv()
   return (
     <Part name="Window frame" box="window_frame" style={{ width, display: 'grid', ...style }}>
@@ -497,8 +643,10 @@ export function Win({ title, width, children, bodyPad = 8, style }: { title: str
   )
 }
 
-/** An AcceptDialog / ConfirmationDialog as the theme draws it: the Window
- * frame reaching 28 px above the panel for the title. */
+/** An AcceptDialog / ConfirmationDialog as an order sheet (Look.SheetTheme,
+ * dressed by Look.InstallPopups): the steel Window frame reaching 28 px above
+ * for the title, the body parchment with its words in ink, OK and Cancel as
+ * command keys. */
 export function Dialog({ title, width, children, buttons }: { title: string; width: number; children: ReactNode; buttons: ReactNode }) {
   const f = box('dialog_frame')
   return (
@@ -506,10 +654,12 @@ export function Dialog({ title, width, children, buttons }: { title: string; wid
       <Part name="Dialog title" color="window_title" font="window_title" style={{ height: f.expand[1], display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         {title}
       </Part>
-      <Part name="Dialog panel" box="dialog_panel" color="label" font="default" style={{ display: 'grid', gap: 12 }}>
-        {children}
-        <div style={{ display: 'flex', gap: 10, justifyContent: 'center' }}>{buttons}</div>
-      </Part>
+      <SheetContext.Provider value>
+        <Doc name="Order sheet" box="sheet_panel" style={{ display: 'grid', gap: 12 }}>
+          {children}
+          <div style={{ display: 'flex', gap: 10, justifyContent: 'center' }}>{buttons}</div>
+        </Doc>
+      </SheetContext.Provider>
     </Part>
   )
 }

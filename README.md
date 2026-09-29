@@ -47,6 +47,8 @@ Get the latest version from the [Releases page](https://github.com/TeeJS/faction
   - Set each of the 23 colours by hex or colour picker, and see it at once on mock-ups of the game's windows. Every part of a mock-up is painted in the colour the game's own source paints it in; click a part to see which colours paint it, or hover a colour to outline every part it paints.
   - The contrast pairs the game's own look test measures, shown as you go. The game loads a look whatever its contrast, so they never block.
   - Faces from the pack or from disk (the font file comes into the pack's `look/fonts/`), sizes, corners, and the dim behind a dialog.
+  - The dispatch words: the Message Index in the look is a ledger of dispatches, and you set the word over each, each category's stamp, and which categories carry the red band.
+  - Every window the game dresses is drawn as the game draws it: the steel frame, and each window's own colours swapped for the look's through the game's own tables.
   - A pack without a look starts one from a preset (the WW2 pack's "Map room", or "Plain grey") or from another pack's `look.json`.
   - **In the game (optional):** the game's own capture scripts draw the look, unsaved changes included. It needs Godot 4.7 and a copy of the game's source, which you point it at once; nothing else in the editor does.
   - Every change is an ordinary pack change: Undo, Save and Export treat `look.json` like any other file, and a broken look shows the game's own words in the Problems panel.

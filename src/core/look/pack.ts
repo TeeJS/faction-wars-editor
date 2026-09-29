@@ -15,6 +15,8 @@ export const LOOK_FILE = 'look.json'
 export interface Faction {
   id: string
   name: string
+  /** factions.json short_name (the finders' tabs), else the display name. */
+  shortName: string
   color: string
 }
 
@@ -60,7 +62,12 @@ export function lookPack(doc: PackDocument, packDir = 'the pack folder'): LookPa
   const id = strOf(ci(pack, 'id')) || doc.folderName || ''
   const list = ci(doc.value('factions.json'), 'factions')
   const factions: Faction[] = Array.isArray(list)
-    ? list.map((f) => ({ id: strOf(ci(f, 'id')), name: strOf(ci(f, 'display_name')), color: strOf(ci(f, 'color')) }))
+    ? list.map((f) => ({
+        id: strOf(ci(f, 'id')),
+        name: strOf(ci(f, 'display_name')),
+        shortName: strOf(ci(f, 'short_name')) || strOf(ci(f, 'display_name')),
+        color: strOf(ci(f, 'color'))
+      }))
     : []
   const mapImage = strOf(ci(pack, 'map_image'))
   const creditsList = ci(pack, 'credits')

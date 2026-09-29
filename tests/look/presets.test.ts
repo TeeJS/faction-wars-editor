@@ -9,8 +9,8 @@ import { contrastPairs } from '../../src/core/look/contrast'
 import { haveLook, ww2Look } from './game'
 
 const swr = [
-  { id: 'alliance', name: 'Alliance', color: '#ff0000' },
-  { id: 'empire', name: 'Empire', color: '#00ff00' }
+  { id: 'alliance', name: 'Alliance', shortName: 'Alliance', color: '#ff0000' },
+  { id: 'empire', name: 'Empire', shortName: 'Empire', color: '#00ff00' }
 ]
 const ctx = { packDir: 'D:/packs/star-wars-rebellion', factionIds: swr.map((f) => f.id), hasFile: () => false }
 

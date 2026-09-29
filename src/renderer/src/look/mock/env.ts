@@ -123,6 +123,11 @@ export function makeEnv(pack: LookPack, look: LookFile, assets: Assets): Env {
   const fonts = isDict(v.fonts) ? v.fonts : {}
   const dossier = isDict(v.dossier) ? v.dossier : {}
   const rect = dossier.map_rect
+  // Look.DispatchHeader / Stamp / Urgent: exact keys, "" when absent.
+  const messages = isDict(v.messages) ? v.messages : {}
+  const stamps = isDict(messages.stamps) ? messages.stamps : {}
+  const urgent = Array.isArray(messages.urgent) ? messages.urgent : []
+  const text = (x: unknown) => (x === undefined || x === null ? '' : String(x))
   const face = (role: string | null): CSSProperties => {
     const r = role ?? 'body'
     const f = fonts[r]
@@ -166,6 +171,11 @@ export function makeEnv(pack: LookPack, look: LookFile, assets: Assets): Env {
       subtitle: typeof dossier.subtitle === 'string' ? dossier.subtitle : '',
       mapRect: Array.isArray(rect) && rect.every((n) => typeof n === 'number') ? (rect as number[]) : null,
       caption: typeof dossier.map_caption === 'string' ? dossier.map_caption : ''
+    },
+    messages: {
+      header: text(messages.header),
+      stamp: (category: string) => text(Object.prototype.hasOwnProperty.call(stamps, category) ? stamps[category] : ''),
+      urgent: (category: string) => urgent.includes(category)
     }
   }
 }
