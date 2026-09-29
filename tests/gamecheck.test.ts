@@ -12,6 +12,8 @@ import { clonePack, createStarterPack } from '../src/core/starter'
 import { validatePack } from '../src/core/validate'
 import { buildPackZip, checkImportable, openPackZip } from '../src/core/zip'
 import { commentedCopy, haveGameRepo, loadShipped } from './helpers'
+import { LOOK_FILE, createLook, editLook } from '../src/core/look/pack'
+import { PRESETS, lookFromPreset } from '../src/core/look/presets'
 
 const out = process.env.FWE_GAMECHECK_DIR
 const suite = out ? describe : describe.skip
@@ -168,4 +170,98 @@ suite("the game's validator says what the editor's says, word for word", () => {
     const { doc } = commentedCopy(clonePack(loadShipped('ww2'), 'parity-comments', 'Parity comments'), 'parity-comments')
     writeParity(doc, false)
   })
+})
+
+// ---- the look (rule 31) ----
+// On the starter wearing the WW2 pack's look and its files (WW2's sides given
+// to the starter's), so nothing else in the pack can differ between the two
+// validators. Every test here has "the look" in its name: -t "the look" runs
+// just these.
+
+const haveWw2Look = haveGameRepo && loadShipped('ww2').hasFile(LOOK_FILE)
+
+type Look = Record<string, any>
+
+function starterInWw2Look(id: string, change?: (l: Look) => void): PackDocument {
+  const ww2 = loadShipped('ww2')
+  const doc = starter(id)
+  const look = JSON.parse(new TextDecoder().decode(ww2.fileBytes(LOOK_FILE)))
+  look.sides = { rome: look.sides.axis, carthage: look.sides.allies }
+  change?.(look)
+  doc.edit('the WW2 look', (e) => {
+    for (const rel of ww2.otherFiles()) if (rel.startsWith('look/')) e.setFile(rel, ww2.fileBytes(rel)!)
+    e.setFile(LOOK_FILE, new TextEncoder().encode(JSON.stringify(look, null, 2) + '\n'))
+  })
+  return doc
+}
+
+/** The game's own _look_case changes, then value shapes that test Godot's str(). */
+const LOOK_CASES: [string, (l: Look) => void][] = [
+  ['missing-colour', (l) => delete l.colors.brass],
+  ['colour-not-hex', (l) => (l.colors.ink = 'black')],
+  ['unknown-colour', (l) => (l.colors.mauve = '#aa00aa')],
+  ['side-not-a-faction', (l) => (l.sides.empire = '#00ff00')],
+  ['unknown-font-role', (l) => (l.fonts.headline = { file: 'look/fonts/Oswald-Variable.ttf' })],
+  ['font-not-shipped', (l) => (l.fonts.display = { file: 'look/fonts/Missing.ttf' })],
+  ['font-not-a-font', (l) => (l.fonts.display = { file: 'look/paper.png' })],
+  ['font-weight', (l) => (l.fonts.display = { file: 'look/fonts/Oswald-Variable.ttf', weight: 1200 })],
+  ['size-not-whole', (l) => (l.sizes.body = 15.5)],
+  ['unknown-size', (l) => (l.sizes.huge = 40)],
+  ['negative-metric', (l) => (l.metrics.radius = -1)],
+  ['overlay-above-1', (l) => (l.overlay_alpha = 1.5)],
+  ['unknown-texture', (l) => (l.textures.wallpaper = 'look/paper.png')],
+  ['texture-not-shipped', (l) => (l.textures.paper = 'look/missing.png')],
+  ['map-rect', (l) => (l.dossier.map_rect = [10, 10, 0])],
+  ['unknown-dossier-key', (l) => (l.dossier.banner = 'x')],
+  ['colour-number', (l) => (l.colors.ink = 5)],
+  ['colour-fraction', (l) => (l.colors.ink = 2.5)],
+  ['colour-null', (l) => (l.colors.ink = null)],
+  ['colour-bool', (l) => (l.colors.ink = true)],
+  ['colour-list', (l) => (l.colors.ink = [1, 'a'])],
+  ['colour-object', (l) => (l.colors.ink = { a: 1 })],
+  ['colour-blank', (l) => (l.colors.ink = '   ')],
+  ['side-number', (l) => (l.sides.carthage = 7)],
+  ['colours-gone', (l) => delete l.colors],
+  ['only-two-colours', (l) => (l.colors = { zzz: '#000000', chassis: '#000000' })],
+  ['shapes', (l) => Object.assign(l, { sides: 'x', fonts: 3, sizes: null, metrics: [], dossier: 'x', textures: false })],
+  ['font-details', (l) => Object.assign(l.fonts, { body: { weight: 'bold', tabular: 'yes' }, typed: 'x', display: { file: null } })],
+  ['texture-details', (l) => Object.assign(l.textures, { desk: null, paper_frame: { file: 'look/paper_frame.png', margin: -2 } })],
+  ['unchecked-key', (l) => (l.messages = { header: 'Dispatch' })]
+]
+
+suite('look packs for the game to check', () => {
+  it.runIf(haveWw2Look)("the look: WW2's, a colour changed, a face copied in from disk, sizes and corners changed", async () => {
+    const doc = starterInWw2Look('editor-look')
+    const face = doc.fileBytes('look/fonts/CourierPrime-Regular.ttf')!
+    editLook(
+      doc,
+      'the look',
+      (l) => {
+        l.setColor('brass', '#b08f55')
+        l.set(['fonts', 'display', 'file'], 'look/fonts/My Face.ttf')
+        l.set(['fonts', 'display', 'weight'], undefined)
+        l.set(['fonts', 'typed'], undefined)
+        l.set(['sizes', 'heading'], 22)
+        l.set(['metrics', 'radius'], 6)
+        l.set(['overlay_alpha'], 0.7)
+      },
+      [['look/fonts/My Face.ttf', face]]
+    )
+    expect(validatePack(doc).map((e) => e.message)).toEqual([])
+    await throughZip(doc, out!)
+  })
+
+  it('the look: the Plain grey preset, with its own side colours', async () => {
+    const doc = starter('editor-look-plain')
+    const look = lookFromPreset(PRESETS.find((p) => p.id === 'plain-grey')!)
+    look.sides = { rome: '#ff8a80', carthage: '#8ab4ff' }
+    createLook(doc, 'Plain grey', look)
+    expect(validatePack(doc).map((e) => e.message)).toEqual([])
+    await throughZip(doc, out!)
+  })
+})
+
+suite("the look: the game's validator says what the editor's says, word for word", () => {
+  for (const [name, change] of LOOK_CASES)
+    it.runIf(haveWw2Look)(`the look: ${name}`, () => writeParity(starterInWw2Look(`parity-look-${name}`, change), name !== 'unchecked-key'))
 })
