@@ -45,7 +45,14 @@ interface Tx {
   label: string
   before: Snapshot[]
   after: Snapshot[]
+  /** For merging: when it was last changed, if it takes merges. */
+  mergedAt?: number
 }
+
+/** How soon a same-label change must follow to merge into the last one. */
+const MERGE_MS = 2000
+
+const snapshotKey = (s: Snapshot) => (s.kind === 'json' ? 'json:' + s.file : 'file:' + s.path)
 
 export class PackDocument {
   /** The folder name the pack was loaded from (rule 1 compares it with pack.json id). */
@@ -121,6 +128,11 @@ export class PackDocument {
     return this.files.get(p)
   }
 
+  /** A non-JSON file's bytes as last loaded or saved (undefined when it is new since). */
+  savedBytes(path: string): Uint8Array | undefined {
+    return this.originalFiles.get(normalizePath(path))
+  }
+
   /** pack.json id, or '' */
   get packId(): string {
     const v = this.get('pack.json', ['id'])
@@ -187,8 +199,13 @@ export class PackDocument {
     return this.redoStack[this.redoStack.length - 1]?.label ?? ''
   }
 
-  /** Runs `fn` as one undoable change. Returns false when nothing changed. */
-  edit(label: string, fn: (e: Editor) => void): boolean {
+  /**
+   * Runs `fn` as one undoable change. Returns false when nothing changed.
+   * With `merge`, a change with the same label straight after another merged
+   * one (a slider dragged, a number typed digit by digit) joins it, so Undo
+   * takes back the whole gesture.
+   */
+  edit(label: string, fn: (e: Editor) => void, opts: { merge?: boolean } = {}): boolean {
     const before = new Map<string, Snapshot>()
     const editor = new Editor(this, before)
     fn(editor)
@@ -196,6 +213,19 @@ export class PackDocument {
     for (const s of tx.before) tx.after.push(this.snapshotOf(s))
     const same = tx.before.every((b, i) => sameSnapshot(b, tx.after[i]))
     if (same) return false
+    const now = Date.now()
+    const top = this.undoStack[this.undoStack.length - 1]
+    if (opts.merge && top && top.label === label && top.mergedAt !== undefined && now - top.mergedAt < MERGE_MS && this.redoStack.length === 0) {
+      const keys = new Set(top.before.map(snapshotKey))
+      for (const s of tx.before) if (!keys.has(snapshotKey(s))) top.before.push(s)
+      top.after = top.before.map((s) => this.snapshotOf(s))
+      top.mergedAt = now
+      // Back where the gesture started: nothing left to undo.
+      if (top.before.every((b, i) => sameSnapshot(b, top.after[i]))) this.undoStack.pop()
+      this.changed()
+      return true
+    }
+    if (opts.merge) tx.mergedAt = now
     this.undoStack.push(tx)
     if (this.undoStack.length > 500) this.undoStack.shift()
     this.redoStack = []

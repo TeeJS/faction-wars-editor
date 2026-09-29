@@ -2,6 +2,7 @@ import { useEffect, useState, type ReactNode } from 'react'
 import type { RecentEntry } from '../../preload/api'
 import * as actions from './actions'
 import { LIST_PAGES } from './forms/pages'
+import { LookPage } from './look/LookPage'
 import { FilesPage } from './pages/FilesPage'
 import { ListPage } from './pages/ListPage'
 import { MapPage } from './pages/MapPage'
@@ -55,7 +56,8 @@ const NAV: { group: string; items: { page: string; label: string }[] }[] = [
     group: 'Display',
     items: [
       { page: 'gid', label: 'GID Modes' },
-      { page: 'display', label: 'Display Settings' }
+      { page: 'display', label: 'Display Settings' },
+      { page: 'look', label: 'Look' }
     ]
   },
   { group: 'Files', items: [{ page: 'files', label: 'Files & Art' }] }
@@ -204,6 +206,8 @@ function Page({ page }: { page: string }): ReactNode {
       return <DisplaySettingsPage />
     case 'files':
       return <FilesPage />
+    case 'look':
+      return <LookPage />
   }
   const def = LIST_PAGES.find((p) => p.page === page)
   return def ? <ListPage key={page} def={def} /> : <PackPage />

@@ -1,6 +1,7 @@
 // Electron main process: windows, the menu, native dialogs and file I/O.
 // Everything pack-specific (parsing, validation, zips) lives in src/core and runs
-// in the renderer; this side only moves bytes and keeps backups.
+// in the renderer; this side only moves bytes and keeps backups - and, for the
+// Look page's optional In the game tab, runs the game's capture scripts (render.ts).
 
 import { app, BrowserWindow, dialog, ipcMain, Menu, shell, type MenuItemConstructorOptions } from 'electron'
 import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync, rmSync, statSync, writeFileSync } from 'node:fs'
@@ -9,6 +10,10 @@ import { basename, dirname, join, relative, resolve, sep } from 'node:path'
 import { unzipSync, zipSync } from 'fflate'
 import type { ArtSetSource } from '../core/artset'
 import { artSetFromManifest, artSetFromZip } from '../core/zip'
+import { checkSettings, renderLook, type RenderRequest, type RenderSettings } from './render'
+
+// Tests run with their own settings and caches, never the user's.
+if (process.env['FWE_USER_DATA']) app.setPath('userData', process.env['FWE_USER_DATA'])
 
 let win: BrowserWindow | null = null
 let rendererDirty = false
@@ -183,8 +188,9 @@ function findArtSets(chosen: string | null): ArtSetSource[] {
   return out
 }
 
+/** Documents/Faction Wars/editor-backups; FWE_BACKUPS_DIR moves it, so UI tests never write into Documents. */
 function backupsDir(): string {
-  return join(factionWarsDocs(), 'editor-backups')
+  return process.env['FWE_BACKUPS_DIR'] || join(factionWarsDocs(), 'editor-backups')
 }
 
 function stamp(): string {
@@ -223,6 +229,37 @@ function writeAtomic(path: string, bytes: Uint8Array): void {
   writeFileSync(tmp, bytes)
   renameSync(tmp, path)
 }
+
+// ---- the Look page's In the game tab ----
+
+/** Where the copy of the game and the pictures it renders live (FWE_RENDER_DIR moves it for tests). */
+function renderRoot(): string {
+  return process.env['FWE_RENDER_DIR'] || join(app.getPath('userData'), 'render')
+}
+
+const renderSettingsFile = () => join(app.getPath('userData'), 'render-settings.json')
+
+/** Where Godot and the game are: as the user set them, else empty (the tab asks). */
+function renderSettings(): RenderSettings {
+  const defaults: RenderSettings = {
+    godot: process.env['FWE_GODOT'] ?? '',
+    game: process.env['FWE_RENDER_GAME'] ?? '',
+    ref: 'origin/main'
+  }
+  try {
+    return { ...defaults, ...JSON.parse(readFileSync(renderSettingsFile(), 'utf8')) }
+  } catch {
+    return defaults
+  }
+}
+
+/** A path inside the render folder, or null: nothing else is read or opened from here. */
+function underRender(p: string): string | null {
+  const full = resolve(p)
+  return full.startsWith(resolve(renderRoot()) + sep) ? full : null
+}
+
+let rendering = false
 
 /** Zips a folder into the backups directory (before the editor first overwrites it). */
 function backupFolder(dir: string): string | null {
@@ -378,6 +415,42 @@ function registerIpc(): void {
     }
     const entries = unzipSync(cached.bytes, { filter: (f) => f.name === rel })
     return entries[rel] ?? null
+  })
+
+  ipcMain.handle('render:getSettings', () => ({ settings: renderSettings(), problem: checkSettings(renderSettings()), cache: renderRoot() }))
+  ipcMain.handle('render:setSettings', (_e, s: RenderSettings) => {
+    ensureDir(app.getPath('userData'))
+    writeFileSync(renderSettingsFile(), JSON.stringify(s, null, 2))
+    return { settings: s, problem: checkSettings(s), cache: renderRoot() }
+  })
+  ipcMain.handle('pick:godot', async () => {
+    const r = await dialog.showOpenDialog(win!, {
+      title: "Choose Godot's console executable (Godot_..._console.exe)",
+      properties: ['openFile'],
+      filters: process.platform === 'win32' ? [{ name: 'Programs', extensions: ['exe'] }] : []
+    })
+    return r.canceled ? null : r.filePaths[0]
+  })
+  ipcMain.handle('pick:game', async () => {
+    const r = await dialog.showOpenDialog(win!, { title: "Choose the game's folder (the one with project.godot)", properties: ['openDirectory'] })
+    return r.canceled ? null : r.filePaths[0]
+  })
+  ipcMain.handle('render:run', async (_e, req: RenderRequest) => {
+    if (rendering) throw new Error('A render is already running.')
+    rendering = true
+    try {
+      return await renderLook(renderSettings(), req, renderRoot(), (line) => win?.webContents.send('render:progress', line))
+    } finally {
+      rendering = false
+    }
+  })
+  ipcMain.handle('render:image', (_e, file: string) => {
+    const full = underRender(file)
+    return full && existsSync(full) ? new Uint8Array(readFileSync(full)) : null
+  })
+  ipcMain.handle('render:openFolder', (_e, dir: string) => {
+    const full = underRender(dir)
+    if (full) void shell.openPath(full)
   })
 
   ipcMain.handle('shell:showItem', (_e, path: string) => shell.showItemInFolder(path))

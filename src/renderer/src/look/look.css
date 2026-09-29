@@ -1,0 +1,754 @@
+/* The Look page (src/renderer/src/look): the UI Builder's layout inside the
+   editor's page area. Every rule is scoped to .look-page, and the classes the
+   editor also uses (stage, tabs, field, chip, problems) are renamed, so the
+   two style sheets never meet. Layout: tabs, then the window list, the stage
+   and the colour column; or one scrolling column for the other tabs. */
+
+.look-page {
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.look-page h1,
+.look-page h2,
+.look-page h3 {
+  margin: 0;
+  text-wrap: balance;
+}
+.look-page code {
+  font-family: var(--mono);
+  font-size: 12px;
+}
+.look-page .small {
+  font-size: 12px;
+}
+.look-page .path {
+  word-break: break-all;
+}
+.look-page > .look-problems {
+  margin: 10px 16px 0;
+}
+.look-page .look-tabs {
+  display: flex;
+  gap: 2px;
+  padding: 6px 12px 0;
+  border-bottom: 1px solid var(--line);
+  background: var(--panel);
+}
+.look-page .look-tabs button {
+  border: 1px solid transparent;
+  border-bottom: none;
+  border-radius: 6px 6px 0 0;
+  background: none;
+  padding: 6px 14px;
+  color: var(--muted);
+}
+.look-page .look-tabs button.on {
+  background: var(--bg);
+  border-color: var(--line);
+  color: var(--text);
+  font-weight: 600;
+  margin-bottom: -1px;
+}
+
+/* ---- windows view: the list, the stage, the colours ---- */
+.look-page .windows-view {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 230px minmax(0, 1fr) 380px;
+}
+.look-page .window-list {
+  overflow-y: auto;
+  border-right: 1px solid var(--line);
+  background: var(--panel);
+  padding: 10px 8px;
+  display: grid;
+  align-content: start;
+  gap: 14px;
+}
+.look-page .window-list h3 {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 4px 4px;
+}
+.look-page .window-list ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 1px;
+}
+.look-page .window-item {
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  border-radius: 4px;
+  padding: 4px 8px;
+}
+.look-page .window-item:hover {
+  background: var(--panel-2);
+}
+.look-page .window-item.on {
+  background: var(--panel-2);
+  color: var(--accent);
+  font-weight: 600;
+}
+.look-page .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex: none;
+  background: var(--muted);
+}
+.look-page .dot.now {
+  background: var(--good);
+}
+.look-page .dot.partly,
+.look-page .dot.not-yet {
+  background: var(--accent);
+}
+.look-page .dot.partly {
+  background: linear-gradient(90deg, var(--good) 50%, var(--accent) 50%);
+}
+.look-page .look-stage {
+  overflow-y: auto;
+  padding: 12px 16px 24px;
+  display: grid;
+  align-content: start;
+  gap: 10px;
+  position: relative;
+}
+.look-page .band {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 8px 12px;
+  background: var(--panel);
+}
+.look-page .band p {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  max-width: 90ch;
+}
+.look-page .band-status {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-left: 8px;
+  color: var(--muted);
+}
+.look-page .band.now .band-status {
+  color: var(--good);
+}
+.look-page .band.not-yet,
+.look-page .band.partly {
+  border-color: var(--accent);
+}
+.look-page .band.not-yet .band-status,
+.look-page .band.partly .band-status {
+  color: var(--accent);
+}
+.look-page .stage-frame {
+  min-width: 0;
+  display: grid;
+  gap: 6px;
+}
+.look-page .stage-hint {
+  margin: 0;
+}
+.look-page .canvas {
+  cursor: crosshair;
+  font-size: 16px;
+  line-height: 1.3;
+}
+.look-page .canvas .part.key {
+  white-space: nowrap;
+}
+.look-page .canvas .part.hl {
+  outline: 2px dashed #ff2bd6 !important;
+  outline-offset: 1px;
+}
+.look-page .canvas .part.picked {
+  outline: 2px solid #20d4ff !important;
+  outline-offset: 1px;
+}
+.look-page .inspector {
+  position: sticky;
+  bottom: 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+  padding: 10px 12px;
+  display: grid;
+  gap: 6px;
+  box-shadow: 0 -6px 18px rgba(0, 0, 0, 0.25);
+}
+.look-page .inspector p {
+  margin: 0;
+}
+.look-page .inspector-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.look-page .inspector-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+.look-page .token-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 8px;
+}
+.look-page .fixed-note {
+  color: var(--text);
+}
+.look-page .color-column {
+  overflow-y: auto;
+  border-left: 1px solid var(--line);
+  background: var(--panel);
+  padding: 10px;
+}
+.look-page .groups.compact {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 8px;
+}
+.look-page .groups.compact .group {
+  padding: 8px 10px;
+  background: var(--bg);
+}
+.look-page .token.flash {
+  animation: look-flash 1.8s ease-out;
+  border-radius: 6px;
+}
+@keyframes look-flash {
+  0%,
+  40% {
+    background: color-mix(in srgb, var(--accent) 28%, transparent);
+  }
+  100% {
+    background: transparent;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .look-page .token.flash {
+    animation: none;
+    outline: 2px solid var(--accent);
+  }
+}
+.look-page .pack-tab {
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+}
+
+/* ---- faces, sizes, corners ---- */
+.look-page select,
+.look-page .num-input {
+  background: var(--input);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 3px 6px;
+  font: inherit;
+  color: inherit;
+  min-width: 0;
+}
+.look-page .num-input {
+  width: 84px;
+  font-family: var(--mono);
+  font-size: 12px;
+}
+.look-page .faces {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+  gap: 12px;
+}
+.look-page .face-head {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  flex-wrap: wrap;
+}
+.look-page .face-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+.look-page .face-controls select {
+  flex: 1 1 200px;
+}
+.look-page label.inline {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  color: var(--muted);
+}
+.look-page .specimen-line {
+  padding: 8px 10px;
+  border-radius: 4px;
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.look-page .settings th .small {
+  font-weight: normal;
+  margin-top: 1px;
+}
+.look-page .dim-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.look-page .dim-row input[type='range'] {
+  flex: 1;
+  accent-color: var(--accent);
+}
+.look-page .dim-swatch {
+  width: 40px;
+  height: 24px;
+  border-radius: 4px;
+  border: 1px solid var(--line);
+  background: repeating-linear-gradient(45deg, #ffffff 0 6px, #d8d8d8 6px 12px);
+  display: grid;
+  overflow: hidden;
+}
+
+/* ---- in the game (phase 2) ---- */
+.look-page .render-tab .panel p {
+  max-width: 90ch;
+}
+.look-page .render-settings {
+  max-width: 900px;
+}
+.look-page .look-field {
+  display: grid;
+  gap: 4px;
+}
+.look-page .look-field > span:first-child {
+  color: var(--muted);
+}
+.look-page .look-field input[type='text'] {
+  background: var(--input);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-family: var(--mono);
+  font-size: 12px;
+  min-width: 0;
+}
+.look-page .look-field-row {
+  display: flex;
+  gap: 8px;
+}
+.look-page .look-field-row input {
+  flex: 1;
+}
+.look-page .render-go {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+.look-page .render-log {
+  margin: 0;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--input);
+  font: 11.5px/1.45 var(--mono);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  max-height: 220px;
+  overflow-y: auto;
+}
+.look-page .shots {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+  gap: 14px;
+}
+.look-page .shot {
+  margin: 0;
+  display: grid;
+  gap: 4px;
+}
+.look-page .shot-button {
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  overflow: hidden;
+  background: #000;
+  cursor: zoom-in;
+}
+.look-page .shot img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.look-page .shot figcaption {
+  color: var(--muted);
+  font-size: 12px;
+}
+.look-page .lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: rgba(0, 0, 0, 0.85);
+  overflow: auto;
+  display: grid;
+  place-items: start center;
+  padding: 20px;
+  cursor: zoom-out;
+}
+.look-page .lightbox img {
+  max-width: none;
+}
+
+/* ---- starting a look ---- */
+.look-page .start .panel p {
+  max-width: 80ch;
+}
+.look-page .presets {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+}
+.look-page .preset p {
+  margin: 0;
+}
+.look-page .preset button {
+  justify-self: start;
+}
+.look-page .strip {
+  display: flex;
+  gap: 3px;
+}
+.look-page .strip .swatch.small {
+  width: 22px;
+  height: 22px;
+}
+.look-page .sidebar {
+  border-right: 1px solid var(--line);
+  background: var(--panel);
+  overflow-y: auto;
+  padding: 14px;
+  display: grid;
+  align-content: start;
+  gap: 18px;
+}
+.look-page .sidebar h2,
+.look-page .section-head h2 {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+.look-page .sidebar p {
+  margin: 0 0 6px;
+}
+.look-page .facts {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 4px 10px;
+  margin: 0;
+}
+.look-page .facts dt {
+  color: var(--muted);
+}
+.look-page .facts dd {
+  margin: 0;
+  min-width: 0;
+}
+.look-page .sides,
+.look-page .kept {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+.look-page .sides li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  column-gap: 8px;
+  align-items: center;
+}
+.look-page .sides li .small {
+  grid-column: 2;
+}
+.look-page .side-name {
+  font-weight: 600;
+}
+.look-page .kept {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.look-page .kept li {
+  padding: 1px 7px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+}
+
+.look-page .content {
+  overflow-y: auto;
+  padding: 16px 20px 32px;
+  display: grid;
+  align-content: start;
+  /* Rows keep their content's height: a scrolling log is never squeezed. */
+  grid-auto-rows: max-content;
+  gap: 16px;
+}
+.look-page .panel {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+  padding: 14px 16px;
+  display: grid;
+  gap: 8px;
+}
+.look-page .panel h2 {
+  font-size: 15px;
+}
+.look-page .panel p {
+  margin: 0;
+}
+.look-page .panel.look-problems {
+  border-color: var(--bad);
+}
+.look-page .panel.look-problems ul {
+  margin: 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 4px;
+}
+.look-page .section-head {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-top: 4px;
+}
+.look-page .section-head h2 {
+  margin: 0;
+}
+
+.look-page .groups,
+.look-page .settings {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 12px;
+}
+.look-page .group {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+  padding: 12px;
+  display: grid;
+  align-content: start;
+  gap: 8px;
+}
+.look-page .group h3 {
+  font-size: 13px;
+}
+.look-page .group ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+.look-page .token {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+}
+.look-page .token-line {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  justify-content: space-between;
+}
+.look-page .token-name {
+  font-weight: 600;
+  font-size: 12.5px;
+}
+.look-page .hex {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.look-page .swatch {
+  display: inline-block;
+  width: 34px;
+  height: 34px;
+  border-radius: 5px;
+  border: 1px solid #767676;
+  flex: none;
+}
+.look-page .swatch.small {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  vertical-align: -2px;
+}
+.look-page .sides .swatch:not(.small) {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+}
+.look-page .swatch.invalid {
+  background: repeating-linear-gradient(45deg, var(--panel-2) 0 4px, var(--bad) 4px 6px);
+}
+
+/* ---- editing ---- */
+.look-page .unsaved {
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 600;
+}
+.look-page .picker {
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 1px solid #767676;
+  border-radius: 5px;
+  background: none;
+  cursor: pointer;
+}
+.look-page .picker::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+.look-page .picker::-webkit-color-swatch {
+  border: none;
+  border-radius: 4px;
+}
+.look-page .picker.invalid::-webkit-color-swatch {
+  background: repeating-linear-gradient(45deg, var(--panel-2) 0 4px, var(--bad) 4px 6px) !important;
+}
+.look-page .hex-wrap {
+  display: inline-grid;
+  justify-items: end;
+}
+.look-page .hex-input {
+  width: 84px;
+  font-family: var(--mono);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  background: var(--input);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 2px 6px;
+}
+.look-page .hex-input[aria-invalid='true'] {
+  border-color: var(--bad);
+}
+.look-page .hex-hint {
+  font-size: 11px;
+  color: var(--bad);
+}
+.look-page .token-line {
+  align-items: center;
+}
+.look-page .token.changed .token-name::after {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-left: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  vertical-align: 2px;
+}
+.look-page .was {
+  color: var(--accent);
+}
+.look-page .contrast-line {
+  font-size: 11.5px;
+  color: var(--muted);
+}
+.look-page .contrast-line.below,
+.look-page .below-text {
+  color: var(--bad);
+}
+.look-page .sides-group p {
+  margin: 0;
+}
+.look-page .sides-group .token > .swatch {
+  width: 34px;
+  height: 34px;
+}
+.look-page .pairs {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 8px;
+}
+.look-page .pair {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+  padding: 6px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--panel);
+}
+.look-page .pair.below {
+  border-color: var(--bad);
+}
+.look-page .specimen {
+  display: grid;
+  place-items: center;
+  height: 36px;
+  border-radius: 4px;
+  border: 1px solid var(--line);
+  font-weight: 600;
+  font-size: 16px;
+}
+.look-page .pair-text {
+  display: grid;
+  min-width: 0;
+}
+.look-page .pair-name {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  overflow-wrap: anywhere;
+}
+.look-page .pair.below b {
+  color: var(--bad);
+}
+.look-page .settings table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.look-page .settings th,
+.look-page .settings td {
+  text-align: left;
+  padding: 3px 0;
+  vertical-align: top;
+  font-weight: normal;
+}
+.look-page .settings th {
+  width: 40%;
+  padding-right: 8px;
+}
+.look-page .settings td {
+  overflow-wrap: anywhere;
+}

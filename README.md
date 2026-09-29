@@ -43,6 +43,13 @@ Get the latest version from the [Releases page](https://github.com/TeeJS/faction
   - Encyclopedia text is edited beside the pictures (`art/descriptions.json`).
   - Any picture can go in a pack. What a pack carries is its author's call; the editor doesn't check pictures. (The game's own importer currently refuses a zip that carries the original game's pictures. That rule is the game's, not the editor's.)
   - The editor finds your art set in `Documents/Faction Wars` and in the game's own data folder, or wherever you point it on the Pack page.
+- **The pack's look (Display → Look):** the colours, faces, sizes and corners the game draws the pack's windows in (`look.json`).
+  - Set each of the 23 colours by hex or colour picker, and see it at once on mock-ups of the game's windows. Every part of a mock-up is painted in the colour the game's own source paints it in; click a part to see which colours paint it, or hover a colour to outline every part it paints.
+  - The contrast pairs the game's own look test measures, shown as you go. The game loads a look whatever its contrast, so they never block.
+  - Faces from the pack or from disk (the font file comes into the pack's `look/fonts/`), sizes, corners, and the dim behind a dialog.
+  - A pack without a look starts one from a preset (the WW2 pack's "Map room", or "Plain grey") or from another pack's `look.json`.
+  - **In the game (optional):** the game's own capture scripts draw the look, unsaved changes included. It needs Godot 4.7 and a copy of the game's source, which you point it at once; nothing else in the editor does.
+  - Every change is an ordinary pack change: Undo, Save and Export treat `look.json` like any other file, and a broken look shows the game's own words in the Problems panel.
 - **Rename with references:** renaming an id (a faction, planet, unit, weapon, logistics table and so on) updates every place that uses it. Deleting a record first shows where it is used.
 - **The game's own validator, ported line for line**
   - Errors read exactly as the game's own validator prints them. The editor's tests check this against the real game.
@@ -80,6 +87,12 @@ npm test
 npm run build; npx playwright test
 ```
 
+The look tests read the game's files straight from your `faction-wars` checkout with `git show` (at `origin/main`, or `FACTION_WARS_REF`), so a checkout whose working tree is behind still gives the current game; nothing of the game is copied into this repo. The Look page's In the game tab has its own test with the real game (a game window opens):
+
+```powershell
+$env:FWE_RENDER = '1'; $env:FWE_GODOT = 'C:\path\to\Godot_v4.7.1-stable_win64_console.exe'; npx vitest run tests/look/render.test.ts
+```
+
 Packages are written to `dist/`. Run the one for your operating system: `npm run dist:win`, `npm run dist:mac` or `npm run dist:linux`.
 
 ```powershell
@@ -104,8 +117,10 @@ npm run dist:win
 | Path | What |
 |---|---|
 | `src/core/` | Plain TypeScript with no Electron or DOM: the document model, the validator port, the zip reader and writer, the reference graph, and the New Pack starter |
+| `src/core/look/` | The pack's look: rule 31 (ported line for line), the byte-preserving look file, contrast, presets, and the game's theme read from its own source lines |
+| `src/renderer/src/look/` | The Look page and its window mock-ups |
 | `src/core/starter/` | The starter pack, generated from the WW2 pack's numbers by `scripts/make-starter.mjs` |
-| `src/main/` | Electron main process: dialogs, file I/O, backups, the menu |
+| `src/main/` | Electron main process: dialogs, file I/O, backups, the menu, and the Look page's optional game renders (`render.ts`) |
 | `src/renderer/` | The React UI |
 | `tests/` | Vitest unit tests, Playwright Electron tests (`tests/e2e`) and the game check (`tests/gamecheck`) |
 | `scripts/` | The game check, the starter and icon generators, and the fallback Windows release script |
