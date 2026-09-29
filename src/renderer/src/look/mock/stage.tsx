@@ -35,6 +35,7 @@ export function WindowList({ selected, onSelect }: { selected: string; onSelect:
     <nav className="window-list" aria-label="The game's windows">
       {groups.map((g) => {
         const list = WINDOWS.filter((w) => w.status === g)
+        if (!list.length) return null
         return (
           <section key={g}>
             <h3>

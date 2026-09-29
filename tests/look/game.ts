@@ -12,8 +12,6 @@ import type { LookContext } from '../../src/core/look/validate'
 import { FACTION_WARS_DIR } from '../helpers'
 
 export const GAME_REF = process.env.FACTION_WARS_REF ?? 'origin/main'
-/** The paused WWII look branch that holds look_window.gd (the window dress the mock-ups preview). */
-export const LOOK_WINDOW_REF = '2bd1b98'
 
 const isGit = existsSync(join(FACTION_WARS_DIR, '.git'))
 

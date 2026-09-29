@@ -1,20 +1,26 @@
 // THE WINDOWS: every screen, window and dialog in the game
-// (docs/window-inventory.md), each with its status and, where a look can
+// (docs/look-window-inventory.md), each with its status and, where a look can
 // reach it, a mock-up built from the kit. Names come from the pack itself.
+// Drawn as the game draws them at TeeJS/faction-wars a46c63f, the WWII look
+// finished (docs/ww2-look.md): every window, menu, dialog and tooltip, the
+// dispatches and the head-to-head screens follow the look.
 //
 // Status:
-//   now      the game draws it from the look today
+//   now      the game draws it from the look
 //   partly   some of it (the rest keeps its own colours; marked fixed)
-//   not-yet  the game draws it in its own colours today; shown as the paused
-//            plan (look_window.gd, phases 4-6) would dress it
+//   not-yet  the game draws it in its own colours (none since phase 6)
 //   never    a pack's look can never reach it; no mock-up
 
 import type { CSSProperties, ReactNode } from 'react'
+import type { BoxId, ColorId } from '@core/look/theme'
 import {
   Check,
   Chip,
   Cmd,
+  CodeWindow,
+  colorOf,
   Desk,
+  Dressed,
   Dialog,
   Dim,
   Divider,
@@ -84,21 +90,26 @@ const PORTRAIT = rgb(0.2, 0.2, 0.2)
 const SUBJECT = rgb(0.6, 0.9, 0.6)
 
 const N = {
-  literal: 'Written into this window: the paused plan dresses the frame, title bar and body, and leaves this as it is.',
-  status: 'A status colour the window picks itself; the look does not set it.',
-  faction: "The side's own colour from factions.json, as the map shows it. A look's `sides` colour is for the chrome only.",
+  literal: "The window's own colour, which the window dress's tables (look_window.gd BG_MAP, TEXT_MAP) do not list: kept as the window drew it.",
+  status: 'A colour with a meaning (ready, damaged, blocked) the window picks itself: the look leaves it as drawn.',
+  faction: "The side's own colour from factions.json, as the map shows it. A look's `sides` colour is for the chrome and for a side's name as text.",
   picture: "A picture's frame, written into the scene.",
   textEdit: "Godot's own text box: look.gd does not style TextEdit.",
   map: "The pack's map picture (pack.json map_image).",
-  drawn: 'Drawn by the window itself in its own colours.'
+  drawn: 'Drawn by the window itself in its own colours: the window dress does not reach it.'
 }
 
 const DRESS =
-  'Not in the game yet. Today the game draws this window in its own colours. Shown as the paused WWII plan would dress it (look_window.gd, phases 4-6): the frame, title bar and body, with the look’s controls inside.'
-const INSTALL =
-  'Not in the game yet. Today the game draws this in its own colours. Shown as it would look once the look is put on the whole game (Look.Install, planned for phase 5): the look’s controls, with the colours written into the screen kept.'
-const GUESS =
-  'Not in the game yet, and the plan does not say how this window will be dressed. Shown in the window dress, with the look’s controls inside.'
+  'Dressed by the game’s window hook (LookWindow.Install): the steel frame and title bar, the look’s controls inside, and the window’s own colours traded for the look’s (look_window.gd BG_MAP, EDGE_MAP, TEXT_MAP). Colours with a meaning, such as damage red, ready green and gold, are kept.'
+const CODE =
+  'Built in code without the scene template’s title bar, so the hook gives it the look’s theme and trades its own colours: its frame and title are its script’s, in the look’s tokens where the dress’s tables list them and as drawn where they do not.'
+const SHEET =
+  'Dressed from Look.InstallPopups: a dialog is an order sheet (Look.SheetTheme). The frame and title stay steel, the body is parchment with its words in ink, OK and Cancel are command keys, and a modal one sits over the dim.'
+const POPUPS = 'Dressed from Look.InstallPopups: a popup menu is an instrument panel, a tooltip a field note.'
+const SCREEN =
+  'A head-to-head screen (LookWindow.DressScreen): its title in the display face, its dialog a steel panel, the bottom bar’s keys command keys, and its own colours traded for the look’s.'
+const DISPATCH =
+  'The Message Index as dispatches (look_dispatch.gd): a ruled ledger with each category’s stamp, and the open message as a parchment dispatch. The words come from look.json `messages` (set on the Faces, sizes and corners tab); an empty category shows the pack’s `no_messages` term.'
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -113,8 +124,8 @@ function pick<T>(list: readonly T[], i: number): T {
 
 function sides(env: Env) {
   const f = env.pack.factions
-  const a = f[0] ?? { id: 'a', name: 'Side A', color: '#d22a2a' }
-  const b = f[1] ?? { id: 'b', name: 'Side B', color: '#2a62d2' }
+  const a = f[0] ?? { id: 'a', name: 'Side A', shortName: 'Side A', color: '#d22a2a' }
+  const b = f[1] ?? { id: 'b', name: 'Side B', shortName: 'Side B', color: '#2a62d2' }
   return [a, b] as const
 }
 
@@ -135,7 +146,7 @@ function Grid({ children }: { children: ReactNode }) {
 
 function Picture({ w, h, color = PICTURE, text }: { w: number; h: number; color?: string; text?: string }) {
   return (
-    <FixedBox name="Picture area" color={color} note={N.picture} style={{ width: w, height: h, display: 'grid', placeItems: 'center', flex: 'none' }}>
+    <FixedBox name="Picture area" color={color} note={N.picture} scene style={{ width: w, height: h, display: 'grid', placeItems: 'center', flex: 'none' }}>
       {text && (
         <FixedText color={rgb(0.4, 0.4, 0.4)} note={N.literal}>
           {text}
@@ -456,6 +467,7 @@ function LoadGame() {
   const S = useEnv().pack.samples
   return (
     <Desk style={{ width: 760, height: 520, display: 'grid', placeItems: 'center' }}>
+      <Dressed>
       <Part name="Window body" box="panel" style={{ width: 520, display: 'grid', gap: 8, padding: 14 }}>
         <Label style={{ fontSize: 20 }}>Load Game</Label>
         {[3, 41, 118].map((d, i) => (
@@ -476,6 +488,7 @@ function LoadGame() {
           <Key label="Cancel" />
         </div>
       </Part>
+      </Dressed>
     </Desk>
   )
 }
@@ -500,7 +513,7 @@ function SectorWindow() {
           return (
             <div key={i} style={{ position: 'absolute', left: x, top: y, display: 'grid', justifyItems: 'center', gap: 4 }}>
               <FixedBox name="World" color={side ? side.color : '#777777'} note={N.faction} style={{ width: 26, height: 26, borderRadius: '50%' }} />
-              <FixedText color={side ? side.color : rgb(0.8, 0.8, 0.8)} note={N.drawn}>
+              <FixedText color={side ? side.color : rgb(0.8, 0.8, 0.8)} note={N.literal}>
                 {p.name}
               </FixedText>
               <div style={{ display: 'flex', gap: 2 }}>
@@ -551,7 +564,7 @@ function Manufacturing() {
       <Tabs tabs={['Manufacturing', 'Shipyards', 'Training Facilities', 'Construction Yards', 'Refineries', 'Mines'].map((l, i) => ({ label: l, state: i === 0 ? 'selected' : i === 2 ? 'hover' : 'normal' }))}>
         {[0, 1, 2].map((q) => (
           <div key={q} style={col}>
-            <FixedBox name="Queue header" color={rgb(0.2, 0.6, 0.2)} note={N.literal} style={{ padding: '2px 8px', display: 'flex' }}>
+            <FixedBox name="Queue header" color={rgb(0.2, 0.6, 0.2)} note={N.literal} scene style={{ padding: '2px 8px', display: 'flex' }}>
               <FixedText color={GODOT.WHITE} note={N.literal} style={{ flex: 1 }}>
                 {pick(S.facilities, q)}
               </FixedText>
@@ -656,47 +669,160 @@ function Missions() {
   )
 }
 
-function MessageIndex() {
-  const S = useEnv().pack.samples
-  const titles = [`Fleet arrived at ${S.planets[0].name}`, `${S.characters[0].name} recruited`, `Conflict at ${pick(S.planets, 2).name}`, 'Production complete']
+// ---------------------------------------------------------------------------
+// The Message Index as dispatches (look_dispatch.gd)
+// ---------------------------------------------------------------------------
+
+interface Dispatch {
+  title: string
+  category: string
+  /** The theatre, on a row; the world and theatre, on the dispatch ("" for none). */
+  place: string
+  full: string
+  day: number
+  read: boolean
+  body: string
+}
+
+/** The capture script's four messages (tests/capture_look.gd), in the pack's names. */
+function dispatches(env: Env): Dispatch[] {
+  const S = env.pack.samples
+  const home = S.planets[0]
+  // A commander, not a head of state, reports (as the capture script picks).
+  const mine = S.characters.filter((c) => c.faction === sides(env)[0].id)
+  const who = mine.find((c) => !c.major) ?? mine[0] ?? S.characters[0]
+  const at = { place: home.sector, full: `${home.name}, ${home.sector}` }
+  return [
+    { title: 'Supply convoy arrived', category: 'Resources', place: '', full: '', day: 12, read: true, body: 'Raw materials delivered to the depot.' },
+    { title: 'Fleet awaiting orders', category: 'Fleets', ...at, day: 12, read: true, body: 'The fleet has arrived and awaits orders.' },
+    { title: `${who.name} reports`, category: 'Missions', ...at, day: 12, read: false, body: 'The mission team has reached its destination and begun work.' },
+    { title: `Battle at ${home.name}`, category: 'Conflict', ...at, day: 12, read: false, body: 'Enemy forces have engaged our fleet in orbit. Losses are being assessed.' }
+  ]
+}
+
+/** LookDispatch.WhereWhen: "World, Theatre  ·  Day 12" on a dispatch, the theatre alone on a row. */
+const whereWhen = (d: Dispatch, full: boolean) => {
+  const place = full ? d.full : d.place
+  return place ? `${place}  ·  Day ${d.day}` : `Day ${d.day}`
+}
+
+/** A category's stamp (Look.Stamp): an outline in the surface's muted ink; urgent, a
+ * filled signal chip on the ledger and red ink on the parchment. None without a word. */
+function Stamp({ category, paper, on }: { category: string; paper?: boolean; on?: boolean }) {
+  const env = useEnv()
+  const word = env.messages.stamp(category)
+  if (!word) return null
+  const urgent = env.messages.urgent(category)
+  const shape: CSSProperties = { padding: '1px 6px', borderRadius: env.metric('radius'), textTransform: 'uppercase', whiteSpace: 'nowrap', lineHeight: 1.25, flex: 'none' }
+  if (urgent && !paper)
+    return (
+      <Part name="Stamp (urgent)" box="stamp_urgent_ledger" color="stamp_urgent_ledger_text" font="stamp_ledger" style={shape}>
+        {word}
+      </Part>
+    )
+  const color: ColorId = paper ? (urgent ? 'stamp_paper_urgent' : 'stamp_paper') : on ? 'stamp_ledger_on' : 'stamp_ledger'
   return (
-    <Win title="Message Index" width={740}>
-      <Tabs tabs={[{ label: 'All', state: 'selected' }, ...CATEGORIES.map((c, i) => ({ label: c, state: (i === 7 ? 'disabled' : 'normal') as 'disabled' | 'normal' }))]} />
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-        <div style={col}>
-          <ItemList
-            items={titles.map((t, i) => ({
-              label: `[Day ${112 + i}] ${t}`,
-              state: i === 0 ? 'selected' : 'normal',
-              fixed: { color: i < 2 ? GODOT.WHITE : GODOT.GRAY, note: 'Unread in white, read in grey: written into the window.' }
-            }))}
-            style={{ height: 160 }}
-          />
+    <Part name={`Stamp${paper ? ' on the dispatch' : ''}${urgent ? ' (urgent)' : ''}`} color={color} font={paper ? 'stamp_paper' : 'stamp_ledger'} style={{ ...shape, border: `${paper ? 2 : 1}px solid ${env.c(colorOf(color))}` }}>
+      {word}
+    </Part>
+  )
+}
+
+/** A ledger row (LookDispatch.Row): bold until read, where and when under it, the stamp, an urgent band. */
+function LedgerRow({ d, on, hover }: { d: Dispatch; on?: boolean; hover?: boolean }) {
+  const env = useEnv()
+  const urgent = env.messages.urgent(d.category)
+  const id: BoxId = on ? 'ROW_pressed' : hover ? 'ROW_hover' : 'ROW'
+  return (
+    <Part name={`Ledger row (${on ? 'picked' : hover ? 'under the pointer' : 'normal'})`} box={id} pad={0} style={{ position: 'relative', minHeight: 52, boxSizing: 'border-box', padding: '4px 8px 5px 12px', display: 'flex', alignItems: 'center', gap: 8 }}>
+      {urgent && <Part name="Urgent band" color="row_band" style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 4, background: env.c(colorOf('row_band')) }} />}
+      <div style={{ flex: 1, minWidth: 0, display: 'grid' }}>
+        <Part name={d.read ? 'Subject (read)' : 'Subject (unread)'} color={on || !d.read ? 'row_unread' : 'row_read'} font={d.read ? 'row_read' : 'row_unread'} style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+          {d.title}
+        </Part>
+        <Part name="Where and when" color={on ? 'row_meta_on' : 'row_meta'} font="row_meta" style={{ whiteSpace: 'nowrap', overflow: 'hidden' }}>
+          {whereWhen(d, false)}
+        </Part>
+      </div>
+      <Stamp category={d.category} on={on} />
+    </Part>
+  )
+}
+
+/** The message read as a dispatch: parchment drawn under the detail column and past it,
+ * the look's header word with the stamp, the subject, where and when, a rule, the text. */
+function DispatchSheet({ d }: { d: Dispatch | null }) {
+  const env = useEnv()
+  const urgent = d ? env.messages.urgent(d.category) : false
+  return (
+    <div style={{ position: 'relative', alignSelf: 'stretch' }}>
+      <Doc name="Dispatch (parchment under the detail column)" style={{ position: 'absolute', inset: -14 }}>
+        {null}
+      </Doc>
+      {urgent && <Part name="Urgent band across the dispatch" color="dispatch_band" style={{ position: 'absolute', left: -14, right: -14, top: -14, height: 6, background: env.c(colorOf('dispatch_band')) }} />}
+      <div style={{ position: 'relative', display: 'grid', gap: 8, alignContent: 'start' }}>
+        <div style={row}>
+          <Typed style={{ flex: 1 }}>{env.messages.header.toUpperCase() || ' '}</Typed>
+          {d && <Stamp category={d.category} paper />}
+        </div>
+        <Part name="Subject" color="dispatch_subject" font="dispatch_subject">
+          {d ? d.title : 'Select a message...'}
+        </Part>
+        {d && (
+          <Part name="Where and when" color="dispatch_meta" font="dispatch_meta">
+            {whereWhen(d, true)}
+          </Part>
+        )}
+        <Part name="Rule" color="dispatch_rule" style={{ height: 1, background: env.c(colorOf('dispatch_rule')) }} />
+        {d && (
+          <Part name="The dispatch's text" color="dispatch_body" font="dispatch_body">
+            {d.body}
+          </Part>
+        )}
+        {d && (
           <div style={row}>
-            <Key label="Select All" />
-            <Key label="Delete Selected Messages" />
+            <Cmd label="Go To" />
+            <Cmd label="Delete" />
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+/** The Comms Center in the look: the ledger (a tab per category) and the dispatch. */
+function Dispatches({ open, category = 'All', hover }: { open: number | null; category?: string; hover?: number }) {
+  const env = useEnv()
+  const all = dispatches(env)
+  const list = category === 'All' ? all : all.filter((d) => d.category === category)
+  const tabs = ['All', ...CATEGORIES].map((c) => ({ label: c, state: (c === category ? 'selected' : 'normal') as 'selected' | 'normal' }))
+  return (
+    <Win title="Message Index" width={900} bodyPad={20}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 29 }}>
+        <div style={col}>
+          <Tabs tabs={tabs} panelBox="dispatch_ledger">
+            {list.length ? (
+              list.map((d) => <LedgerRow key={d.title} d={d} on={open !== null && all[open] === d} hover={hover !== undefined && all[hover] === d} />)
+            ) : (
+              <Part name="An empty category" color="dispatch_empty" font="dispatch_empty" style={{ minHeight: 80, display: 'grid', placeItems: 'center' }}>
+                {env.pack.samples.terms.no_messages ?? 'No transmissions.'}
+              </Part>
+            )}
+          </Tabs>
+          <div style={row}>
+            <Cmd label="Select All" small />
+            <Cmd label="Delete Selected Messages" small />
           </div>
         </div>
-        <div style={col}>
-          <div style={row}>
-            <Picture w={56} h={56} color={PORTRAIT} />
-            <FixedText color={SUBJECT} note={N.literal} style={{ fontWeight: 600 }}>
-              {titles[0]}
-            </FixedText>
-          </div>
-          <Label>
-            The fleet has arrived and awaits orders. Its commander reports the system quiet.
-          </Label>
-          <div style={row}>
-            <Key label="Go To" state="focus" />
-            <Key label="Compose Chat Message" />
-            <Key label="Delete" />
-          </div>
-        </div>
+        <DispatchSheet d={open !== null ? all[open] : null} />
       </div>
     </Win>
   )
 }
+
+const MessageIndex = () => <Dispatches open={1} hover={0} />
+const MessageUrgent = () => <Dispatches open={3} category="Conflict" />
+const MessageEmpty = () => <Dispatches open={null} category="Chat" />
 
 function ComposeChat() {
   return (
@@ -764,16 +890,42 @@ function Finder({ title, search, tabs, items, extra }: { title: string; search: 
   )
 }
 
+/** A System Finder row in the look (LookWindow.ListRow): a ruled ledger line in the
+ * holder's look colour, or muted for a system no side is known to hold. */
+function FinderRow({ label, factionId, state = 'normal' }: { label: string; factionId: string | null; state?: 'normal' | 'hover' | 'pressed' }) {
+  const id: BoxId = state === 'pressed' ? 'ROW_pressed' : state === 'hover' ? 'ROW_hover' : 'ROW'
+  return (
+    <Part name={`Finder row (${state})`} box={id} font="default" className="key" style={{ whiteSpace: 'nowrap', overflow: 'hidden' }}>
+      {factionId ? (
+        <SideText factionId={factionId} name="A side's system (its look colour)">
+          {label}
+        </SideText>
+      ) : (
+        <Part name="A system no side is known to hold" color="finder_row_muted" style={{ display: 'inline' }}>
+          {label}
+        </Part>
+      )}
+    </Part>
+  )
+}
+
 function SystemFinder() {
   const env = useEnv()
   const [a, b] = sides(env)
   return (
-    <Finder
-      title="Planetary System Finder"
-      search="System Name"
-      tabs={['All', a.name, b.name, 'Neutral', 'Unexplored']}
-      items={env.pack.samples.planets.slice(0, 7).map((p, i) => ({ label: p.name, color: i % 3 === 2 ? '#9a9a9a' : sides(env)[i % 2].color }))}
-    />
+    <Win title="Planetary System Finder" width={420}>
+      <div style={row}>
+        <Part name="Search label" color="HEADING" font="finder_search_label" style={{ flex: 'none' }}>
+          System Name
+        </Part>
+        <LineEdit placeholder={env.pack.samples.terms.search_systems ?? 'Search galaxy...'} style={{ flex: 1 }} />
+      </div>
+      <Tabs tabs={['All Systems', a.shortName, b.shortName, 'Neutral', 'Unexplored'].map((t, i) => ({ label: t, state: i === 0 ? 'selected' : 'normal' }))}>
+        {env.pack.samples.planets.slice(0, 7).map((p, i) => (
+          <FinderRow key={i} label={p.name} factionId={i % 3 === 2 ? null : sides(env)[i % 2].id} state={i === 1 ? 'pressed' : i === 3 ? 'hover' : 'normal'} />
+        ))}
+      </Tabs>
+    </Win>
   )
 }
 
@@ -784,7 +936,7 @@ function PersonnelFinder() {
     <Finder
       title="Personnel Finder"
       search="Name"
-      tabs={[a.name, b.name]}
+      tabs={[a.shortName, b.shortName]}
       items={env.pack.samples.characters.slice(0, 7).map((c) => ({ label: c.name, color: (env.pack.factions.find((f) => f.id === c.faction) ?? a).color }))}
     />
   )
@@ -928,20 +1080,24 @@ function ConfirmTransit() {
   )
 }
 
+/** The Game Menu: the window dress, and its column of choices as command keys (LookWindow.Commands). */
 function GameMenu() {
   return (
     <Win title="Game Menu" width={280}>
       {['Resume Game', 'Game Options', 'Exit to Main Menu', 'Exit to Desktop'].map((k, i) => (
-        <Key key={k} label={k} state={i === 0 ? 'focus' : i === 2 ? 'hover' : 'normal'} style={{ textAlign: 'center' }} />
+        <Cmd key={k} label={k} state={i === 0 ? 'focus' : i === 2 ? 'hover' : 'normal'} style={{ textAlign: 'center' }} />
       ))}
     </Win>
   )
 }
 
+/** Game Options - Save Game (game_options_window.gd): a panel of the look's theme, its title a plain label. */
 function SaveGame() {
   const S = useEnv().pack.samples
   return (
-    <Win title="Save Game" width={540}>
+    <Dressed>
+    <Part name="Window body" box="panel" style={{ width: 560, display: 'grid', gap: 8, padding: 14 }}>
+      <Label style={{ fontSize: 16 }}>Game Options - Save Game</Label>
       {[0, 1, 2, 3, 4].map((i) => (
         <div key={i} style={row}>
           <Label style={{ width: 90 }}>{i < 2 ? `Day ${40 + i * 30}` : 'Empty'}</Label>
@@ -955,14 +1111,15 @@ function SaveGame() {
         <span style={{ flex: 1 }} />
         <Key label="Close" />
       </div>
-    </Win>
+    </Part>
+    </Dressed>
   )
 }
 
 function GalaxyOverview() {
   const S = useEnv().pack.samples
   return (
-    <Win title="Galaxy Overview" width={420}>
+    <CodeWindow frame="overview_panel" heading="overview_title" title="Galaxy Overview" width={420}>
       {S.units.slice(0, 5).map((u, i) => (
         <div key={i} style={row}>
           <FixedText color={rgb(0.62, 0.72, 0.88)} note={N.literal} style={{ flex: 1 }}>
@@ -976,14 +1133,14 @@ function GalaxyOverview() {
           </FixedText>
         </div>
       ))}
-    </Win>
+    </CodeWindow>
   )
 }
 
 function Objectives() {
   const env = useEnv()
   return (
-    <Win title="Objectives" width={440}>
+    <CodeWindow frame="objectives_panel" heading="objectives_title" title="Objectives" width={440}>
       {sides(env).map((s, i) => (
         <div key={s.id} style={col}>
           <FixedText color={rgb(0.92, 0.94, 1)} note={N.literal} style={{ fontWeight: 600 }}>
@@ -996,15 +1153,16 @@ function Objectives() {
           ))}
         </div>
       ))}
-    </Win>
+    </CodeWindow>
   )
 }
 
+/** Its own dark red frame and title, kept: the window dress's tables do not list them. */
 function BattleAlert() {
   const env = useEnv()
   const S = env.pack.samples
   return (
-    <Win title={`Conflict at ${S.planets[0].name}`} width={560}>
+    <CodeWindow frame="alert_panel" heading="alert_title" title={`Conflict at ${S.planets[0].name}`} width={560}>
       <Tabs tabs={['Battle Summary', `${sides(env)[0].name} Forces`, `${sides(env)[1].name} Forces`, 'System Summary'].map((l, i) => ({ label: l, state: i === 0 ? 'selected' : 'normal' }))}>
         {S.units.slice(0, 4).map((u, i) => (
           <div key={i} style={row}>
@@ -1025,14 +1183,14 @@ function BattleAlert() {
         <Key label="Take Command" />
         <Key label="Retreat" />
       </div>
-    </Win>
+    </CodeWindow>
   )
 }
 
 function BattleResults() {
   const S = useEnv().pack.samples
   return (
-    <Win title={`Battle at ${S.planets[0].name}`} width={600}>
+    <CodeWindow frame="results_panel" heading="results_title" title={`Battle at ${S.planets[0].name}`} width={600}>
       <FixedText color={rgb(0.55, 0.9, 0.6)} note={N.status}>
         Victory: the enemy fleet was destroyed.
       </FixedText>
@@ -1053,29 +1211,36 @@ function BattleResults() {
           ))}
         </div>
       </div>
-    </Win>
+    </CodeWindow>
   )
 }
 
 // ---------------------------------------------------------------------------
-// Not in the game yet: dialogs, menus, tooltips
+// Dialogs, menus, tooltips (Look.InstallPopups)
 // ---------------------------------------------------------------------------
 
 function Stage({ children, w = 760, h = 480 }: { children: ReactNode; w?: number; h?: number }) {
   return <Desk style={{ width: w, height: h, display: 'flex', gap: 24, alignItems: 'center', justifyContent: 'center', padding: 24, boxSizing: 'border-box' }}>{children}</Desk>
 }
 
+/** A confirmation (fleet_window.gd's Confirm Scrap, a ConfirmationDialog) and a refusal
+ * (the AcceptDialog every refused order shows), over the dim. */
 function Dialogs() {
   const S = useEnv().pack.samples
   return (
-    <Stage w={900}>
-      <Dialog title="Confirm Scrap" width={340} buttons={<><Key label="OK" state="focus" /><Key label="Cancel" /></>}>
-        <Label>Scrap {S.units[0].name}? This cannot be undone.</Label>
-      </Dialog>
-      <Dialog title="Order Refused" width={340} buttons={<Key label="OK" />}>
-        <Label>{S.characters[0].name} is on a mission and cannot take command.</Label>
-      </Dialog>
-    </Stage>
+    <Desk style={{ width: 900, height: 480, position: 'relative' }}>
+      <Dim>
+        <div style={{ display: 'flex', gap: 24, alignItems: 'center' }}>
+          <Dialog title="Confirm Scrap" width={360} buttons={<><Cmd label="OK" state="focus" /><Cmd label="Cancel" /></>}>
+            <Label>Are you sure you want to scrap the following units?</Label>
+            <Label style={{ paddingLeft: 24 }}>{S.units[0].name}</Label>
+          </Dialog>
+          <Dialog title="Order Refused" width={360} buttons={<Cmd label="OK" />}>
+            <Label>The mission cannot be launched: the team has no one able to perform it.</Label>
+          </Dialog>
+        </div>
+      </Dim>
+    </Desk>
   )
 }
 
@@ -1083,7 +1248,7 @@ function BuildSelection() {
   const S = useEnv().pack.samples
   return (
     <Stage>
-      <Dialog title="Build" width={420} buttons={<><Key label="OK" /><Key label="Cancel" /></>}>
+      <Win title="Build" width={420}>
         <Grid>
           <Label>Item</Label>
           <Label>{S.units[0].name}</Label>
@@ -1096,7 +1261,11 @@ function BuildSelection() {
           <Label>Deliver to</Label>
           <Key label={`${S.planets[0].name}  ▾`} name="Drop-down list" />
         </Grid>
-      </Dialog>
+        <div style={{ ...row, justifyContent: 'flex-end' }}>
+          <Key label="OK" />
+          <Key label="Cancel" />
+        </div>
+      </Win>
     </Stage>
   )
 }
@@ -1105,7 +1274,7 @@ function CreateMission() {
   const S = useEnv().pack.samples
   return (
     <Stage>
-      <Dialog title="Create Mission" width={460} buttons={<><Key label="Encyclopedia" /><Key label="OK" /><Key label="Cancel" /></>}>
+      <Win title="Create Mission" width={460}>
         <Grid>
           <Label>Target</Label>
           <Label>{S.planets[0].name}</Label>
@@ -1121,7 +1290,12 @@ function CreateMission() {
         <FixedText color={GODOT.LIGHT_GRAY} note={N.literal}>
           Arrives in 6 days
         </FixedText>
-      </Dialog>
+        <div style={{ ...row, justifyContent: 'flex-end' }}>
+          <Key label="Encyclopedia" />
+          <Key label="OK" />
+          <Key label="Cancel" />
+        </div>
+      </Win>
     </Stage>
   )
 }
@@ -1160,22 +1334,33 @@ function Tooltips() {
 }
 
 // ---------------------------------------------------------------------------
-// Not in the game yet: multiplayer (the look on the whole game)
+// The head-to-head screens (LookWindow.DressScreen)
 // ---------------------------------------------------------------------------
 
 const MP_BG = rgb(0.08, 0.1, 0.14)
 
+/** A screen's title (any Label named Title): the display face, the text colour, capitals; its own size. */
+function ScreenTitle({ children, style }: { children: ReactNode; style?: CSSProperties }) {
+  return (
+    <Part name="Screen title" color="window_title_text" font="screen_title" style={{ textTransform: 'uppercase', ...style }}>
+      {children}
+    </Part>
+  )
+}
+
 function MpScreen({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <FixedBox name="Screen background" color={MP_BG} note={N.literal} style={{ width: 1024, height: 600, padding: 40, boxSizing: 'border-box', display: 'grid', gridTemplateRows: 'auto 1fr auto', gap: 16 }}>
-      <Label style={{ fontSize: 28, textAlign: 'center' }}>{title}</Label>
-      <div style={{ display: 'grid', gap: 12, alignContent: 'start', maxWidth: 640, justifySelf: 'center', width: '100%' }}>{children}</div>
-      <div style={{ ...row, justifyContent: 'flex-end' }}>
-        <Key label="Previous" />
-        <Key label="Proceed" state="focus" />
-        <Key label="Cancel" />
-      </div>
-    </FixedBox>
+    <Dressed>
+      <FixedBox name="Screen background" color={MP_BG} note={N.literal} scene style={{ width: 1024, height: 600, padding: 40, boxSizing: 'border-box', display: 'grid', gridTemplateRows: 'auto 1fr auto', gap: 16 }}>
+        <ScreenTitle style={{ fontSize: 28, textAlign: 'center' }}>{title}</ScreenTitle>
+        <div style={{ display: 'grid', gap: 12, alignContent: 'start', maxWidth: 640, justifySelf: 'center', width: '100%' }}>{children}</div>
+        <div style={{ ...row, justifyContent: 'flex-end' }}>
+          <Cmd label="Previous" />
+          <Cmd label="Proceed" state="focus" />
+          <Cmd label="Cancel" />
+        </div>
+      </FixedBox>
+    </Dressed>
   )
 }
 
@@ -1211,12 +1396,14 @@ function MpHost() {
   )
 }
 
+/** Its dialog (a PanelContainer named Dialog) is a steel panel (LookModal). */
 function MpLocate() {
   return (
-    <FixedBox name="Screen background" color={MP_BG} note={N.literal} style={{ width: 1024, height: 600, display: 'grid', placeItems: 'center' }}>
-      <Part name="Dialog panel" box="panel" style={{ width: 460, display: 'grid', gap: 8 }}>
+    <Dressed>
+    <FixedBox name="Screen background" color={MP_BG} note={N.literal} scene style={{ width: 1024, height: 600, display: 'grid', placeItems: 'center' }}>
+      <Part name="Dialog panel" box="MODAL" style={{ width: 460, display: 'grid', gap: 8 }}>
         <div style={row}>
-          <Label style={{ flex: 1, fontSize: 18 }}>Locate Session</Label>
+          <ScreenTitle style={{ flex: 1, fontSize: 18 }}>Locate Session</ScreenTitle>
           <Key label="X" />
         </div>
         <Caption>Player name</Caption>
@@ -1233,6 +1420,7 @@ function MpLocate() {
         </div>
       </Part>
     </FixedBox>
+    </Dressed>
   )
 }
 
@@ -1276,42 +1464,44 @@ export const WINDOWS: WindowEntry[] = [
   { id: 'cockpit', name: 'Cockpit (campaign dossier)', status: 'now', size: [1440, 850], Mock: Cockpit, note: 'For a pack with a look and no Cockpit picture.' },
   { id: 'map', name: 'Map screen', status: 'now', size: [1440, 850], Mock: MapScreen, note: 'The top strip, dispatch rail, theatre directory, mode bar, console, map key and map. The Feedback box keeps two colours of its own.' },
   { id: 'credits', name: 'Credits sheet', status: 'now', size: [1440, 850], Mock: Credits },
-  { id: 'load', name: 'Load Game, Manage Games', status: 'partly', size: [760, 520], Mock: LoadGame, note: 'Only when opened from the Cockpit, whose look they sit in.' },
+  { id: 'load', name: 'Load Game, Manage Games', status: 'now', size: [760, 520], Mock: LoadGame, note: 'A panel of the look’s theme (it has no title bar), its own colours traded for the look’s by the window hook.' },
 
-  { id: 'sector', name: 'Sector window', status: 'not-yet', size: [600, 420], Mock: SectorWindow, note: DRESS },
-  { id: 'planet', name: 'Planet Data', status: 'not-yet', size: [520, 420], Mock: PlanetData, note: DRESS },
-  { id: 'manufacturing', name: 'Manufacturing and Production', status: 'not-yet', size: [740, 560], Mock: Manufacturing, note: DRESS },
-  { id: 'defenses', name: 'System Defenses', status: 'not-yet', size: [640, 380], Mock: Defenses, note: DRESS },
-  { id: 'fleet', name: 'Fleet window', status: 'not-yet', size: [720, 360], Mock: FleetWindow, note: DRESS },
-  { id: 'missions', name: 'Missions', status: 'not-yet', size: [660, 340], Mock: Missions, note: DRESS },
-  { id: 'messages', name: 'Message Index', status: 'not-yet', size: [820, 380], Mock: MessageIndex, note: DRESS },
-  { id: 'compose', name: 'Compose Chat Message', status: 'not-yet', size: [540, 300], Mock: ComposeChat, note: DRESS },
-  { id: 'encyclopedia', name: 'Galactic Encyclopedia', status: 'not-yet', size: [700, 420], Mock: Encyclopedia, note: DRESS },
-  { id: 'system-finder', name: 'Planetary System Finder', status: 'not-yet', size: [460, 400], Mock: SystemFinder, note: DRESS },
-  { id: 'personnel-finder', name: 'Personnel Finder', status: 'not-yet', size: [460, 400], Mock: PersonnelFinder, note: DRESS },
-  { id: 'fleet-finder', name: 'Fleet Finder', status: 'not-yet', size: [460, 400], Mock: FleetFinder, note: DRESS },
-  { id: 'troop-finder', name: 'Troop Finder', status: 'not-yet', size: [460, 400], Mock: TroopFinder, note: DRESS },
-  { id: 'character-status', name: 'Character Status', status: 'not-yet', size: [560, 360], Mock: CharacterStatus, note: DRESS },
-  { id: 'unit-status', name: 'Unit Status', status: 'not-yet', size: [520, 280], Mock: UnitStatus, note: DRESS },
-  { id: 'facility-status', name: 'Defense Facility Status', status: 'not-yet', size: [500, 260], Mock: DefenseFacilityStatus, note: DRESS },
-  { id: 'fleet-status', name: 'Fleet Status', status: 'not-yet', size: [500, 280], Mock: FleetStatus, note: DRESS },
-  { id: 'status', name: 'Status (missions, queues)', status: 'not-yet', size: [520, 260], Mock: StatusPlate, note: DRESS },
-  { id: 'transit', name: 'Confirm Transit', status: 'not-yet', size: [400, 200], Mock: ConfirmTransit, note: DRESS },
-  { id: 'game-menu', name: 'Game Menu', status: 'not-yet', size: [360, 280], Mock: GameMenu, note: DRESS },
-  { id: 'save', name: 'Save Game', status: 'not-yet', size: [620, 360], Mock: SaveGame, note: DRESS },
-  { id: 'overview', name: 'Galaxy Overview', status: 'not-yet', size: [500, 300], Mock: GalaxyOverview, note: GUESS },
-  { id: 'objectives', name: 'Objectives', status: 'not-yet', size: [520, 340], Mock: Objectives, note: GUESS },
-  { id: 'battle-alert', name: 'Battle Alert', status: 'not-yet', size: [640, 360], Mock: BattleAlert, note: GUESS },
-  { id: 'battle-results', name: 'Battle Results, Assault, Bombardment', status: 'not-yet', size: [680, 380], Mock: BattleResults, note: GUESS },
-  { id: 'dialogs', name: 'Dialogs (Scrap, Retire, Pause, Leave, Refused…)', status: 'not-yet', size: [900, 480], Mock: Dialogs, note: INSTALL },
-  { id: 'build', name: 'Build Selection', status: 'not-yet', size: [760, 480], Mock: BuildSelection, note: INSTALL },
-  { id: 'create-mission', name: 'Create Mission', status: 'not-yet', size: [760, 480], Mock: CreateMission, note: INSTALL },
-  { id: 'menus', name: 'Popup menus', status: 'not-yet', size: [760, 480], Mock: Menus, note: INSTALL },
-  { id: 'tooltips', name: 'Tooltips', status: 'not-yet', size: [760, 480], Mock: Tooltips, note: 'Today a tooltip takes the look only over the screens that follow it (the Cockpit, the map screen). ' + INSTALL },
-  { id: 'mp-config', name: 'Multiplayer Configuration', status: 'not-yet', size: [1024, 600], Mock: MpConfig, note: INSTALL },
-  { id: 'mp-host', name: 'Host Game', status: 'not-yet', size: [1024, 600], Mock: MpHost, note: INSTALL },
-  { id: 'mp-locate', name: 'Locate Session', status: 'not-yet', size: [1024, 600], Mock: MpLocate, note: INSTALL },
-  { id: 'mp-options', name: 'Multiplayer Options', status: 'not-yet', size: [1024, 600], Mock: MpOptions, note: INSTALL },
+  { id: 'messages', name: 'Message Index (dispatches)', status: 'now', size: [940, 470], Mock: MessageIndex, note: DISPATCH },
+  { id: 'messages-urgent', name: 'Message Index: an urgent dispatch', status: 'now', size: [940, 470], Mock: MessageUrgent, note: DISPATCH },
+  { id: 'messages-empty', name: 'Message Index: an empty category', status: 'now', size: [940, 470], Mock: MessageEmpty, note: DISPATCH },
+  { id: 'sector', name: 'Sector window', status: 'now', size: [600, 420], Mock: SectorWindow, note: DRESS },
+  { id: 'planet', name: 'Planet Data', status: 'now', size: [520, 420], Mock: PlanetData, note: DRESS },
+  { id: 'manufacturing', name: 'Manufacturing and Production', status: 'now', size: [740, 560], Mock: Manufacturing, note: DRESS },
+  { id: 'defenses', name: 'System Defenses', status: 'now', size: [640, 380], Mock: Defenses, note: DRESS },
+  { id: 'fleet', name: 'Fleet window', status: 'now', size: [720, 360], Mock: FleetWindow, note: DRESS },
+  { id: 'missions', name: 'Missions', status: 'now', size: [660, 340], Mock: Missions, note: DRESS },
+  { id: 'compose', name: 'Compose Chat Message', status: 'now', size: [540, 300], Mock: ComposeChat, note: DRESS },
+  { id: 'encyclopedia', name: 'Galactic Encyclopedia', status: 'now', size: [700, 420], Mock: Encyclopedia, note: DRESS },
+  { id: 'system-finder', name: 'Planetary System Finder', status: 'now', size: [500, 560], Mock: SystemFinder, note: DRESS + ' Its rows are ledger lines in the holder’s look colour, its search label a heading, its tabs the sides’ short names, and its search hint the pack’s `search_systems` term.' },
+  { id: 'personnel-finder', name: 'Personnel Finder', status: 'now', size: [460, 400], Mock: PersonnelFinder, note: DRESS + ' Its tabs are the sides’ short names.' },
+  { id: 'fleet-finder', name: 'Fleet Finder', status: 'now', size: [460, 400], Mock: FleetFinder, note: DRESS },
+  { id: 'troop-finder', name: 'Troop Finder', status: 'now', size: [460, 400], Mock: TroopFinder, note: DRESS },
+  { id: 'character-status', name: 'Character Status', status: 'now', size: [560, 360], Mock: CharacterStatus, note: DRESS },
+  { id: 'unit-status', name: 'Unit Status', status: 'now', size: [520, 280], Mock: UnitStatus, note: DRESS },
+  { id: 'facility-status', name: 'Defense Facility Status', status: 'now', size: [500, 260], Mock: DefenseFacilityStatus, note: DRESS },
+  { id: 'fleet-status', name: 'Fleet Status', status: 'now', size: [500, 280], Mock: FleetStatus, note: DRESS },
+  { id: 'status', name: 'Status (missions, queues)', status: 'now', size: [520, 260], Mock: StatusPlate, note: DRESS },
+  { id: 'transit', name: 'Confirm Transit', status: 'now', size: [400, 200], Mock: ConfirmTransit, note: DRESS },
+  { id: 'build', name: 'Build Selection', status: 'now', size: [760, 480], Mock: BuildSelection, note: DRESS },
+  { id: 'create-mission', name: 'Create Mission', status: 'now', size: [760, 480], Mock: CreateMission, note: DRESS },
+  { id: 'game-menu', name: 'Game Menu', status: 'now', size: [360, 280], Mock: GameMenu, note: DRESS + ' Its choices are command keys (LookWindow.Commands).' },
+  { id: 'save', name: 'Game Options, Save Game', status: 'now', size: [620, 380], Mock: SaveGame, note: 'A panel of the look’s theme (it has no title bar), its own colours traded for the look’s by the window hook.' },
+  { id: 'overview', name: 'Galaxy Overview', status: 'now', size: [500, 300], Mock: GalaxyOverview, note: CODE },
+  { id: 'objectives', name: 'Objectives', status: 'now', size: [520, 340], Mock: Objectives, note: CODE },
+  { id: 'battle-alert', name: 'Battle Alert', status: 'now', size: [640, 380], Mock: BattleAlert, note: CODE + ' Its dark red frame and title are its own and are kept.' },
+  { id: 'battle-results', name: 'Battle Results, Assault, Bombardment', status: 'now', size: [680, 400], Mock: BattleResults, note: CODE },
+  { id: 'dialogs', name: 'Dialogs (Confirm Scrap, Retire, Leave Game, Pause, refusals…)', status: 'now', size: [900, 480], Mock: Dialogs, note: SHEET },
+  { id: 'menus', name: 'Popup menus', status: 'now', size: [760, 480], Mock: Menus, note: POPUPS },
+  { id: 'tooltips', name: 'Tooltips', status: 'now', size: [760, 480], Mock: Tooltips, note: POPUPS },
+  { id: 'mp-config', name: 'Multiplayer Configuration', status: 'now', size: [1024, 600], Mock: MpConfig, note: SCREEN },
+  { id: 'mp-host', name: 'Host Game', status: 'now', size: [1024, 600], Mock: MpHost, note: SCREEN },
+  { id: 'mp-locate', name: 'Locate Session', status: 'now', size: [1024, 600], Mock: MpLocate, note: SCREEN },
+  { id: 'mp-options', name: 'Multiplayer Options', status: 'now', size: [1024, 600], Mock: MpOptions, note: SCREEN },
 
   { id: 'picker', name: 'Pack Picker and its dialogs', status: 'never', why: 'It runs before any pack is loaded, so no pack’s look can reach it. It has its own palette.' },
   { id: 'splash', name: 'Boot splash, movies', status: 'never', why: 'Pictures and films only.' },

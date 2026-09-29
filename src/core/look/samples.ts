@@ -7,7 +7,8 @@ import { ci, gdStr } from './godot'
 export interface Samples {
   sectors: string[]
   planets: { name: string; sector: string }[]
-  characters: { name: string; faction: string }[]
+  /** `major`: a head of state (is_major), who does not send field reports. */
+  characters: { name: string; faction: string; major: boolean }[]
   units: { name: string; kind: string }[]
   facilities: string[]
   missions: string[]
@@ -70,9 +71,9 @@ export function readSamples(files: SampleFiles): Samples {
     ),
     characters: or(
       rows(files.characters, 'characters')
-        .map((c) => ({ name: name(c), faction: field(c, 'faction') }))
+        .map((c) => ({ name: name(c), faction: field(c, 'faction'), major: ci(c, 'is_major') === true }))
         .filter((c) => c.name),
-      ['Commander A', 'Commander B', 'Agent C'].map((n) => ({ name: n, faction: '' }))
+      ['Commander A', 'Commander B', 'Agent C'].map((n) => ({ name: n, faction: '', major: false }))
     ),
     units: or(
       rows(files.units, 'units')

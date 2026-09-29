@@ -85,6 +85,8 @@ test.describe('on the game’s WWII pack', () => {
   test.skip(!haveLook, 'needs a faction-wars checkout with the WWII look')
 
   test('every colour and side, and every window a look reaches drawn with where each colour comes from', async () => {
+    // 48 windows, each drawn and swept: more than the default 90 s on a busy machine.
+    test.setTimeout(240_000)
     await openFolder(ww2('windows'))
     await expect(page.locator('.color-column .token[data-token]')).toHaveCount(23)
     await expect(page.locator('.color-column .token[data-side]')).toHaveCount(2)
@@ -106,7 +108,7 @@ test.describe('on the game’s WWII pack', () => {
       )
       expect(orphans, `${name}: parts that do not say where their colour comes from`).toEqual([])
     }
-    expect(drawn).toBe(38)
+    expect(drawn).toBe(40)
   })
 
   test('a typed hex and the picker repaint the mock-up, Undo takes each back, and Save writes only that span of look.json', async () => {
@@ -141,7 +143,7 @@ test.describe('on the game’s WWII pack', () => {
 
   test('hovering a colour outlines the parts it paints; clicking a part names its colours and goes to them', async () => {
     await openFolder(ww2('hover'))
-    await show('Message Index')
+    await show('Message Index (dispatches)')
     await page.locator('#color-chassis_deep').hover()
     const hl = page.locator('.canvas .hl')
     await expect(hl.first()).toBeVisible()
@@ -232,6 +234,42 @@ test.describe('on the game’s WWII pack', () => {
     expect(look.metrics.radius).toBe(6)
     expect(look.overlay_alpha).toBe(0.8)
   })
+
+  test('dispatch words: set on the page, drawn on the Message Index, saved in look.json', async () => {
+    const dir = ww2('dispatch')
+    await openFolder(dir)
+    await page.getByRole('tab', { name: 'Faces, sizes and corners' }).click()
+    await page.getByLabel('Dispatch header word').fill('Cable')
+    await page.getByLabel('Fleets stamp').fill('Convoy')
+    await page.getByLabel('Missions is urgent').check()
+    await expect(lookProblems()).toHaveCount(0)
+    await show('Message Index (dispatches)')
+    // The open dispatch is a Fleets one: the header word, its stamp in the muted ink.
+    await expect(page.locator('.canvas [data-part="Typed heading"]')).toHaveText('CABLE')
+    await expect(page.locator('.canvas [data-part="Stamp on the dispatch"]')).toHaveText('Convoy')
+    // Missions is urgent now, beside Conflict: a filled stamp and a band on each row.
+    await expect(page.locator('.canvas [data-part="Stamp (urgent)"]')).toHaveCount(2)
+    await expect(page.locator('.canvas [data-part="Urgent band"]')).toHaveCount(2)
+    await page.screenshot({ path: join(scratch, '06-dispatches.png') })
+    await show('Message Index: an urgent dispatch')
+    await expect(page.locator('.canvas [data-part="Urgent band across the dispatch"]')).toHaveCount(1)
+    await answer({ open: [dir] })
+    await page.getByRole('button', { name: 'Save', exact: true }).click()
+    await expect(page.locator('.notice.success').last()).toContainText('Saved 1 file')
+    const look = JSON.parse(readFileSync(join(dir, 'look.json'), 'utf8'))
+    expect(look.messages.header).toBe('Cable')
+    expect(look.messages.stamps.Fleets).toBe('Convoy')
+    expect(look.messages.urgent).toEqual(['Conflict', 'Missions'])
+  })
+
+  test('a dialog is an order sheet: parchment, its words in ink', async () => {
+    await openFolder(ww2('sheet'))
+    await show('Dialogs (Confirm Scrap, Retire, Leave Game, Pause, refusals…)')
+    const words = page.locator('.canvas [data-part="Label on the order sheet"]').first()
+    await expect(words).toHaveCSS('color', rgb('#2a2620'))
+    await page.getByLabel('ink hex', { exact: true }).fill('#553311')
+    await expect(words).toHaveCSS('color', rgb('#553311'))
+  })
 })
 
 test('a new pack: start a look from a preset, Undo takes it back, and it saves with the pack', async () => {
@@ -305,7 +343,7 @@ test('In the game: the look, an unsaved change included, rendered by the real ga
   }
   await expect(page.getByRole('button', { name: 'Render in the game' })).toBeEnabled()
   await page.getByRole('button', { name: 'Render in the game' }).click()
-  await expect(page.locator('.shot')).toHaveCount(9, { timeout: 600_000 })
+  await expect(page.locator('.shot')).toHaveCount(24, { timeout: 900_000 })
   await expect(page.locator('.render-go')).toContainText('Rendered by the game at')
   await page.screenshot({ path: join(scratch, '06-rendered.png') })
   // A change after the render is flagged.

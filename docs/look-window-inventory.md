@@ -4,6 +4,31 @@ Read from `TeeJS/faction-wars` `origin/main` at b21212c on 2026-09-28. Read-only
 The Look page's mock-ups (`src/renderer/src/look/mock`) and their token mapping come from this
 file. It was written for the Faction Wars UI Builder, the app the Look page came from.
 
+## Update: origin/main a46c63f (2026-09-29, the WWII look finished: phases 4-6)
+
+The look now reaches every window: see the game's `docs/ww2-look.md`. The "not in the game yet"
+windows below all follow the look now, and the Look page draws them from the game's own code:
+- **Every window** is dressed from one hook, `LookWindow.Install` (`src/ui/look_window.gd`):
+  - a window with the scene template's `TitleBar` gets the steel frame;
+  - every window has its plain palette traded for the look's tokens (`BG_MAP`, `EDGE_MAP` and
+    `TEXT_MAP`, matched within 0.015);
+  - colours with a meaning (damage red, ready green, gold, cyan) are kept.
+- **Code-built windows without a title bar** get only the theme and the trade: Galaxy Overview,
+  Objectives, Battle Alert, Battle Results, Game Options and Load Game. Battle Alert keeps its
+  own dark red frame, because the tables do not list it.
+- **Menus, dialogs and tooltips** are dressed by `Look.InstallPopups`:
+  - a dialog is an order sheet (`Look.SheetTheme`): parchment, ink, OK and Cancel as command
+    keys, and a dim when it is modal;
+  - a menu is an instrument panel;
+  - a tooltip is a field note.
+- **The Message Index is dispatches** (`src/ui/look_dispatch.gd`): a ledger with category
+  stamps and a parchment dispatch. Its words come from look.json `messages` (rule 31) and the
+  `no_messages` term.
+- **The four head-to-head screens** are dressed by `LookWindow.DressScreen`.
+- **Build Selection and Create Mission** are framed windows (DraggableWindow), not dialogs.
+- **Unchanged:** the stand-ins are still off for a pack with a look (`art_standins.gd:43`), and
+  the opening briefing is not dressed.
+
 ## Update: origin/main 86d689b (2026-09-28, Plain Build Parity phases 1-3)
 
 PRs #385-#387 added `src/ui/art_standins.gd` and `plain_icons.gd`. A pack with

@@ -2,7 +2,8 @@
 // order is in the game's "Known: ..." messages): every constant list in the
 // game's src/data/pack_loader.gd must be in src/core/vocab.ts or
 // src/core/look/vocab.ts under the same name, and the look's message
-// categories are the game's Enums.MessageCategory less "All". Read from the
+// categories are the game's Enums.MessageCategory less "All"; the look's
+// contrast pairs and default sizes and metrics are look.gd's. Read from the
 // faction-wars checkout like the look tests (tests/look/game.ts); skipped
 // without it. When the game adds a word, this names it.
 
@@ -54,7 +55,12 @@ function gdConstLists(src: string): Map<string, unknown> {
         break
       }
     }
-    out.set(m[1], gdLiteral(src.slice(m.index + m[0].length - 1, end)))
+    // A list of identifiers (look.gd's PIECES) is not words: left out.
+    try {
+      out.set(m[1], gdLiteral(src.slice(m.index + m[0].length - 1, end)))
+    } catch {
+      /* not a literal */
+    }
   }
   return out
 }
@@ -81,4 +87,15 @@ describe.runIf(loader !== null)("the word lists are the game's", () => {
     const cats = m![1].split(',').map((s) => s.trim().split('=')[0].trim()).filter((s) => s && s !== 'All')
     expect(lookVocab.KNOWN_MESSAGE_CATEGORIES).toEqual(cats)
   })
+})
+
+const lookGd = gameText('src/ui/look.gd')
+
+describe.runIf(lookGd !== null)("the look's contrast pairs and defaults are the game's (look.gd)", () => {
+  const game = gdConstLists(lookGd ?? '')
+  for (const name of ['CONTRAST_PAIRS', 'DEFAULT_SIZES', 'DEFAULT_METRICS'])
+    it(name, () => {
+      expect(game.get(name), `look.gd has no ${name}`).toBeDefined()
+      expect(editorLists[name]).toEqual(game.get(name))
+    })
 })

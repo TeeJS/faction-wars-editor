@@ -8,7 +8,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, relative, resolve } from 'node:path'
-import { binaryFingerprint, checkSettings, placePack, prepareGame, renderLook, syncFiles, withUserDir, type RenderSettings } from '../../src/main/render'
+import { SHOT_ORDER, binaryFingerprint, checkSettings, placePack, prepareGame, renderLook, syncFiles, withUserDir, type RenderSettings } from '../../src/main/render'
 import { LookFile } from '../../src/core/look/lookfile'
 import { FACTION_WARS_DIR } from '../helpers'
 import { countColor, readPng } from './png'
@@ -142,7 +142,7 @@ real('the game renders the look', () => {
       files[i] = ['look.json', look.toBytes()]
       const r = await renderLook(settings, { packId: 'ww2', files }, cache, (l) => lines.push(l))
       console.log(`rendered at ${commit} in ${r.seconds}s: ${r.shots.map((s) => s.name).join(', ')}`)
-      expect(r.shots.map((s) => s.name)).toEqual(['specimen', 'cockpit', 'cockpit_focus', 'credits', 'map', 'message', 'dialog', 'finder', 'menu'])
+      expect(r.shots.map((s) => s.name)).toEqual(SHOT_ORDER)
       const specimen = readPng(new Uint8Array(readFileSync(r.shots[0].file)))
       expect(specimen.width).toBe(1440)
       expect(countColor(specimen, '#00c8ff')).toBeGreaterThan(100)
