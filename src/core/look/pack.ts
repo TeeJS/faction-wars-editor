@@ -38,6 +38,8 @@ export interface LookPack {
   assetCredits: AssetCredit[]
   samples: Samples
   factions: Faction[]
+  /** Every file the pack carries besides its 12 JSON files, sorted. */
+  files: string[]
   /** The pack's look.json as it stands, or null when it has none. */
   look: LookFile | null
   ctx: LookContext
@@ -93,6 +95,7 @@ export function lookPack(doc: PackDocument, packDir = 'the pack folder'): LookPa
       display: text('display.json')
     }),
     factions,
+    files: doc.otherFiles(),
     look: lookFileOf(doc),
     ctx: { packDir, factionIds: factions.map((f) => f.id), hasFile: (rel) => doc.hasFile(rel) },
     file: (rel) => doc.fileBytes(rel)
@@ -118,6 +121,8 @@ function sameBytes(a: Uint8Array, b: Uint8Array): boolean {
  * One undoable change to the pack's look, with any files it brings (a face
  * chosen from disk). False when nothing changed. Changing a value back to what
  * the saved file has gives back the saved bytes, so the pack is clean again.
+ * Changes with the same label in quick succession (a colour dragged, a size
+ * typed) are one step for Undo.
  */
 export function editLook(doc: PackDocument, label: string, fn: (l: LookFile) => void, files: [string, Uint8Array][] = []): boolean {
   const look = lookFileOf(doc)
@@ -129,10 +134,14 @@ export function editLook(doc: PackDocument, label: string, fn: (l: LookFile) => 
   if (saved && sameBytes(saved, after)) after = saved
   const changed = after !== before && !sameBytes(before, after)
   if (!changed && files.length === 0) return false
-  return doc.edit(label, (e) => {
-    for (const [rel, bytes] of files) e.setFile(rel, bytes)
-    if (changed) e.setFile(LOOK_FILE, after)
-  })
+  return doc.edit(
+    label,
+    (e) => {
+      for (const [rel, bytes] of files) e.setFile(rel, bytes)
+      if (changed) e.setFile(LOOK_FILE, after)
+    },
+    { merge: true }
+  )
 }
 
 /** A look for a pack that has none: a new look.json, as one undoable change. */

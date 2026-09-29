@@ -16,6 +16,35 @@ export interface AppInfo {
   backups: string
 }
 
+/** The Look page's In the game tab: where Godot and the game are. */
+export interface RenderSettings {
+  godot: string
+  game: string
+  ref: string
+}
+
+export interface RenderSettingsState {
+  settings: RenderSettings
+  /** What is wrong with them, or null. */
+  problem: string | null
+  /** Where the copy of the game and the pictures live. */
+  cache: string
+}
+
+export interface RenderRequest {
+  packId: string
+  /** Every file of the pack as it stands in the editor. */
+  files: [string, Uint8Array][]
+  faction?: string
+}
+
+export interface RenderResult {
+  commit: string
+  outDir: string
+  shots: { name: string; file: string }[]
+  seconds: number
+}
+
 export interface EditorApi {
   info(): Promise<AppInfo>
   setDirty(dirty: boolean): Promise<void>
@@ -39,6 +68,16 @@ export interface EditorApi {
   /** A picture from an art set (zip or folder), for previews. */
   artSetFile(setPath: string, rel: string): Promise<Uint8Array | null>
   showItem(path: string): Promise<void>
+  /** The Look page's In the game tab (optional: needs Godot and the game's source). */
+  getRenderSettings(): Promise<RenderSettingsState>
+  setRenderSettings(s: RenderSettings): Promise<RenderSettingsState>
+  pickGodot(): Promise<string | null>
+  pickGame(): Promise<string | null>
+  /** Renders the pack's look with the game's own capture scripts. */
+  render(req: RenderRequest): Promise<RenderResult>
+  renderImage(file: string): Promise<Uint8Array | null>
+  openRenderFolder(dir: string): Promise<void>
+  onRenderProgress(fn: (line: string) => void): () => void
   recent(): Promise<RecentEntry[]>
   addRecent(entry: RecentEntry): Promise<void>
   onMenu(fn: (action: string) => void): () => void

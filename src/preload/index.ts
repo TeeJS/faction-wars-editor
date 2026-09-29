@@ -24,6 +24,18 @@ const api: EditorApi = {
   isArtSet: (path) => ipcRenderer.invoke('artset:check', path),
   artSetFile: (setPath, rel) => ipcRenderer.invoke('artset:file', setPath, rel),
   showItem: (path) => ipcRenderer.invoke('shell:showItem', path),
+  getRenderSettings: () => ipcRenderer.invoke('render:getSettings'),
+  setRenderSettings: (s) => ipcRenderer.invoke('render:setSettings', s),
+  pickGodot: () => ipcRenderer.invoke('pick:godot'),
+  pickGame: () => ipcRenderer.invoke('pick:game'),
+  render: (req) => ipcRenderer.invoke('render:run', req),
+  renderImage: (file) => ipcRenderer.invoke('render:image', file),
+  openRenderFolder: (dir) => ipcRenderer.invoke('render:openFolder', dir),
+  onRenderProgress: (fn) => {
+    const listener = (_e: unknown, line: string) => fn(line)
+    ipcRenderer.on('render:progress', listener)
+    return () => ipcRenderer.removeListener('render:progress', listener)
+  },
   recent: () => ipcRenderer.invoke('recent:get'),
   addRecent: (entry) => ipcRenderer.invoke('recent:add', entry),
   onMenu: (fn) => {
