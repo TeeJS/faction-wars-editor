@@ -3,7 +3,7 @@
 // checkImportable() is a port of the game's importer checks (src/ui/pack_import.gd)
 // so every export can be proven importable before it is written.
 
-import { Zip, ZipDeflate, ZipPassThrough, unzipSync, strFromU8, strToU8 } from 'fflate'
+import { Zip, ZipPassThrough, deflateSync, unzipSync, strFromU8, strToU8 } from 'fflate'
 import { PackDocument, normalizePath } from './document'
 import { gdStr } from './model'
 import { validatePack } from './validate'
@@ -63,6 +63,32 @@ export interface BuildResult {
 }
 
 /**
+ * A zip entry deflated in one piece with deflateSync. fflate 0.8.3's streaming
+ * ZipDeflate writes data zlib rejects ("invalid distance too far back") for
+ * some files, the WW2 look's CourierPrime faces among them; deflateSync's
+ * output of the same files inflates cleanly.
+ */
+class WholeDeflate extends ZipPassThrough {
+  private parts: Uint8Array[] = []
+  constructor(filename: string) {
+    super(filename)
+    this.compression = 8
+  }
+  protected override process(chunk: Uint8Array<ArrayBuffer>, final: boolean): void {
+    this.parts.push(chunk)
+    if (!final) return
+    const all = new Uint8Array(this.parts.reduce((n, p) => n + p.length, 0))
+    let at = 0
+    for (const p of this.parts) {
+      all.set(p, at)
+      at += p.length
+    }
+    this.parts = []
+    this.ondata(null, deflateSync(all, { level: 9 }), true)
+  }
+}
+
+/**
  * Builds a faction-pack zip: the pack's files at the root (sorted, '/'-separated),
  * PNGs stored, everything else deflated, and manifest.json written last listing
  * every file's SHA-256.
@@ -107,7 +133,7 @@ export async function buildPackZip(
     else chunks.push(chunk)
   })
   const add = (name: string, data: Uint8Array) => {
-    const entry = name.toLowerCase().endsWith('.png') ? new ZipPassThrough(name) : new ZipDeflate(name, { level: 9 })
+    const entry = name.toLowerCase().endsWith('.png') ? new ZipPassThrough(name) : new WholeDeflate(name)
     entry.mtime = now
     zip.add(entry)
     entry.push(data, true)
