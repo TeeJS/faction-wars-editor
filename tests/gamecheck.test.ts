@@ -226,7 +226,11 @@ const LOOK_CASES: [string, (l: Look) => void][] = [
   ['shapes', (l) => Object.assign(l, { sides: 'x', fonts: 3, sizes: null, metrics: [], dossier: 'x', textures: false })],
   ['font-details', (l) => Object.assign(l.fonts, { body: { weight: 'bold', tabular: 'yes' }, typed: 'x', display: { file: null } })],
   ['texture-details', (l) => Object.assign(l.textures, { desk: null, paper_frame: { file: 'look/paper_frame.png', margin: -2 } })],
-  ['unchecked-key', (l) => (l.messages = { header: 'Dispatch' })]
+  ['unchecked-key', (l) => (l.notes = { anything: 'goes' })],
+  ['messages-not-object', (l) => (l.messages = 'x')],
+  ['messages-unknown-key', (l) => (l.messages.banner = 'x')],
+  ['messages-shapes', (l) => Object.assign(l.messages, { header: 5, stamps: [], urgent: 'Conflict' })],
+  ['messages-categories', (l) => Object.assign(l.messages, { stamps: { Loyalty: 'Intel', Weather: 'x', Fleets: '  ', Chat: 3 }, urgent: ['Conflict', 'Storms', 2] })]
 ]
 
 suite('look packs for the game to check', () => {

@@ -1,5 +1,5 @@
 // Validation rule 31, a line-for-line port of the game's check of look.json
-// (TeeJS/faction-wars origin/main ee4b89b, src/data/pack_loader.gd
+// (TeeJS/faction-wars origin/main a46c63f, src/data/pack_loader.gd
 // _read_optional_json, _validate_look, _require_color, _pack_has). Same
 // checks, same order, same message text: a message here is exactly what the
 // game prints for the pack. scripts/gamecheck.ps1 proves it against the game.
@@ -14,7 +14,9 @@ import {
   KNOWN_LOOK_FONTS,
   KNOWN_LOOK_METRICS,
   KNOWN_LOOK_SIZES,
-  KNOWN_LOOK_TEXTURES
+  KNOWN_LOOK_TEXTURES,
+  KNOWN_MESSAGE_CATEGORIES,
+  KNOWN_MESSAGES_KEYS
 } from './vocab'
 
 export interface LookContext {
@@ -160,6 +162,33 @@ export function validateLook(look: Record<string, unknown>, ctx: LookContext): s
   if (dhas(look, 'overlay_alpha')) {
     const a = look.overlay_alpha
     if (!isNumber(a) || a < 0 || a > 1) errors.push('look.json overlay_alpha: must be a number from 0 to 1.')
+  }
+
+  const messages = dget(look, 'messages', {})
+  if (!isDict(messages)) {
+    errors.push('look.json: `messages` must be an object.')
+  } else {
+    const cats: readonly string[] = KNOWN_MESSAGE_CATEGORIES
+    for (const key of dataKeys(messages))
+      if (!(KNOWN_MESSAGES_KEYS as readonly string[]).includes(key))
+        errors.push(`look.json messages: '${key}' is not known. Known: header, stamps, urgent.`)
+    if (dhas(messages, 'header') && typeof messages.header !== 'string') errors.push('look.json messages.header: must be text.')
+    const stamps = dget(messages, 'stamps', {})
+    if (!isDict(stamps)) {
+      errors.push('look.json messages.stamps: must be an object of category -> word.')
+    } else {
+      for (const key of dataKeys(stamps)) {
+        if (!cats.includes(key)) errors.push(`look.json messages.stamps: '${key}' is not a message category. Known: ${joined(cats)}.`)
+        else if (typeof stamps[key] !== 'string' || gdStripEdges(gdStr(stamps[key])).length === 0)
+          errors.push(`look.json messages.stamps.${key}: must be a word.`)
+      }
+    }
+    const urgent = dget(messages, 'urgent', [])
+    if (!Array.isArray(urgent)) {
+      errors.push('look.json messages.urgent: must be a list of message categories.')
+    } else {
+      for (const c of urgent) if (!cats.includes(gdStr(c))) errors.push(`look.json messages.urgent: '${gdStr(c)}' is not a message category.`)
+    }
   }
 
   const dossier = dget(look, 'dossier', {})

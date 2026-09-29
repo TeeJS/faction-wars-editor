@@ -3,7 +3,8 @@
 // (SCHEMA.md Q1), so this is the whole graph.
 
 import type { Editor, PackDocument } from './document'
-import type { JSONPath } from './jsontext'
+import { JsonText, type JSONPath } from './jsontext'
+import { LOOK_FILE, lookFileOf } from './look/pack'
 import { ci, isDict } from './model'
 import type { PackJsonFile } from './vocab'
 
@@ -23,7 +24,8 @@ export type RefKind =
   | 'galaxySize'
 
 export interface Usage {
-  file: PackJsonFile
+  /** One of the 12 JSON files, or the look (look.json, held as bytes). */
+  file: PackJsonFile | typeof LOOK_FILE
   /** For 'value': the path of the string equal to the id. For 'key': the object holding the id as a key. */
   path: JSONPath
   kind: 'value' | 'key'
@@ -106,6 +108,10 @@ export function findUsages(doc: PackDocument, kind: RefKind, id: string): Usage[
         keyIn('setup.json', row, path, 'dev', where)
         keyIn('setup.json', row, path, 'mp', where)
       }
+      // The look's side colours, keyed by faction id (rule 31 matches look keys exactly).
+      const look = lookFileOf(doc)?.value
+      if (look && isDict(look.sides) && Object.prototype.hasOwnProperty.call(look.sides, id))
+        out.push({ file: LOOK_FILE, path: ['sides'], kind: 'key', where: "the look's side colour" })
       break
     }
     case 'planet':
@@ -224,9 +230,17 @@ function gidModes(doc: PackDocument, fn: (mode: Dict, path: JSONPath) => void): 
 /** Rewrites every usage of `oldId` to `newId`. The record's own id is the caller's job. */
 export function renameUsages(doc: PackDocument, e: Editor, kind: RefKind, oldId: string, newId: string): number {
   const usages = findUsages(doc, kind, oldId)
+  // look.json is a file of bytes to the document: renamed in its text, then set whole.
+  const inLook = usages.filter((u) => u.file === LOOK_FILE)
+  if (inLook.length) {
+    const t = JsonText.fromBytes(doc.fileBytes(LOOK_FILE)!)
+    for (const u of inLook) t.renameKey(u.path, oldId, newId)
+    e.setFile(LOOK_FILE, t.toBytes())
+  }
+  const inJson = usages.filter((u): u is Usage & { file: PackJsonFile } => u.file !== LOOK_FILE)
   // Keys first, deepest paths first, so earlier edits never move later paths.
-  for (const u of usages.filter((x) => x.kind === 'key').sort((a, b) => b.path.length - a.path.length))
+  for (const u of inJson.filter((x) => x.kind === 'key').sort((a, b) => b.path.length - a.path.length))
     e.renameKey(u.file, u.path, oldId, newId)
-  for (const u of usages.filter((x) => x.kind === 'value')) e.set(u.file, u.path, newId)
+  for (const u of inJson.filter((x) => x.kind === 'value')) e.set(u.file, u.path, newId)
   return usages.length
 }

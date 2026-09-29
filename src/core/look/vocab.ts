@@ -1,7 +1,7 @@
 // The look's vocabulary, word for word from the game (TeeJS/faction-wars at
-// origin/main ee4b89b): src/data/pack_loader.gd KNOWN_LOOK_* (validation rule
-// 31) and src/ui/look.gd CONTRAST_PAIRS, DEFAULT_SIZES, DEFAULT_METRICS.
-// SCHEMA.md section 15 documents each one.
+// origin/main a46c63f): src/data/pack_loader.gd KNOWN_LOOK_* and the message
+// categories (validation rule 31), and src/ui/look.gd CONTRAST_PAIRS,
+// DEFAULT_SIZES, DEFAULT_METRICS. SCHEMA.md section 15 documents each one.
 
 /** Every colour a look must declare, in the game's order (rule 31: all required). */
 export const KNOWN_LOOK_COLORS = [
@@ -17,6 +17,10 @@ export const KNOWN_LOOK_SIZES = ['body', 'small', 'label', 'title', 'heading', '
 export const KNOWN_LOOK_METRICS = ['radius', 'border', 'focus', 'pad'] as const
 export const KNOWN_LOOK_TEXTURES = ['paper', 'paper_frame', 'desk', 'grain', 'rule'] as const
 export const KNOWN_DOSSIER_KEYS = ['subtitle', 'map_rect', 'map_caption'] as const
+/** `messages` (the Message Index as dispatches): its keys, and the categories a stamp or
+ * the urgent band can name - the game's Enums.MessageCategory less "All". */
+export const KNOWN_MESSAGES_KEYS = ['header', 'stamps', 'urgent'] as const
+export const KNOWN_MESSAGE_CATEGORIES = ['Loyalty', 'Fleets', 'Missions', 'Resources', 'Manufacturing', 'Defense', 'Conflict', 'Chat', 'Advice'] as const
 
 /** The sizes and metrics the game uses when a look names none (look.gd). */
 export const DEFAULT_SIZES: Record<(typeof KNOWN_LOOK_SIZES)[number], number> = {

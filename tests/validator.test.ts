@@ -596,7 +596,7 @@ describe('advisor, voices, sounds, briefing (rules 25-28), as the game checks th
     ['voices', { first_person: { order: [] } }, 'pack.json voices.first_person.order: names no sound.'],
     ['voices', { first_person: { order: 'other-set:sound/x/1.ogg' } }, "pack.json voices.first_person.order: 'other-set:sound/x/1.ogg' is from art set 'other-set', which art_sets does not declare."],
     ['sounds', { cockpit_exit: 'swr-original:sound/common/8002.ogg' }, ''],
-    ['sounds', { cockpit_whistle: 'swr-original:sound/common/8003.ogg' }, "pack.json sounds: 'cockpit_whistle' is not a moment. Known: cockpit_galaxy_size, cockpit_load, cockpit_exit, cockpit_control."],
+    ['sounds', { cockpit_whistle: 'swr-original:sound/common/8003.ogg' }, "pack.json sounds: 'cockpit_whistle' is not a moment. Known: cockpit_galaxy_size, cockpit_load, cockpit_exit, cockpit_control, window_button, control_panel, control_panel_gid, window_open_sector, window_close_sector, window_open_system, window_close_system, window_minimize_alliance, window_minimize_empire, window_restore_alliance, window_restore_empire."],
     ['sounds', { cockpit_exit: 'swr-original:sound/common/8002.wav' }, "pack.json sounds.cockpit_exit: 'swr-original:sound/common/8002.wav' is not a .ogg file."],
     ['sounds', { cockpit_exit: 'no-such-file.ogg' }, "pack.json sounds.cockpit_exit: 'no-such-file.ogg' is not in res://packs/star-wars-rebellion."],
     ['briefing', { test_side: { steps: [{ focus: 12 }, line], skip: [line] } }, ''],
