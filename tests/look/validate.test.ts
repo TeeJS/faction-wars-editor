@@ -159,7 +159,26 @@ withLook('rule 31: the rest of the checks', () => {
   })
 
   it('keys the game does not check are left alone', () => {
+    expect(broken((l) => (l.notes = { anything: 'goes' }))).toEqual([])
+  })
+
+  const CATS = 'Loyalty, Fleets, Missions, Resources, Manufacturing, Defense, Conflict, Chat, Advice'
+  it('messages (the Message Index as dispatches): its keys, shapes, categories and words', () => {
     expect(broken((l) => (l.messages = { header: 'Dispatch' }))).toEqual([])
+    expect(broken((l) => (l.messages = 'x'))).toEqual(['look.json: `messages` must be an object.'])
+    expect(broken((l) => (l.messages.banner = 'x'))).toEqual(["look.json messages: 'banner' is not known. Known: header, stamps, urgent."])
+    expect(broken((l) => Object.assign(l.messages, { header: 5, stamps: [], urgent: 'Conflict' }))).toEqual([
+      'look.json messages.header: must be text.',
+      'look.json messages.stamps: must be an object of category -> word.',
+      'look.json messages.urgent: must be a list of message categories.'
+    ])
+    expect(broken((l) => Object.assign(l.messages, { stamps: { Loyalty: 'Intel', Weather: 'x', Fleets: '  ', Chat: 3, _note: 'n' }, urgent: ['Conflict', 'Storms', 2] }))).toEqual([
+      `look.json messages.stamps: 'Weather' is not a message category. Known: ${CATS}.`,
+      'look.json messages.stamps.Fleets: must be a word.',
+      'look.json messages.stamps.Chat: must be a word.',
+      "look.json messages.urgent: 'Storms' is not a message category.",
+      "look.json messages.urgent: '2.0' is not a message category."
+    ])
   })
 })
 

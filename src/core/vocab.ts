@@ -1,8 +1,9 @@
 // The engine's vocabulary, copied from the game's loader so the editor offers
 // exactly what the game accepts. Source of truth (read-only here):
-//   TeeJS/faction-wars src/data/pack_loader.gd:7-72, :244
+//   TeeJS/faction-wars src/data/pack_loader.gd (every KNOWN_* list; checked at a46c63f)
 //   TeeJS/faction-wars src/game/mission_catalog.gd:29-44 (+ enums.gd MissionType)
-// When the game adds a word, add it here and to tests/vocab.test.ts.
+// tests/vocab.test.ts compares every list the game's loader has with the one
+// of the same name here (or in look/vocab.ts), and names the one that differs.
 
 export const SUPPORTED_SCHEMA_VERSION = 1
 
@@ -57,8 +58,14 @@ export const KNOWN_TERMS = [
   'system_shield_recharge', 'system_weapon_recharge', 'system_tractor', 'system_engines', 'system_hyperdrive',
   // a standing defence's state tag in the Defenses window
   'shield_active', 'weapon_armed',
-  // the word under a sector's name on the map (the game's KNOWN_TERMS, pack_loader.gd)
-  'sector'
+  // the System Finder's search field, before anything is typed
+  'search_systems',
+  // the word under a sector's name on the map
+  'sector',
+  // the Cockpit's size choice
+  'galaxy_size',
+  // a message category with nothing in it
+  'no_messages'
 ]
 export const KNOWN_MENU_ACTIONS = [
   'difficulty', 'galaxy_size', 'start', 'load_game', 'credits', 'hq_only_victory', 'multiplayer', 'exit', 'cycle'
@@ -108,7 +115,12 @@ export const KNOWN_BRIEFING_VIEWS = ['off', 'military', 'unexplored', 'defenses'
 /** ... and the kinds that name something: "system:yavin" (KNOWN_BRIEFING_VIEW_KINDS). */
 export const KNOWN_BRIEFING_VIEW_KINDS = ['mode:', 'loyal:', 'system:', 'hq:', 'character:']
 /** pack.json `sounds`: the controls' sounds (the game's KNOWN_SOUND_EVENTS). */
-export const KNOWN_SOUND_EVENTS = ['cockpit_galaxy_size', 'cockpit_load', 'cockpit_exit', 'cockpit_control']
+export const KNOWN_SOUND_EVENTS = [
+  'cockpit_galaxy_size', 'cockpit_load', 'cockpit_exit', 'cockpit_control',
+  'window_button', 'control_panel', 'control_panel_gid',
+  'window_open_sector', 'window_close_sector', 'window_open_system', 'window_close_system',
+  'window_minimize_alliance', 'window_minimize_empire', 'window_restore_alliance', 'window_restore_empire'
+]
 export const KNOWN_DIFFICULTIES = ['easy', 'medium', 'hard']
 export const KNOWN_CHARACTER_ROLES = [
   'starts_at_first_world', 'starts_at_hq', 'starts_at_random_holding',

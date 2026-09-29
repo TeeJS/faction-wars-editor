@@ -6,6 +6,7 @@ import { describe, expect, it } from 'vitest'
 import { PackDocument } from '../../src/core/document'
 import { LOOK_FILE, createLook, editLook, lookFileOf, lookPack } from '../../src/core/look/pack'
 import { PRESETS, lookFromPreset } from '../../src/core/look/presets'
+import { findUsages, renameUsages } from '../../src/core/refs'
 import { createStarterPack } from '../../src/core/starter'
 import { validatePack } from '../../src/core/validate'
 import { buildPackZip, checkImportable } from '../../src/core/zip'
@@ -130,6 +131,18 @@ describe.runIf(haveLook)("the game's WWII look in the editor", () => {
     expect(p.ctx.hasFile('look/fonts/Oswald-Variable.ttf')).toBe(true)
     expect(p.file('look/paper.png')!.length).toBeGreaterThan(0)
     expect(p.samples.planets.length).toBeGreaterThan(0)
+  })
+
+  it("renaming a faction renames its side colour in the look; findUsages shows it first", () => {
+    const doc = open()
+    expect(findUsages(doc, 'faction', 'axis').map((u) => u.where)).toContain("the look's side colour")
+    doc.edit('rename', (e) => {
+      renameUsages(doc, e, 'faction', 'axis', 'central')
+      e.set('factions.json', ['factions', 0, 'id'], 'central')
+    })
+    expect(lookFileOf(doc)!.side('central')).toBe('#d06a55')
+    expect(lookFileOf(doc)!.side('axis')).toBeUndefined()
+    expect(lookErrors(doc)).toEqual([])
   })
 
   it('a broken face and texture are reported against the pack folder', () => {
