@@ -1,17 +1,16 @@
 // The mock-ups paint each part in the token the GAME paints it in: every style
 // they use is a line of the game's own source, and each line must be in that
-// source: src/ui/<file> of the game (tests/look/game.ts), and look_window.gd
-// from the paused ww2-look-messages branch at 2bd1b98. When the game changes
-// one of these lines, the test names it: update src/core/look/theme.ts.
+// source: src/ui/<file> of the game (tests/look/game.ts). When the game
+// changes one of these lines, the test names it: update src/core/look/theme.ts.
 
 import { describe, expect, it } from 'vitest'
-import { BOXES, COLORS, FONTS, readBox, readColor, readFont, type Source } from '../../src/core/look/theme'
+import { BOXES, COLORS, FONTS, PALETTE, PLAIN, readBox, readColor, readFont, readPalette, readPlain, readTolerance, type Source } from '../../src/core/look/theme'
 import { KNOWN_LOOK_COLORS, KNOWN_LOOK_FONTS, KNOWN_LOOK_SIZES } from '../../src/core/look/vocab'
-import { LOOK_WINDOW_REF, gameText } from './game'
+import { gameText } from './game'
 
 const texts = new Map<string, string | null>()
 const game = (file: string): string | null => {
-  if (!texts.has(file)) texts.set(file, file === 'look_window.gd' ? gameText(`src/ui/${file}`, LOOK_WINDOW_REF) : gameText(`src/ui/${file}`))
+  if (!texts.has(file)) texts.set(file, gameText(`src/ui/${file}`))
   return texts.get(file)!
 }
 
@@ -28,6 +27,49 @@ function everyLineIsTheGames(table: Record<string, Source>) {
 describe('every style line is in the game', () => everyLineIsTheGames(BOXES))
 describe('every colour line is in the game', () => everyLineIsTheGames(COLORS))
 describe('every face and size line is in the game', () => everyLineIsTheGames(FONTS))
+describe("every row of the window dress's palette trade is in the game", () => everyLineIsTheGames(PALETTE))
+describe("every window's own frame colour is in the game", () => everyLineIsTheGames(PLAIN))
+
+describe("the window dress's palette trade", () => {
+  it('reads every row, to known tokens', () => {
+    const rows = { BG_MAP: readPalette(PALETTE.BG_MAP), EDGE_MAP: readPalette(PALETTE.EDGE_MAP), TEXT_MAP: readPalette(PALETTE.TEXT_MAP) }
+    expect([rows.BG_MAP.length, rows.EDGE_MAP.length, rows.TEXT_MAP.length]).toEqual([9, 3, 18])
+    for (const r of [...rows.BG_MAP, ...rows.EDGE_MAP, ...rows.TEXT_MAP]) expect(KNOWN_LOOK_COLORS).toContain(r.token)
+    expect(rows.BG_MAP[0]).toEqual({ rgb: [0.18, 0.22, 0.28], token: 'chassis_deep' })
+    expect(readTolerance(PALETTE.TOLERANCE)).toBe(0.015)
+  })
+
+  it.runIf(game('look_window.gd') !== null)("has every row the game's tables have: none missed", () => {
+    const text = game('look_window.gd')!
+    for (const table of ['BG_MAP', 'EDGE_MAP', 'TEXT_MAP'] as const) {
+      const body = new RegExp(`const ${table} := \\[([\\s\\S]*?)\\n\\]`).exec(text)![1]
+      const gameRows = [...body.matchAll(/\[Color\(/g)].length
+      expect(readPalette(PALETTE[table]), table).toHaveLength(gameRows)
+    }
+  })
+
+  it("reads a window's own frame and title", () => {
+    expect(readPlain(PLAIN.overview_panel)).toEqual({ bg: '#0f1421', edge: '#669eeb', width: 1, text: null, size: null })
+    expect(readPlain(PLAIN.overview_title)).toEqual({ bg: null, edge: null, width: 0, text: '#f2f7ff', size: 20 })
+  })
+})
+
+describe('lines that pick between two', () => {
+  it('a colour: C("a") if x else C("b"), and C("a" if x else "b")', () => {
+    expect(readColor(COLORS.row_unread)).toBe('text')
+    expect(readColor(COLORS.row_read)).toBe('text_muted')
+    expect(readColor(COLORS.stamp_paper_urgent)).toBe('signal')
+    expect(readColor(COLORS.stamp_paper)).toBe('ink_muted')
+    expect(readColor(COLORS.finder_row_muted)).toBe('text_muted')
+  })
+  it('a face and a size', () => {
+    expect(readFont(FONTS.row_read)).toEqual({ role: 'body', size: null })
+    expect(readFont(FONTS.row_unread)).toEqual({ role: 'body_bold', size: null })
+    expect(readFont(FONTS.stamp_paper)).toEqual({ role: 'typed_bold', size: { name: 'label', plus: 0 } })
+    expect(readFont(FONTS.stamp_ledger)).toEqual({ role: 'typed_bold', size: { name: 'small', plus: 0 } })
+    expect(readFont(FONTS.dispatch_subject)).toEqual({ role: 'display', size: { name: 'heading', plus: 4 } })
+  })
+})
 
 describe('reading the lines', () => {
   it('every style reads to known tokens', () => {

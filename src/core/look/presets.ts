@@ -5,7 +5,7 @@
 
 import type { Faction } from './pack'
 import { isDict } from './godot'
-import { KNOWN_LOOK_COLORS, KNOWN_LOOK_FONTS, KNOWN_LOOK_METRICS, KNOWN_LOOK_SIZES, KNOWN_LOOK_TEXTURES, type ColorToken } from './vocab'
+import { KNOWN_LOOK_COLORS, KNOWN_LOOK_FONTS, KNOWN_LOOK_METRICS, KNOWN_LOOK_SIZES, KNOWN_LOOK_TEXTURES, KNOWN_MESSAGE_CATEGORIES, type ColorToken } from './vocab'
 
 export interface Preset {
   id: string
@@ -15,6 +15,8 @@ export interface Preset {
   sizes?: Record<string, number>
   metrics?: Record<string, number>
   overlay_alpha?: number
+  /** The Message Index as dispatches: the word over each, the stamps, the urgent categories. */
+  messages?: { header: string; stamps: Record<string, string>; urgent: string[] }
 }
 
 export const PRESETS: Preset[] = [
@@ -49,7 +51,22 @@ export const PRESETS: Preset[] = [
     },
     sizes: { body: 16, small: 13, label: 14, title: 15, heading: 18, display: 34 },
     metrics: { radius: 2, border: 1, focus: 2, pad: 8 },
-    overlay_alpha: 0.55
+    overlay_alpha: 0.55,
+    messages: {
+      header: 'Dispatch',
+      stamps: {
+        Loyalty: 'Intelligence',
+        Fleets: 'Signal',
+        Missions: 'Orders',
+        Resources: 'Ledger',
+        Manufacturing: 'Ledger',
+        Defense: 'Operations',
+        Conflict: 'Urgent',
+        Chat: 'Cable',
+        Advice: 'Advisory'
+      },
+      urgent: ['Conflict']
+    }
   },
   {
     id: 'plain-grey',
@@ -68,7 +85,8 @@ export const PRESETS: Preset[] = [
       text_muted: '#b8b8b8',
       text_disabled: '#8f8f8f',
       heading: '#dfdfdf',
-      paper: '#d9d9d9',
+      // #d9d9d9 until the game's phase 4 contrast pair: signal on paper needs 4.5:1.
+      paper: '#e4e4e4',
       paper_edge: '#bdbdbd',
       ink: '#141414',
       ink_muted: '#454545',
@@ -86,12 +104,13 @@ export const PRESETS: Preset[] = [
   }
 ]
 
-/** A new look from a preset: its colours, sizes, corners and dim. */
+/** A new look from a preset: its colours, sizes, corners, dim and dispatch words. */
 export function lookFromPreset(p: Preset): Record<string, unknown> {
   const look: Record<string, unknown> = { colors: { ...p.colors } }
   if (p.sizes) look.sizes = { ...p.sizes }
   if (p.metrics) look.metrics = { ...p.metrics }
   if (p.overlay_alpha !== undefined) look.overlay_alpha = p.overlay_alpha
+  if (p.messages) look.messages = { header: p.messages.header, stamps: { ...p.messages.stamps }, urgent: [...p.messages.urgent] }
   return look
 }
 
@@ -133,6 +152,27 @@ export function lookFromOther(other: unknown, factions: Faction[], hasFile: (rel
   keep('sizes', KNOWN_LOOK_SIZES, (v) => typeof v === 'number' && v > 0 && Number.isInteger(v))
   keep('metrics', KNOWN_LOOK_METRICS, (v) => typeof v === 'number' && v >= 0)
   if (typeof src.overlay_alpha === 'number' && src.overlay_alpha >= 0 && src.overlay_alpha <= 1) look.overlay_alpha = src.overlay_alpha
+  if (isDict(src.messages)) {
+    // The dispatch words: only what the game would accept (rule 31).
+    const m = src.messages
+    const cats: readonly string[] = KNOWN_MESSAGE_CATEGORIES
+    const out: Record<string, unknown> = {}
+    if (typeof m.header === 'string') out.header = m.header
+    if (isDict(m.stamps)) {
+      const stamps: Record<string, string> = {}
+      for (const [k, v] of Object.entries(m.stamps)) {
+        if (k.startsWith('_')) continue
+        if (cats.includes(k) && typeof v === 'string' && v.trim()) stamps[k] = v
+        else dropped.push(`stamp ${k}`)
+      }
+      if (Object.keys(stamps).length) out.stamps = stamps
+    }
+    if (Array.isArray(m.urgent)) {
+      const urgent = m.urgent.filter((c): c is string => typeof c === 'string' && cats.includes(c))
+      if (urgent.length) out.urgent = urgent
+    }
+    if (Object.keys(out).length) look.messages = out
+  }
 
   const ids = factions.map((f) => f.id)
   if (isDict(src.sides)) {

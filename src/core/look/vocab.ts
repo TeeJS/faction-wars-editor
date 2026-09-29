@@ -46,5 +46,8 @@ export const CONTRAST_PAIRS: readonly [ColorToken, ColorToken, number][] = [
   ['text_disabled', 'chassis', 3.0], ['text_disabled', 'chassis_raised', 3.0],
   ['brass', 'chassis', 3.0], ['brass', 'chassis_deep', 3.0], ['brass', 'chassis_raised', 3.0],
   ['brass', 'chassis_hover', 3.0],
-  ['brass_dim', 'chassis', 3.0], ['ink', 'khaki', 4.5]
+  ['brass_dim', 'chassis', 3.0], ['ink', 'khaki', 4.5],
+  // The dispatches (phase 4): a ledger row under the pointer, a stamp's
+  // word, an urgent stamp in red ink on the parchment.
+  ['text_muted', 'chassis_hover', 4.5], ['heading', 'chassis_hover', 4.5], ['signal', 'paper', 4.5]
 ]

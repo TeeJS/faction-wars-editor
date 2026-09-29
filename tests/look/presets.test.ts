@@ -30,6 +30,9 @@ describe('presets', () => {
     expect(p.sizes).toEqual(w.sizes)
     expect(p.metrics).toEqual(w.metrics)
     expect(p.overlay_alpha).toBe(w.overlay_alpha)
+    const { _comment, ...messages } = w.messages
+    void _comment
+    expect({ ...messages, stamps: Object.fromEntries(Object.entries(messages.stamps).filter(([k]) => !k.startsWith('_'))) }).toEqual(p.messages)
   })
 })
 
@@ -43,7 +46,16 @@ describe("borrowing another pack's look", () => {
     expect(b.dropped).toEqual(expect.arrayContaining(['side allies', 'side axis', 'face display (look/fonts/Oswald-Variable.ttf)', 'texture paper (look/paper.png)']))
     expect(validateLook(b.look, ctx)).toEqual([])
     expect(b.look).not.toHaveProperty('dossier')
-    expect(b.look).not.toHaveProperty('messages')
+    // The dispatch words are words: they come too.
+    expect((b.look.messages as Record<string, unknown>).header).toBe('Dispatch')
+    expect((b.look.messages as Record<string, unknown>).urgent).toEqual(['Conflict'])
+  })
+
+  it('dispatch words the game would refuse are left behind, and named', () => {
+    const b = lookFromOther({ colors: {}, messages: { header: 'Cable', stamps: { Fleets: 'Signal', Weather: 'Storm', Chat: ' ' }, urgent: ['Conflict', 'Storms'] } }, swr, () => false)
+    expect(b.look.messages).toEqual({ header: 'Cable', stamps: { Fleets: 'Signal' }, urgent: ['Conflict'] })
+    expect(b.dropped).toEqual(expect.arrayContaining(['stamp Weather', 'stamp Chat']))
+    expect(validateLook(b.look, ctx)).toEqual([])
   })
 
   it.runIf(haveLook)('faces and textures the pack does ship are kept', () => {
