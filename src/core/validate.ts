@@ -5,6 +5,7 @@
 // check) live in lint.ts.
 
 import type { PackDocument } from './document'
+import { lookProblems } from './look/pack'
 import { hydrate, isDict, ci, gdStr, type LoadedPack } from './model'
 import { normalizePath } from './document'
 import {
@@ -134,7 +135,12 @@ export function validatePack(doc: PackDocument, opts: ValidateOptions = {}): Iss
 
   const { pack, problems } = hydrate(doc)
   for (const p of problems) c.err(p.message, { page: pageForFile(p.file) })
+  // Load reads look.json before _validate runs, and _validate checks it (rule 31)
+  // after the advice (rule 29) and report_backdrop (rule 30).
+  const look = lookProblems(doc, { packDir, factionIds: pack.factions.map((f) => f.id), hasFile: (p) => doc.hasFile(normalizePath(p)) })
+  for (const m of look.read) c.err(m, { page: 'look' })
   runValidate(pack, doc.folderName ?? pack.manifest.id, packDir, (p) => doc.hasFile(normalizePath(p)), c)
+  for (const m of look.checks) c.err(m, { page: 'look' })
   return c.issues
 }
 

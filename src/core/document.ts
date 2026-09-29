@@ -121,6 +121,11 @@ export class PackDocument {
     return this.files.get(p)
   }
 
+  /** A non-JSON file's bytes as last loaded or saved (undefined when it is new since). */
+  savedBytes(path: string): Uint8Array | undefined {
+    return this.originalFiles.get(normalizePath(path))
+  }
+
   /** pack.json id, or '' */
   get packId(): string {
     const v = this.get('pack.json', ['id'])
