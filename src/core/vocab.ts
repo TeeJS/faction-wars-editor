@@ -52,8 +52,9 @@ export const KNOWN_TERMS = [
   'planetary_shields', 'orbital_batteries',
   // unit kinds, singular and plural
   'fighter_squadron', 'fighter_squadrons', 'trooper_regiment', 'trooper_regiments',
-  // movement between systems
-  'in_transit',
+  // movement between systems, and a fleet held at one (the game 2026-09-30:
+  // Star Wars "in orbit", WWII "on station")
+  'in_transit', 'in_orbit',
   // the five ship systems tactical damage tracks
   'system_shield_recharge', 'system_weapon_recharge', 'system_tractor', 'system_engines', 'system_hyperdrive',
   // a standing defence's state tag in the Defenses window
@@ -64,6 +65,19 @@ export const KNOWN_TERMS = [
   'sector',
   // the Cockpit's size choice
   'galaxy_size',
+  // three windows' names: the Galaxy Overview, the System Finder, the
+  // Encyclopedia (the game 2026-09-30)
+  'galaxy_overview', 'system_finder', 'encyclopedia',
+  // the rest of the words the game said in Star Wars' own (the game
+  // 2026-09-30, its tests/ww2_words.gd): a place and places, the board, a
+  // warship and warships, no intelligence, an unexplored and an unknown
+  // place, the fleet's three orders, the Fleets window's title and list
+  // heading, a bombardment's message words, what a disabling defence does,
+  // the ticker's word, the agent's job and the messenger. Each defaults to
+  // the Star Wars text.
+  'system', 'systems', 'galaxy', 'capital_ship', 'capital_ships', 'no_data', 'unexplored_system', 'unknown_system',
+  'bombard_order', 'assault_order', 'destroy_order', 'system_fleets', 'fleets_here', 'bombardment_event', 'strike',
+  'disabled_by', 'incoming', 'agent_role', 'messenger',
   // a message category with nothing in it
   'no_messages'
 ]

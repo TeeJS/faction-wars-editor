@@ -496,6 +496,8 @@ export const PALETTE = {
     'const TEXT_MAP := [',
     row('0.60, 0.70, 0.80', 'heading'),
     row('0.60, 0.90, 0.60', 'heading'),
+    row('0.565, 0.933, 0.565', 'text'), // Color.LIGHT_GREEN: running, present (Manufacturing's "[Operational]")
+    row('1.00, 0.843, 0.00', 'heading'), // Color.GOLD: at work ("[Building ...]")
     row('0.50, 0.70, 1.00', 'heading'),
     row('0.92, 0.94, 1.00', 'text'),
     row('0.827, 0.827, 0.827', 'text'),

@@ -68,13 +68,48 @@ export function gamePack(id: string): Map<string, Uint8Array> {
   let files = packs.get(id)
   if (!files) {
     files = new Map()
-    for (const rel of gameFiles(`packs/${id}`)) {
-      const b = gameBytes(`packs/${id}/${rel}`)
+    const rels = gameFiles(`packs/${id}`)
+    const batch = gitBatch(rels.map((rel) => `packs/${id}/${rel}`))
+    for (const rel of rels) {
+      const b = batch?.get(`packs/${id}/${rel}`) ?? gameBytes(`packs/${id}/${rel}`)
       if (b) files.set(rel, b)
     }
     packs.set(id, files)
   }
   return new Map(files)
+}
+
+/**
+ * Many of the game's files at the default ref in one `git cat-file --batch`,
+ * not a `git show` each: the WWII pack is some 1,300 files since its unit
+ * pictures (the game 2026-09-30), and a process per file ran past the test
+ * timeout. Null when the folder is not a git checkout or git fails.
+ */
+function gitBatch(rels: string[]): Map<string, Uint8Array> | null {
+  if (!isGit || rels.length === 0) return null
+  let out: Buffer
+  try {
+    out = execFileSync('git', ['-C', FACTION_WARS_DIR, 'cat-file', '--batch'], {
+      input: rels.map((rel) => `${GAME_REF}:${rel}\n`).join(''),
+      maxBuffer: 1 << 30,
+      stdio: ['pipe', 'pipe', 'ignore']
+    })
+  } catch {
+    return null
+  }
+  const found = new Map<string, Uint8Array>()
+  let at = 0
+  for (const rel of rels) {
+    const eol = out.indexOf(10, at)
+    if (eol < 0) break
+    const header = out.toString('utf8', at, eol)
+    at = eol + 1
+    if (header.endsWith(' missing')) continue
+    const size = Number(header.split(' ')[2])
+    found.set(rel, new Uint8Array(out.subarray(at, at + size)))
+    at += size + 1 // the object and its newline
+  }
+  return found
 }
 
 export const ww2LookText = (): string => gameText('packs/ww2/look.json') ?? ''

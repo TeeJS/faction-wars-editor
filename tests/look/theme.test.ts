@@ -51,7 +51,7 @@ describe("the sector window's numbers", () => {
 describe("the window dress's palette trade", () => {
   it('reads every row, to known tokens', () => {
     const rows = { BG_MAP: readPalette(PALETTE.BG_MAP), EDGE_MAP: readPalette(PALETTE.EDGE_MAP), TEXT_MAP: readPalette(PALETTE.TEXT_MAP) }
-    expect([rows.BG_MAP.length, rows.EDGE_MAP.length, rows.TEXT_MAP.length]).toEqual([9, 3, 18])
+    expect([rows.BG_MAP.length, rows.EDGE_MAP.length, rows.TEXT_MAP.length]).toEqual([9, 3, 20])
     for (const r of [...rows.BG_MAP, ...rows.EDGE_MAP, ...rows.TEXT_MAP]) expect(KNOWN_LOOK_COLORS).toContain(r.token)
     expect(rows.BG_MAP[0]).toEqual({ rgb: [0.18, 0.22, 0.28], token: 'chassis_deep' })
     expect(readTolerance(PALETTE.TOLERANCE)).toBe(0.015)
