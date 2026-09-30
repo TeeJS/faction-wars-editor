@@ -6,6 +6,8 @@
 
 import type { PackDocument } from './document'
 import { lookProblems } from './look/pack'
+import { gdStr as godotStr } from './look/godot'
+import { CREDITS_FILE, readCredits, validateCredits } from './credits'
 import { hydrate, isDict, ci, gdStr, type LoadedPack } from './model'
 import { normalizePath } from './document'
 import {
@@ -135,12 +137,16 @@ export function validatePack(doc: PackDocument, opts: ValidateOptions = {}): Iss
 
   const { pack, problems } = hydrate(doc)
   for (const p of problems) c.err(p.message, { page: pageForFile(p.file) })
-  // Load reads look.json before _validate runs, and _validate checks it (rule 31)
-  // after the advice (rule 29) and report_backdrop (rule 30).
+  // Load reads look.json, then credits.json, before _validate runs; _validate
+  // checks them (rules 31 and 32) after the advice (29) and report_backdrop (30).
   const look = lookProblems(doc, { packDir, factionIds: pack.factions.map((f) => f.id), hasFile: (p) => doc.hasFile(normalizePath(p)) })
   for (const m of look.read) c.err(m, { page: 'look' })
+  const creditsBytes = doc.fileBytes(CREDITS_FILE)
+  const credits = readCredits(creditsBytes ? new TextDecoder().decode(creditsBytes) : null, packDir)
+  for (const m of credits.errors) c.err(m, { page: 'files' })
   runValidate(pack, doc.folderName ?? pack.manifest.id, packDir, (p) => doc.hasFile(normalizePath(p)), c)
   for (const m of look.checks) c.err(m, { page: 'look' })
+  if (credits.assets) for (const m of validateCredits(credits.assets, packDir, (p) => doc.hasFile(normalizePath(p)))) c.err(m, { page: 'files' })
   return c.issues
 }
 
@@ -212,7 +218,39 @@ export function runValidate(
   validateSounds(pack, packDir, hasFile, c)
   validateBriefing(pack, packDir, hasFile, c)
   validateAdvice(pack, packDir, hasFile, c)
+  validateReportBackdrop(pack, c)
   return c.issues
+}
+
+/** String.is_valid_hex_number(): hex digits only, after one leading sign when there is more than it. */
+function gdIsValidHex(s: string): boolean {
+  if (s.length === 0) return false
+  const from = s.length !== 1 && (s[0] === '+' || s[0] === '-') ? 1 : 0
+  for (let i = from; i < s.length; i++) if (!isHex(s[i])) return false
+  return true
+}
+
+/** Rule 30: `report_backdrop` - a side's character-picture backdrop colours. */
+export function validateReportBackdrop(pack: LoadedPack, c: Collector): void {
+  const m = pack.manifest
+  const P = { page: 'pack' }
+  if (!m.reportBackdropGiven) return
+  const raw = m.reportBackdropRaw
+  if (!isDict(raw)) {
+    c.err('pack.json report_backdrop: must be an object of side -> colours.', P)
+    return
+  }
+  for (const side of Object.keys(raw)) {
+    const list = raw[side]
+    if (!Array.isArray(list) || list.length === 0) {
+      c.err(`pack.json report_backdrop.${side}: must be a non-empty list of "rrggbb" colours.`, P)
+      continue
+    }
+    for (const v of list) {
+      const h = godotStr(v)
+      if ([...h].length !== 6 || !gdIsValidHex(h)) c.err(`pack.json report_backdrop.${side}: '${h}' is not an "rrggbb" colour.`, P)
+    }
+  }
 }
 
 // One reference (PackLoader._check_ref, rules 24-28): a file the pack ships, or

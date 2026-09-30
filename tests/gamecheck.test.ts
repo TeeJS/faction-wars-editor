@@ -269,3 +269,81 @@ suite("the look: the game's validator says what the editor's says, word for word
   for (const [name, change] of LOOK_CASES)
     it.runIf(haveWw2Look)(`the look: ${name}`, () => writeParity(starterInWw2Look(`parity-look-${name}`, change), name !== 'unchecked-key'))
 })
+
+// ---- report_backdrop (rule 30) and credits.json (rule 32) ----
+
+const withCredits = (doc: PackDocument, value: unknown): PackDocument => {
+  const text = typeof value === 'string' ? value : JSON.stringify(value, null, 2) + '\n'
+  doc.edit('credits', (e) => e.setFile('credits.json', new TextEncoder().encode(text)))
+  return doc
+}
+const credit = { title: 'Galaxy', author: 'The editor', licence: 'CC0', files: ['map.png'] }
+
+suite("report_backdrop and credits: the game's validator says what the editor's says, word for word", () => {
+  it('report_backdrop: every check', () => {
+    const doc = starter('parity-backdrop')
+    doc.edit('backdrop', (e) =>
+      e.set('pack.json', ['report_backdrop'], {
+        _comment: 'a note, not a side',
+        rome: ['000000', '0000FF', '+abcde', '-00000', '#00000', '#000000', '00000', 'ggg000', 'abcdef ', '++abcd', '-', 123456, 12345, null, true, ['a'], { a: 1 }],
+        carthage: [],
+        gaul: '000000'
+      })
+    )
+    writeParity(doc, true)
+  })
+
+  it('report_backdrop: not an object', () => {
+    const doc = starter('parity-backdrop-shape')
+    doc.edit('backdrop', (e) => e.set('pack.json', ['report_backdrop'], ['000000']))
+    writeParity(doc, true)
+  })
+
+  it('report_backdrop: good colours, for any side, load clean', () => {
+    const doc = starter('parity-backdrop-good')
+    doc.edit('backdrop', (e) => e.set('pack.json', ['report_backdrop'], { rome: ['000000', 'A0b1C2'], anyone: ['+abcde', 'ffffff'] }))
+    writeParity(doc, false)
+  })
+
+  for (const [name, text] of [
+    ['list', '[]'],
+    ['key-case', '{"Assets": []}'],
+    ['assets-not-list', '{"assets": {"a": 1}}']
+  ])
+    it(`credits: not an object with an assets list (${name}), before the other rules`, () => {
+      const doc = withCredits(starter(`parity-credits-${name}`), text)
+      doc.edit('two sizes', (e) => e.set('pack.json', ['setup', 'galaxy_sizes'], ['standard', 'large']))
+      writeParity(doc, true)
+    })
+
+  it('credits: a blank file is no credits and loads clean', () => {
+    writeParity(withCredits(starter('parity-credits-blank'), ' \n'), false)
+  })
+
+  it('credits: every check', () => {
+    const doc = withCredits(starter('parity-credits'), {
+      assets: [
+        'x',
+        { title: '', author: ' ', licence: 5, files: [] },
+        { ...credit, source: 'http://example.com', licence_url: 5, files: ['nope.png', '../map.png', ' ', 3, 'map.png', './map.png'] },
+        { ...credit, title: null, files: 'map.png' },
+        { Title: 'Galaxy', author: 'The editor', licence: 'CC0', files: ['map.png'] }
+      ]
+    })
+    writeParity(doc, true)
+  })
+
+  it('credits: a good file, links and all, loads clean', () => {
+    const doc = withCredits(starter('parity-credits-good'), { _comment: 'a note', assets: [{ ...credit, source: 'https://example.com', licence_url: 'https://example.com/l' }] })
+    writeParity(doc, false)
+  })
+
+  it.runIf(haveWw2Look)('rules 30, 31 and 32 together, in the game order', () => {
+    const doc = withCredits(
+      starterInWw2Look('parity-rules-30-32', (l) => (l.colors.ink = 'black')),
+      { assets: [{ ...credit, files: ['gone.png'] }] }
+    )
+    doc.edit('backdrop', (e) => e.set('pack.json', ['report_backdrop'], { rome: ['black'] }))
+    writeParity(doc, true)
+  })
+})
