@@ -4,6 +4,26 @@ Read from `TeeJS/faction-wars` `origin/main` at b21212c on 2026-09-28. Read-only
 The Look page's mock-ups (`src/renderer/src/look/mock`) and their token mapping come from this
 file. It was written for the Faction Wars UI Builder, the app the Look page came from.
 
+## Update: origin/main 4ad04bf (2026-09-29, the WWII look phase 8: the sector window)
+
+The **Sector window (#29) is a theatre plate** for a pack with a look (`src/ui/look_sector.gd`,
+one pass at the end of `sector_window.gd` Populate). It keeps every element where it was:
+- the ground: the theatre cut from the sharpest picture that holds it (a look.json `map_insets`
+  entry, else `textures.map_detail`, else the map picture) under a paper wash at 0.58, framed in
+  brass_dim; a plotting sheet (paper, an ink_muted grid every 40 px) where the picture would need
+  more than 4 times magnification;
+- a system: its holder's factions.json colour with a 2 px ink rim, or a paper disc with an ink ring;
+  the hidden HQ's ring in brass;
+- its name: body_bold at 15 px, the holder's colour darkened until it reads 4.5:1 on paper (ink when
+  unheld), with a paper halo;
+- the corner icons: ink (an uprising's signal) on paper tabs edged in the icon's tint;
+- the bars: energy ink, raw materials olive, free squares paper, all ink-edged; the loyalty bar in the
+  sides' factions.json colours with an ink edge; the GID star rimmed in ink.
+
+The Look page draws it from the game's own numbers and lines (`src/core/look/sector.ts`,
+`theme.ts` SECTOR), with a picker for the theatre. Its layout and cut match the game's for all
+twenty WWII theatres (`tests/look/sector.test.ts`).
+
 ## Update: origin/main a46c63f (2026-09-29, the WWII look finished: phases 4-6)
 
 The look now reaches every window: see the game's `docs/ww2-look.md`. The "not in the game yet"
@@ -137,7 +157,7 @@ background `(0.06,0.08,0.13,0.94-0.97)` and border `(0.40,0.62,0.92,0.85)`.
 | 26 | Galaxy Display menu; GID Control menu | `gid_menu.gd`, `gid_control_menu.gd` | never | art only |
 | 27 | Opening briefing | `briefing.gd` | never | art only |
 | 28 | Feedback box | `feedback_panel.gd` | partly (base styles; title `(0.6,0.7,0.8)` and status `(0.55,0.6,0.65)` stay) | no |
-| 29 | Sector window | `SectorWindow.tscn`, `sector_window.gd` | N | `_BuildOriginalChrome` :106 |
+| 29 | Sector window | `SectorWindow.tscn`, `sector_window.gd` | N (**Y since 4ad04bf**: a theatre plate, `look_sector.gd`) | `_BuildOriginalChrome` :106 |
 | 30 | Planet Data | `PlanetWindow.tscn` | N | no |
 | 31 | Manufacturing and Production | `EconomyWindow.tscn` (queue header `(0.2,0.6,0.2)`, destination `(0.5,0.7,1)`) | N | `_BuildOriginal` :232 |
 | 32 | System Defenses | `DefenseWindow.tscn` | N | `_BuildOriginal` :349 |

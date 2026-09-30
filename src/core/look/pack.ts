@@ -8,6 +8,7 @@ import type { PackDocument } from '../document'
 import { ci, gdStr } from './godot'
 import { LookFile } from './lookfile'
 import { readSamples, type Samples } from './samples'
+import { readSector, type SectorData } from './sector'
 import { readLook, validateLook, type LookContext } from './validate'
 
 export const LOOK_FILE = 'look.json'
@@ -47,6 +48,8 @@ export interface LookPack {
   ctx: LookContext
   /** A file the pack carries now (a face, a texture, the map picture). */
   file: (rel: string) => Uint8Array | undefined
+  /** What the Sector window's theatre plate needs: the theatres, their holders, the map's place. */
+  sector: SectorData
 }
 
 const strOf = (v: unknown): string => (v === null || v === undefined ? '' : gdStr(v))
@@ -105,7 +108,8 @@ export function lookPack(doc: PackDocument, packDir = 'the pack folder'): LookPa
     files: doc.otherFiles(),
     look: lookFileOf(doc),
     ctx: { packDir, factionIds: factions.map((f) => f.id), hasFile: (rel) => doc.hasFile(rel) },
-    file: (rel) => doc.fileBytes(rel)
+    file: (rel) => doc.fileBytes(rel),
+    sector: readSector({ pack, map: doc.value('map.json'), factions: doc.value('factions.json'), display: doc.value('display.json') })
   }
 }
 

@@ -26,6 +26,9 @@ export type GameFile =
   | 'objectives_window.gd'
   | 'battle_results_window.gd'
   | 'battle_alert_window.gd'
+  | 'look_sector.gd'
+  | 'sector_window.gd'
+  | 'gid.gd'
 
 export interface Source {
   file: GameFile
@@ -132,7 +135,12 @@ export const BOXES = {
   gid_key: S('gid_key.gd', 'Look.Box("chassis", "brass_dim", 1, -1, 10)'),
 
   // The Cockpit dossier.
-  map_plate: S('cockpit_dossier.gd', 'Look.Box("paper_edge", "ink_muted", 1, 0, 3)')
+  map_plate: S('cockpit_dossier.gd', 'Look.Box("paper_edge", "ink_muted", 1, 0, 3)'),
+
+  // The sector window as a theatre plate.
+  plate_frame: S('look_sector.gd', 'frame.add_theme_stylebox_override("panel", Look.Box("", "brass_dim", 1, 0, 0))'),
+  /** A corner icon's tab; its 1 px edge is the tint the window gave the icon. */
+  corner_tab: S('look_sector.gd', 'var tab := Look.Box("paper", "", 0, 2, 0)')
 } satisfies Record<string, Source>
 
 export type BoxId = keyof typeof BOXES
@@ -229,7 +237,26 @@ export const COLORS = {
   credits_what: S('credits_window.gd', '_ink(w, Look.F("body"), Look.Size("label"), "ink_muted")'),
   credits_changes: S('credits_window.gd', 'e.add_child(_para("Changes: %s" % str(a["changes"]), "ink_muted"))'),
   credits_section: S('credits_window.gd', '_ink(l, Look.F("display"), Look.Size("heading"), "ink")'),
-  credits_asset: S('credits_window.gd', '_ink(t, Look.F("body_bold"), Look.Size("label") + 1, "ink")')
+  credits_asset: S('credits_window.gd', '_ink(t, Look.F("body_bold"), Look.Size("label") + 1, "ink")'),
+
+  // The sector window as a theatre plate.
+  plate_paper: S('look_sector.gd', 'base.color = Look.C("paper")'),
+  plate_wash: S('look_sector.gd', 'var paper := Look.C("paper")', 'paper.a = WASH'),
+  plate_grid: S('look_sector.gd', 'var c := Look.C("ink_muted")', 'c.a = 0.16'),
+  mark_unheld: S('look_sector.gd', 'disc.bg_color = owner.FactionColor if owner != null else Look.C("paper")'),
+  mark_hq: S('look_sector.gd', 'disc.border_color = Look.C("brass") if hq else Look.C("ink")'),
+  mark_rim: Else('look_sector.gd', 'disc.border_color = Look.C("brass") if hq else Look.C("ink")'),
+  star_rim: S('look_sector.gd', 'star.add_theme_color_override("font_outline_color", Look.C("ink"))'),
+  name_unheld: S('look_sector.gd', 'label.add_theme_color_override("font_color", OnPaper(owner.FactionColor) if owner != null else Look.C("ink"))'),
+  name_halo: S('look_sector.gd', 'label.add_theme_color_override("font_outline_color", Look.C("paper"))'),
+  /** A held system's name: its side's colour darkened until it reads on the paper (OnPaper). */
+  name_on_paper: S('look_sector.gd', 'var paper := Look.C("paper")', 'while Look.Contrast(out, paper) < 4.5 and guard < 20:', 'out = out.darkened(0.08)'),
+  corner_uprising: S('look_sector.gd', 'var glyph := Look.C("signal") if uprising else Look.C("ink")'),
+  corner_glyph: Else('look_sector.gd', 'var glyph := Look.C("signal") if uprising else Look.C("ink")'),
+  bar_energy: S('look_sector.gd', 'fill = Look.C("ink") if kind == "energy" else Look.C("olive")'),
+  bar_mines: Else('look_sector.gd', 'fill = Look.C("ink") if kind == "energy" else Look.C("olive")'),
+  bar_free: S('look_sector.gd', 'fill = Look.C("paper")'),
+  bar_edge: S('look_sector.gd', 'sb.border_color = Look.C("ink")')
 } satisfies Record<string, Source>
 
 export type ColorId = keyof typeof COLORS
@@ -277,7 +304,9 @@ export const FONTS = {
   credits_title: S('credits_window.gd', '_ink(head, Look.F("display_bold"), Look.Size("heading") + 10, "ink")'),
   credits_asset: S('credits_window.gd', '_ink(t, Look.F("body_bold"), Look.Size("label") + 1, "ink")'),
   credits_body: S('credits_window.gd', '_ink(l, Look.F("body"), Look.Size("label"), colour)'),
-  credits_section: S('credits_window.gd', '_ink(l, Look.F("display"), Look.Size("heading"), "ink")')
+  credits_section: S('credits_window.gd', '_ink(l, Look.F("display"), Look.Size("heading"), "ink")'),
+  /** A system's name on the plate: the look's face at the window's own 15 px. */
+  sector_name: S('look_sector.gd', 'label.add_theme_font_override("font", Look.F("body_bold"))')
 } satisfies Record<string, Source>
 
 export type FontId = keyof typeof FONTS
@@ -559,3 +588,64 @@ export function readPlain(src: Source): PlainStyle {
 export function boxTokens(b: Box): ColorToken[] {
   return [b.fill, b.edge].filter((t): t is ColorToken => t !== null)
 }
+
+// ---------------------------------------------------------------------------
+// The sector window's numbers (phase 8): its layout (sector_window.gd
+// Populate and the pieces it adds), the plate (look_sector.gd) and the GID
+// star's size (gid.gd), each read out of its line.
+// ---------------------------------------------------------------------------
+
+export const SECTOR = {
+  // The layout.
+  MAX_DIMENSION: S('sector_window.gd', 'var maxDimension: float = 600.0'),
+  PADDING: S('sector_window.gd', 'var padding: float = 60.0'),
+  PADDING_BOTTOM: S('sector_window.gd', 'var paddingBottom: float = 92.0'),
+  MIN_PLACING: S('sector_window.gd', 'const MinPlacing: float = 40.0'),
+  DISC: S('sector_window.gd', 'planetMapNode.custom_minimum_size = Vector2(32, 32)'),
+  CORNER: S('sector_window.gd', 'var cornerSize: float = 16.0'),
+  GLYPH_INNER_X: S('sector_window.gd', 'const GlyphInnerX := 15.0'),
+  GLYPH_INNER_Y: S('sector_window.gd', 'const GlyphInnerY := 9.0'),
+  STAR_X: S('sector_window.gd', 'const StarOffsetX: float = 6.0'),
+  STAR_Y: S('sector_window.gd', 'const StarOffsetY: float = 24.0'),
+  NAME_BELOW: S('sector_window.gd', 'var nameY: float = finalY + 30'),
+  NAME_BOX: S('sector_window.gd', 'nameLabel.size = Vector2(100, 20)'),
+  NAME_SIZE: S('sector_window.gd', 'nameLabel.add_theme_font_size_override("font_size", 15)'),
+  BARS_TOP: S('sector_window.gd', 'const BarsTop: float = 38.0'),
+  BARS_LEFT: S('sector_window.gd', 'const BarsLeft: float = 24.0'),
+  SQUARE: S('sector_window.gd', 'const SquareSize: float = 6.0'),
+  SQUARE_GAP: S('sector_window.gd', 'const SquareGap: float = 1.0'),
+  ROW_GAP: S('sector_window.gd', 'const RowGap: float = 2.0'),
+  LOYALTY_HEIGHT: S('sector_window.gd', 'const LoyaltyHeight: float = 4.0'),
+  BAR_MIN_WIDTH: S('sector_window.gd', 'const BarMinWidth: float = 30.0'),
+  BAR_RADIUS: S('sector_window.gd', 'const CornerRadius: int = 2'),
+  ENTRY_GAP: S('sector_window.gd', 'const EntryGap := 2.0'),
+  EDGE_GAP: S('sector_window.gd', 'const EdgeGap := 4.0'),
+  SEPARATE_PASSES: S('sector_window.gd', 'const SeparatePasses := 60'),
+  // The plate.
+  WASH: S('look_sector.gd', 'const WASH := 0.58'),
+  SHARP_ZOOM: S('look_sector.gd', 'const SHARP_ZOOM := 4.0'),
+  GRID: S('look_sector.gd', 'const GRID := 40.0'),
+  GRID_ALPHA: S('look_sector.gd', 'c.a = 0.16'),
+  HALO: S('look_sector.gd', 'const HALO := 4'),
+  RIM: S('look_sector.gd', 'const RIM := 2'),
+  HQ_RIM: S('look_sector.gd', 'disc.set_border_width_all(3 if hq else RIM)'),
+  TAB_EDGE: S('look_sector.gd', 'tab.set_border_width_all(1)'),
+  ON_PAPER_STEP: S('look_sector.gd', 'out = out.darkened(0.08)'),
+  ON_PAPER_TRIES: S('look_sector.gd', 'while Look.Contrast(out, paper) < 4.5 and guard < 20:'),
+  // The GID star ("+", its tier's flare size scaled for the window).
+  FLARE_SCALE: S('gid.gd', 'const SectorFlareScale := 0.45'),
+  FLARE_MIN: S('gid.gd', 'const SectorFlareMin := 9'),
+  FLARE_BIG: S('gid.gd', 'const FlareBig := 46'),
+  FLARE_MID: S('gid.gd', 'const FlareMid := 32'),
+  FLARE_LOW: S('gid.gd', 'const FlareLow := 22')
+} satisfies Record<string, Source>
+
+export type SectorNumber = keyof typeof SECTOR
+
+/** The numbers a line holds, in order (never one inside a name, like Vector2's 2). */
+export function readNumbers(src: Source): number[] {
+  return src.lines.flatMap((l) => [...l.matchAll(/(?<![\w.])-?\d+(?:\.\d+)?/g)].map((m) => Number(m[0])))
+}
+
+/** One of the sector window's numbers (the `i`th in its line). */
+export const sectorNumber = (id: SectorNumber, i = 0): number => readNumbers(SECTOR[id])[i]

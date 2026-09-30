@@ -3,7 +3,7 @@
 // the colour column outlines every part it paints (the `highlight` prop).
 
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
-import { EnvContext, type Env } from './kit'
+import { ChoiceContext, EnvContext, type Env } from './kit'
 import { WINDOWS, type Status, type WindowEntry } from './windows'
 import { Chip } from '../colors'
 import type { ColorToken } from '@core/look/vocab'
@@ -93,6 +93,12 @@ export function Stage({ entry, env, highlight, revision, onPickToken, onPickSide
 
   useEffect(() => setPicked(null), [entry.id])
 
+  // A mock-up's choice (the Sector window's theatre): the first until one is picked.
+  const [chosen, setChosen] = useState<string | null>(null)
+  useEffect(() => setChosen(null), [entry.id])
+  const options = entry.choice?.options(env) ?? []
+  const choice = options.find((o) => o.id === chosen)?.id ?? options[0]?.id ?? null
+
   // Outline the parts the hovered colour paints, and the clicked part.
   useLayoutEffect(() => {
     const root = canvas.current
@@ -103,7 +109,7 @@ export function Stage({ entry, env, highlight, revision, onPickToken, onPickSide
     if (picked && root.contains(picked.el)) picked.el.classList.add('picked')
   })
 
-  const [w, h] = entry.size ?? [800, 500]
+  const [w, h] = entry.sizeOf?.(env, choice) ?? entry.size ?? [800, 500]
   const scale = Math.min(1, Math.max(0.2, (width - 2) / w))
   return (
     <div className="look-stage">
@@ -111,6 +117,18 @@ export function Stage({ entry, env, highlight, revision, onPickToken, onPickSide
         <b>{entry.name}</b> <span className="band-status">{STATUS_TITLE[entry.status]}</span>
         {entry.note && <p>{entry.note}</p>}
         {entry.why && <p>{entry.why}</p>}
+        {entry.choice && options.length > 0 && (
+          <label className="band-choice">
+            {entry.choice.label}
+            <select value={choice ?? ''} onChange={(e) => setChosen(e.currentTarget.value)}>
+              {options.map((o) => (
+                <option key={o.id} value={o.id}>
+                  {o.label}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
       </div>
       {entry.Mock ? (
         <div className="stage-frame" ref={frame}>
@@ -127,7 +145,9 @@ export function Stage({ entry, env, highlight, revision, onPickToken, onPickSide
               }}
             >
               <EnvContext.Provider value={env}>
-                <entry.Mock />
+                <ChoiceContext.Provider value={choice}>
+                  <entry.Mock />
+                </ChoiceContext.Provider>
               </EnvContext.Provider>
             </div>
           </div>

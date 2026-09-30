@@ -4,7 +4,7 @@
 // changes one of these lines, the test names it: update src/core/look/theme.ts.
 
 import { describe, expect, it } from 'vitest'
-import { BOXES, COLORS, FONTS, PALETTE, PLAIN, readBox, readColor, readFont, readPalette, readPlain, readTolerance, type Source } from '../../src/core/look/theme'
+import { BOXES, COLORS, FONTS, PALETTE, PLAIN, SECTOR, readBox, readColor, readFont, readNumbers, readPalette, readPlain, readTolerance, sectorNumber, type Source } from '../../src/core/look/theme'
 import { KNOWN_LOOK_COLORS, KNOWN_LOOK_FONTS, KNOWN_LOOK_SIZES } from '../../src/core/look/vocab'
 import { gameText } from './game'
 
@@ -29,6 +29,24 @@ describe('every colour line is in the game', () => everyLineIsTheGames(COLORS))
 describe('every face and size line is in the game', () => everyLineIsTheGames(FONTS))
 describe("every row of the window dress's palette trade is in the game", () => everyLineIsTheGames(PALETTE))
 describe("every window's own frame colour is in the game", () => everyLineIsTheGames(PLAIN))
+describe("every number of the sector window's theatre plate is in the game", () => everyLineIsTheGames(SECTOR))
+
+describe("the sector window's numbers", () => {
+  it('reads each out of its line, never one inside a name', () => {
+    expect(readNumbers(SECTOR.DISC)).toEqual([32, 32])
+    expect(readNumbers(SECTOR.NAME_BELOW)).toEqual([30])
+    expect(readNumbers(SECTOR.ON_PAPER_TRIES)).toEqual([4.5, 20])
+    expect([sectorNumber('WASH'), sectorNumber('SHARP_ZOOM'), sectorNumber('NAME_BOX', 1), sectorNumber('FLARE_SCALE')]).toEqual([0.58, 4, 20, 0.45])
+  })
+  it('the plate and its marks read to the look colours the game uses', () => {
+    expect([readColor(COLORS.plate_paper), readColor(COLORS.plate_grid), readColor(COLORS.mark_unheld), readColor(COLORS.mark_hq), readColor(COLORS.mark_rim)]).toEqual(['paper', 'ink_muted', 'paper', 'brass', 'ink'])
+    expect([readColor(COLORS.name_unheld), readColor(COLORS.name_halo), readColor(COLORS.corner_uprising), readColor(COLORS.corner_glyph)]).toEqual(['ink', 'paper', 'signal', 'ink'])
+    expect([readColor(COLORS.bar_energy), readColor(COLORS.bar_mines), readColor(COLORS.bar_free), readColor(COLORS.bar_edge)]).toEqual(['ink', 'olive', 'paper', 'ink'])
+    expect(readBox(BOXES.plate_frame)).toMatchObject({ fill: null, edge: 'brass_dim', width: [1, 1, 1, 1], radius: 0 })
+    expect(readBox(BOXES.corner_tab)).toMatchObject({ fill: 'paper', edge: null, radius: 2, pad: 0 })
+    expect(readFont(FONTS.sector_name)).toEqual({ role: 'body_bold', size: null })
+  })
+})
 
 describe("the window dress's palette trade", () => {
   it('reads every row, to known tokens', () => {

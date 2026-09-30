@@ -3,7 +3,8 @@
 // reach it, a mock-up built from the kit. Names come from the pack itself.
 // Drawn as the game draws them at TeeJS/faction-wars a46c63f, the WWII look
 // finished (docs/ww2-look.md): every window, menu, dialog and tooltip, the
-// dispatches and the head-to-head screens follow the look.
+// dispatches and the head-to-head screens follow the look. The Sector window
+// is the theatre plate of phase 8 (4ad04bf, look_sector.gd).
 //
 // Status:
 //   now      the game draws it from the look
@@ -12,7 +13,8 @@
 //   never    a pack's look can never reach it; no mock-up
 
 import type { CSSProperties, ReactNode } from 'react'
-import type { BoxId, ColorId } from '@core/look/theme'
+import { sectorNumber, type BoxId, type ColorId } from '@core/look/theme'
+import { entryParts, entryRects, layoutTheatre, onPaper, plateOf, roomOf, sampleEntry, separateEntries, type Glyph, type Rect } from '@core/look/sector'
 import {
   Check,
   Chip,
@@ -47,6 +49,7 @@ import {
   VRule,
   Win,
   rgb,
+  useChoice,
   useEnv,
   type Env
 } from './kit'
@@ -64,6 +67,10 @@ export interface WindowEntry {
   /** The drawing's size in game pixels (1440 x 850 is the whole screen). */
   size?: [number, number]
   Mock?: () => ReactNode
+  /** A choice the stage offers above the mock-up (the Sector window's theatre); the mock-up reads it with useChoice. */
+  choice?: { label: string; options: (env: Env) => { id: string; label: string }[] }
+  /** The drawing's size for a choice, where it depends on one. */
+  sizeOf?: (env: Env, choice: string | null) => [number, number]
 }
 
 // ---------------------------------------------------------------------------
@@ -497,35 +504,244 @@ function LoadGame() {
 // Not in the game yet: the windows
 // ---------------------------------------------------------------------------
 
+// ---------------------------------------------------------------------------
+// The sector window as a theatre plate (look_sector.gd, phase 8)
+// ---------------------------------------------------------------------------
+
+const PLATE_NOTE = {
+  side: "The holder's colour from factions.json: the plate keeps the sides' map colours, as the strategic map does (the look's side colours are for the chrome).",
+  neutral: "pack.json's neutral colour: the window tinted this unheld system's icon with it.",
+  uprising: "The window's own uprising tint (sector_window.gd CUprising), kept.",
+  picture: 'A picture, not a colour.'
+}
+
+/** Stand-ins for the engine's corner glyphs (assets/icons, which the editor cannot copy): 16 x 16, drawn in the glyph's colour. */
+const GLYPH_PATHS: Record<Glyph, string> = {
+  manufacturing: 'M1 15V7l4 2.5V7l4 2.5V2h3v13z',
+  fleet: 'M8 1l6 13-6-3.5L2 14z',
+  defenses: 'M4 15V6H3V2h2v1.5h1.5V2h3v1.5H11V2h2v4h-1v9z',
+  mission: 'M3 15V1h1.5v1H13l-2.5 3.5L13 9H4.5v6z',
+  uprising: 'M8 1c.5 3 4.5 4.5 4.5 8.5a4.5 4.5 0 0 1-9 0c0-2 1-3.5 2.5-4.5 0 2 .8 3 2 3.2C7.4 6 6.8 3.8 8 1z'
+}
+
+let measureCanvas: HTMLCanvasElement | null = null
+/** A name's size in the window's face (Label min size): its width, and the face's line height. */
+function nameSize(text: string, face: CSSProperties, size: number): { w: number; h: number } {
+  const ctx = (measureCanvas ??= document.createElement('canvas')).getContext('2d')
+  if (!ctx) return { w: text.length * size * 0.55, h: Math.ceil(size * 1.35) }
+  ctx.font = `${face.fontWeight ?? 400} ${size}px ${face.fontFamily ?? 'sans-serif'}`
+  return { w: Math.ceil(ctx.measureText(text).width), h: Math.ceil(size * 1.35) }
+}
+
+const withAlpha = (hex: string, a: number) => `${hex}${Math.round(Math.max(0, Math.min(1, a)) * 255).toString(16).padStart(2, '0')}`
+const at = (r: Rect): CSSProperties => ({ position: 'absolute', left: r.x, top: r.y, width: r.w, height: r.h, boxSizing: 'border-box' })
+const SN = sectorNumber
+
+/** The theatre to draw, its layout and plate, and every system's entry where the window leaves it. */
+function sectorScene(env: Env, choice: string | null) {
+  const data = env.pack.sector
+  const t = data.theatres.find((x) => x.id === choice) ?? data.theatres[0]
+  if (!t) return null
+  const layout = layoutTheatre(t)
+  const detail = env.tex('map_detail')
+  const map = env.tex('__map')
+  const plate = plateOf(layout, {
+    detail,
+    map,
+    mapRect: data.mapRect,
+    insets: env.insets.map((i) => ({ picture: i.tex, at: { x: i.at[0], y: i.at[1], w: i.at[2], h: i.at[3] } }))
+  })
+  const face = env.face('body')
+  const states = t.systems.map((_, i) => sampleEntry(t, i, data))
+  const entries = t.systems.map((s, i) => entryParts(layout.places[i], states[i], nameSize(s.name, face, SN('NAME_SIZE')), data.loyaltyOrder))
+  const moves = separateEntries(entries.map(entryRects), roomOf(layout))
+  return { t, layout, plate, detail, map, states, entries, moves }
+}
+
 function SectorWindow() {
   const env = useEnv()
-  const S = env.pack.samples
-  const sector = S.sectors[0]
-  const planets = S.planets.filter((p) => p.sector === sector).slice(0, 5)
-  const shown = planets.length ? planets : S.planets.slice(0, 5)
+  const scene = sectorScene(env, useChoice())
+  if (!scene)
+    return (
+      <Win title="Sector" width={600}>
+        <Label>This pack’s map.json has no theatre with a system in it.</Label>
+      </Win>
+    )
+  const { t, layout, plate } = scene
+  const data = env.pack.sector
+  const paper = env.c(colorOf('plate_paper'))
+  const ink = env.c(colorOf('mark_rim'))
+  const sideColor = (id: string | null) => (id ? data.colors[id] || data.neutral : data.neutral)
+  const cut = plate.cut
+  const picture = cut ? (cut.from === 'detail' ? scene.detail : cut.from === 'map' ? scene.map : env.insets[cut.from].tex) : null
+  const zoom = plate.zoom === null ? '' : ` Magnified ${plate.zoom.toFixed(1)}×; the game uses the plain sheet above ${SN('SHARP_ZOOM')}×.`
+  const pictureName = !cut
+    ? ''
+    : cut.from === 'detail'
+      ? 'The theatre, cut from the map’s detail copy (look.json textures.map_detail)'
+      : cut.from === 'map'
+        ? 'The theatre, cut from the pack’s map picture (pack.json map_image)'
+        : `The theatre, cut from map inset ${cut.from + 1} (${env.insets[cut.from].file})`
+  const grid = SN('GRID')
+  const gridInk = withAlpha(env.c(colorOf('plate_grid')), SN('GRID_ALPHA'))
   return (
-    <Win title={`${sector}`} width={520} bodyPad={0}>
-      <div style={{ position: 'relative', height: 320 }}>
-        {shown.map((p, i) => {
-          const x = 60 + (i % 3) * 150
-          const y = 50 + Math.floor(i / 3) * 150 + (i % 2) * 30
-          const side = i % 3 === 2 ? null : sides(env)[i % 2]
+    <Win title={t.name} width={layout.w + 2} bodyPad={0}>
+      <div data-plate={plate.kind} data-plate-from={cut ? String(cut.from) : ''} style={{ position: 'relative', width: layout.w, height: layout.h, overflow: 'hidden' }}>
+        <Part name="Plate: the paper under it" color="plate_paper" style={{ position: 'absolute', inset: 0, background: paper }} />
+        {cut && picture ? (
+          <>
+            <Part
+              name={pictureName}
+              tex={cut.from === 'detail' ? 'map_detail' : undefined}
+              fixed={{ color: 'transparent', note: PLATE_NOTE.picture + zoom }}
+              style={{
+                ...at(cut.at),
+                backgroundImage: `url(${picture.url})`,
+                backgroundRepeat: 'no-repeat',
+                backgroundSize: `${(picture.width * cut.at.w) / cut.region.w}px ${(picture.height * cut.at.h) / cut.region.h}px`,
+                backgroundPosition: `${(-cut.region.x * cut.at.w) / cut.region.w}px ${(-cut.region.y * cut.at.h) / cut.region.h}px`
+              }}
+            />
+            <Part name="Parchment wash over the map" color="plate_wash" style={{ position: 'absolute', inset: 0, background: withAlpha(paper, SN('WASH')) }} />
+          </>
+        ) : (
+          <Part
+            name="Plotting sheet (no picture holds this theatre sharply)"
+            color="plate_grid"
+            title={zoom.trim() || undefined}
+            style={{
+              position: 'absolute',
+              inset: 0,
+              backgroundImage: `repeating-linear-gradient(to right, transparent 0 ${grid - 1}px, ${gridInk} ${grid - 1}px ${grid}px), repeating-linear-gradient(to bottom, transparent 0 ${grid - 1}px, ${gridInk} ${grid - 1}px ${grid}px)`
+            }}
+          />
+        )}
+        <Part name="Plate frame" box="plate_frame" style={{ position: 'absolute', inset: 0 }} />
+        {t.systems.map((s, i) => {
+          const p = scene.entries[i]
+          const st = scene.states[i]
+          const move = scene.moves[i]
+          const held = s.holder !== null
+          const hq = data.hiddenHq === s.id && s.holder === data.viewer
+          const color = sideColor(s.holder)
+          const rim = hq ? SN('HQ_RIM') : SN('RIM')
           return (
-            <div key={i} style={{ position: 'absolute', left: x, top: y, display: 'grid', justifyItems: 'center', gap: 4 }}>
-              <FixedBox name="World" color={side ? side.color : '#777777'} note={N.faction} style={{ width: 26, height: 26, borderRadius: '50%' }} />
-              <FixedText color={side ? side.color : rgb(0.8, 0.8, 0.8)} note={N.literal}>
-                {p.name}
-              </FixedText>
-              <div style={{ display: 'flex', gap: 2 }}>
-                {[0, 1, 2, 3].map((k) => (
-                  <FixedBox key={k} name="Energy square" color={k < 2 ? GODOT.WHITE : rgb(0.3, 0.55, 1)} note={N.drawn} style={{ width: 6, height: 6 }} />
-                ))}
-              </div>
-              <div style={{ display: 'flex', gap: 2 }}>
-                {[0, 1, 2].map((k) => (
-                  <FixedBox key={k} name="Mine square" color={k < 1 ? rgb(1, 0.9, 0.2) : rgb(0.9, 0.15, 0.1)} note={N.drawn} style={{ width: 6, height: 6 }} />
-                ))}
-              </div>
+            <div key={s.id || i} data-system={s.name} style={{ position: 'absolute', left: move.x, top: move.y }}>
+              {p.star && (
+                <Part
+                  name="GID star (the map's cross, rimmed in ink)"
+                  color="star_rim"
+                  fixed={{ color, note: held ? PLATE_NOTE.side : PLATE_NOTE.neutral }}
+                  style={{ ...at(p.star.rect), display: 'grid', placeItems: 'center', fontSize: p.star.size, lineHeight: 1, color, WebkitTextStroke: `${SN('RIM') + 1}px ${ink}`, paintOrder: 'stroke fill', ...env.face('body') }}
+                >
+                  +
+                </Part>
+              )}
+              {held ? (
+                <Part
+                  name={hq ? "System (its holder's map colour; the headquarters ring in brass)" : "System (its holder's map colour, rimmed in ink)"}
+                  color={hq ? 'mark_hq' : 'mark_rim'}
+                  fixed={{ color, note: PLATE_NOTE.side }}
+                  style={{ ...at(p.disc), borderRadius: '50%', background: color, border: `${rim}px solid ${env.c(colorOf(hq ? 'mark_hq' : 'mark_rim'))}` }}
+                />
+              ) : (
+                <Part name="System (unheld: an ink ring on the paper)" color="mark_unheld" extra={['ink']} style={{ ...at(p.disc), borderRadius: '50%', background: paper, border: `${rim}px solid ${ink}` }} />
+              )}
+              {p.corners.map((c) => {
+                const tint = c.glyph === 'uprising' ? rgb(1, 0.55, 0.12) : c.glyph === 'mission' ? sideColor(data.viewer) : c.glyph === 'fleet' && !held ? sideColor(data.viewer) : color
+                const own = env.icon(c.glyph)
+                const glyphColor = env.c(colorOf(c.glyph === 'uprising' ? 'corner_uprising' : 'corner_glyph'))
+                return (
+                  <Part
+                    key={c.slot}
+                    name={`Corner icon: ${c.glyph} (${c.glyph === 'uprising' ? 'signal red' : 'ink'} on a paper tab edged in its tint)`}
+                    box="corner_tab"
+                    color={c.glyph === 'uprising' ? 'corner_uprising' : 'corner_glyph'}
+                    fixed={{ color: tint, note: c.glyph === 'uprising' ? PLATE_NOTE.uprising : tint === data.neutral ? PLATE_NOTE.neutral : PLATE_NOTE.side }}
+                    style={{ ...at(c.rect), border: `${SN('TAB_EDGE')}px solid ${tint}`, padding: 0, display: 'grid', placeItems: 'center' }}
+                  >
+                    {own ? (
+                      <span style={{ width: '100%', height: '100%', background: glyphColor, maskImage: `url(${own.url})`, maskSize: 'contain', maskRepeat: 'no-repeat', maskPosition: 'center' }} />
+                    ) : (
+                      <svg viewBox="0 0 16 16" width="100%" height="100%" aria-hidden="true">
+                        <path d={GLYPH_PATHS[c.glyph]} fill={glyphColor} />
+                      </svg>
+                    )}
+                  </Part>
+                )
+              })}
+              {p.rows.map((r) => (
+                <div key={r.kind} style={at(r.rect)}>
+                  {Array.from({ length: r.total }, (_, k) => {
+                    const on = k < Math.min(r.filled, r.total)
+                    const id = on ? (r.kind === 'energy' ? 'bar_energy' : 'bar_mines') : 'bar_free'
+                    return (
+                      <Part
+                        key={k}
+                        name={`${r.kind === 'energy' ? 'Energy' : 'Raw materials'} square (${on ? (r.kind === 'energy' ? 'used' : 'built') : 'free'})`}
+                        color={id}
+                        extra={['ink']}
+                        style={{
+                          position: 'absolute',
+                          left: k * (SN('SQUARE') + SN('SQUARE_GAP')),
+                          top: 0,
+                          width: SN('SQUARE'),
+                          height: SN('SQUARE'),
+                          boxSizing: 'border-box',
+                          background: env.c(colorOf(id)),
+                          border: `1px solid ${env.c(colorOf('bar_edge'))}`,
+                          borderRadius: SN('BAR_RADIUS')
+                        }}
+                      />
+                    )
+                  })}
+                </div>
+              ))}
+              {p.loyalty && (
+                <div style={at(p.loyalty.rect)}>
+                  {p.loyalty.segs.map((g) => {
+                    const r = SN('BAR_RADIUS')
+                    return (
+                      <Part
+                        key={g.side}
+                        name={`Loyalty bar: ${env.pack.factions.find((f) => f.id === g.side)?.name ?? g.side} ${st.support?.[g.side] ?? 0}%`}
+                        color="bar_edge"
+                        fixed={{ color: sideColor(g.side), note: PLATE_NOTE.side }}
+                        style={{
+                          position: 'absolute',
+                          left: g.x,
+                          top: 0,
+                          width: g.w,
+                          height: '100%',
+                          boxSizing: 'border-box',
+                          background: sideColor(g.side),
+                          border: `1px solid ${env.c(colorOf('bar_edge'))}`,
+                          borderRadius: `${g.first ? r : 0}px ${g.last ? r : 0}px ${g.last ? r : 0}px ${g.first ? r : 0}px`
+                        }}
+                      />
+                    )
+                  })}
+                </div>
+              )}
+              <Part
+                name={held ? "System name (its holder's colour, darkened to read on the paper)" : 'System name (ink: no side holds it)'}
+                color={held ? 'name_on_paper' : 'name_unheld'}
+                font="sector_name"
+                extra={['paper']}
+                fixed={held ? { color: onPaper(color, paper), note: PLATE_NOTE.side } : undefined}
+                style={{
+                  ...at(p.name),
+                  fontSize: SN('NAME_SIZE'),
+                  lineHeight: `${p.name.h}px`,
+                  textAlign: 'center',
+                  whiteSpace: 'nowrap',
+                  color: held ? onPaper(color, paper) : env.c(colorOf('name_unheld')),
+                  WebkitTextStroke: `${SN('HALO')}px ${env.c(colorOf('name_halo'))}`,
+                  paintOrder: 'stroke fill'
+                }}
+              >
+                {s.name}
+              </Part>
             </div>
           )
         })}
@@ -1469,7 +1685,23 @@ export const WINDOWS: WindowEntry[] = [
   { id: 'messages', name: 'Message Index (dispatches)', status: 'now', size: [940, 470], Mock: MessageIndex, note: DISPATCH },
   { id: 'messages-urgent', name: 'Message Index: an urgent dispatch', status: 'now', size: [940, 470], Mock: MessageUrgent, note: DISPATCH },
   { id: 'messages-empty', name: 'Message Index: an empty category', status: 'now', size: [940, 470], Mock: MessageEmpty, note: DISPATCH },
-  { id: 'sector', name: 'Sector window', status: 'now', size: [600, 420], Mock: SectorWindow, note: DRESS },
+  {
+    id: 'sector',
+    name: 'Sector window',
+    status: 'now',
+    size: [600, 420],
+    Mock: SectorWindow,
+    note:
+      'A theatre plate (look_sector.gd): the theatre cut from the sharpest picture that holds it (a map inset, else textures.map_detail, else the map) under a parchment wash, or a plotting sheet where none is sharp enough; each system where the pack puts it. Holders are the starting ones; the corner icons and bars are a sample. ' +
+      DRESS,
+    choice: { label: 'Theatre', options: (env) => env.pack.sector.theatres.map((t) => ({ id: t.id, label: t.name })) },
+    sizeOf: (env, choice) => {
+      const t = env.pack.sector.theatres.find((x) => x.id === choice) ?? env.pack.sector.theatres[0]
+      if (!t) return [600, 420]
+      const l = layoutTheatre(t)
+      return [Math.ceil(l.w) + 4, Math.ceil(l.h) + 34]
+    }
+  },
   { id: 'planet', name: 'Planet Data', status: 'now', size: [520, 420], Mock: PlanetData, note: DRESS },
   { id: 'manufacturing', name: 'Manufacturing and Production', status: 'now', size: [740, 560], Mock: Manufacturing, note: DRESS },
   { id: 'defenses', name: 'System Defenses', status: 'now', size: [640, 380], Mock: Defenses, note: DRESS },
