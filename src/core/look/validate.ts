@@ -1,5 +1,5 @@
 // Validation rule 31, a line-for-line port of the game's check of look.json
-// (TeeJS/faction-wars origin/main a46c63f, src/data/pack_loader.gd
+// (TeeJS/faction-wars origin/main 4ad04bf, src/data/pack_loader.gd
 // _read_optional_json, _validate_look, _require_color, _pack_has). Same
 // checks, same order, same message text: a message here is exactly what the
 // game prints for the pack. scripts/gamecheck.ps1 proves it against the game.
@@ -15,6 +15,7 @@ import {
   KNOWN_LOOK_METRICS,
   KNOWN_LOOK_SIZES,
   KNOWN_LOOK_TEXTURES,
+  KNOWN_MAP_INSET_KEYS,
   KNOWN_MESSAGE_CATEGORIES,
   KNOWN_MESSAGES_KEYS
 } from './vocab'
@@ -224,13 +225,43 @@ export function validateLook(look: Record<string, unknown>, ctx: LookContext): s
       }
       const t = textures[key]
       const file = isDict(t) ? gdStr(dget(t, 'file', '')) : gdStr(t)
-      if (!file.toLowerCase().endsWith('.png')) errors.push(`${where}: '${file}' is not a .png.`)
+      // The map's detail copy is a scan, so a .jpg; the drawn textures are .png.
+      const kinds = key === 'map_detail' ? ['.png', '.jpg'] : ['.png']
+      if (!kinds.some((k) => file.toLowerCase().endsWith(k))) errors.push(`${where}: '${file}' is not a ${kinds.join(' or ')}.`)
       else if (!packHas(ctx, file)) errors.push(`${where}: '${file}' is not in ${ctx.packDir}.`)
       if (isDict(t) && dhas(t, 'margin')) {
         const mg = t.margin
         if (!isNumber(mg) || mg < 0) errors.push(`${where}: margin must be a number, 0 or more.`)
       }
     }
+  }
+
+  // The sector plates' sharper insets: each a .png or .jpg the pack ships and
+  // where it lies, [x, y, w, h] in map units (map_image_rect's).
+  const insets = dget(look, 'map_insets', [])
+  if (!Array.isArray(insets)) {
+    errors.push('look.json: `map_insets` must be a list of {image, at}.')
+  } else {
+    insets.forEach((m, i) => {
+      const where = `look.json map_insets[${i}]`
+      if (!isDict(m)) {
+        errors.push(`${where}: must be an object {image, at}.`)
+        return
+      }
+      for (const key of dataKeys(m))
+        if (!(KNOWN_MAP_INSET_KEYS as readonly string[]).includes(key)) errors.push(`${where}: '${key}' is not known. Known: image, at.`)
+      const file = gdStr(dget(m, 'image', ''))
+      if (!['.png', '.jpg'].some((k) => file.toLowerCase().endsWith(k))) errors.push(`${where}: image '${file}' is not a .png or .jpg.`)
+      else if (!packHas(ctx, file)) errors.push(`${where}: image '${file}' is not in ${ctx.packDir}.`)
+      const r = dget(m, 'at', null)
+      let ok = Array.isArray(r) && r.length === 4
+      if (ok) {
+        const arr = r as unknown[]
+        for (const n of arr) ok = ok && isNumber(n)
+        ok = ok && (arr[2] as number) > 0 && (arr[3] as number) > 0
+      }
+      if (!ok) errors.push(`${where}: \`at\` must be [x, y, w, h] in map units (map_image_rect's), w and h above 0.`)
+    })
   }
   return errors
 }

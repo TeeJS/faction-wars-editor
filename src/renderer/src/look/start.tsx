@@ -58,8 +58,8 @@ export function StartLook({ pack, onCreate }: { pack: LookPack; onCreate: (label
         <section className="group preset">
           <h3>Another pack's look</h3>
           <p className="muted small">
-            Its colours, sizes, corners and dim. Its side colours come too for the factions this pack shares; its faces and textures only where this
-            pack carries the same files.
+            Its colours, sizes, corners and dim. Its side colours come too for the factions this pack shares; its faces, textures and map insets only
+            where this pack carries the same files.
           </p>
           <button type="button" onClick={() => void borrow()}>
             Choose a look.json…

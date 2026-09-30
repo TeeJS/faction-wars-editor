@@ -118,14 +118,14 @@ export interface Borrowed {
   look: Record<string, unknown>
   /** Colours the other look lacked, taken from the Map room preset. */
   filled: string[]
-  /** Sides, faces and textures left behind: other ids, or files this pack lacks. */
+  /** Sides, faces, textures and map insets left behind: other ids, or files this pack lacks. */
   dropped: string[]
 }
 
 /**
  * A new look from another pack's look.json: its colours, sizes, corners and
- * dim; its side colours for the factions this pack also has; its faces and
- * textures only where this pack ships the same files.
+ * dim; its side colours for the factions this pack also has; its faces,
+ * textures and map insets only where this pack ships the same files.
  */
 export function lookFromOther(other: unknown, factions: Faction[], hasFile: (rel: string) => boolean): Borrowed {
   const src = isDict(other) ? other : {}
@@ -203,6 +203,16 @@ export function lookFromOther(other: unknown, factions: Faction[], hasFile: (rel
       else dropped.push(`texture ${k}${file ? ` (${file})` : ''}`)
     }
     if (Object.keys(tex).length) look.textures = tex
+  }
+  if (Array.isArray(src.map_insets)) {
+    // Like the textures: only the insets whose picture this pack ships.
+    const insets: unknown[] = []
+    for (const m of src.map_insets) {
+      const file = isDict(m) ? String(m.image ?? '') : ''
+      if (file && hasFile(file)) insets.push(m)
+      else dropped.push(`map inset${file ? ` (${file})` : ''}`)
+    }
+    if (insets.length) look.map_insets = insets
   }
   return { look, filled, dropped }
 }

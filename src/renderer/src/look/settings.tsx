@@ -84,6 +84,7 @@ export function Settings(props: { look: LookFile; pack: LookPack; env: Env | nul
   const sizes = isDict(v.sizes) ? v.sizes : {}
   const metrics = isDict(v.metrics) ? v.metrics : {}
   const textures = isDict(v.textures) ? v.textures : {}
+  const insets = Array.isArray(v.map_insets) ? v.map_insets : []
   const fontFiles = pack.files.filter((f) => /\.(ttf|otf)$/i.test(f))
   const alpha = typeof v.overlay_alpha === 'number' ? v.overlay_alpha : undefined
   const num = (x: unknown) => (typeof x === 'number' ? x : undefined)
@@ -254,6 +255,28 @@ export function Settings(props: { look: LookFile; pack: LookPack; env: Env | nul
               })}
             </tbody>
           </table>
+          <h3>Map insets</h3>
+          <p className="muted small">
+            Sharper maps of part of the world for the sector windows&apos; theatre plates, each placed at [x, y, w, h] in map units. Kept as they are.
+          </p>
+          {insets.length === 0 ? (
+            <p className="muted">none</p>
+          ) : (
+            <table aria-label="Map insets">
+              <tbody>
+                {insets.map((m, i) => (
+                  <tr key={i}>
+                    <td>
+                      <code>{isDict(m) ? String(m.image ?? '') : String(m)}</code>
+                    </td>
+                    <td>
+                      <code>{isDict(m) && Array.isArray(m.at) ? `[${m.at.join(', ')}]` : '—'}</code>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </section>
       </div>
 

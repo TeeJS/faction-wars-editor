@@ -69,12 +69,43 @@ withLook("rule 31: the game's own cases", () => {
     [
       'a texture the engine does not know',
       (l) => (l.textures.wallpaper = 'look/paper.png'),
-      'look.json textures.wallpaper: not a known texture. Known: paper, paper_frame, desk, grain, rule.'
+      'look.json textures.wallpaper: not a known texture. Known: paper, paper_frame, desk, grain, rule, map_detail.'
     ],
     [
       'a texture the pack does not ship',
       (l) => (l.textures.paper = 'look/missing.png'),
       "look.json textures.paper: 'look/missing.png' is not in res://packs/ww2."
+    ],
+    [
+      'a map detail that is neither .png nor .jpg',
+      (l) => (l.textures.map_detail = 'look/world_1941_detail.gif'),
+      "look.json textures.map_detail: 'look/world_1941_detail.gif' is not a .png or .jpg."
+    ],
+    [
+      'a drawn texture as a .jpg',
+      (l) => (l.textures.paper = 'look/world_1941_detail.jpg'),
+      "look.json textures.paper: 'look/world_1941_detail.jpg' is not a .png."
+    ],
+    ['map insets that are not a list', (l) => (l.map_insets = { image: 'look/europe_1941.jpg' }), 'look.json: `map_insets` must be a list of {image, at}.'],
+    [
+      'a map inset the pack does not ship',
+      (l) => (l.map_insets = [{ image: 'look/missing.jpg', at: [0, 0, 10, 10] }]),
+      "look.json map_insets[0]: image 'look/missing.jpg' is not in res://packs/ww2."
+    ],
+    [
+      'a map inset that is not a picture',
+      (l) => (l.map_insets = [{ image: 'look/fonts/Oswald-OFL.txt', at: [0, 0, 10, 10] }]),
+      "look.json map_insets[0]: image 'look/fonts/Oswald-OFL.txt' is not a .png or .jpg."
+    ],
+    [
+      'a map inset with no area',
+      (l) => (l.map_insets = [{ image: 'look/europe_1941.jpg', at: [328, 120, 0, 52] }]),
+      "look.json map_insets[0]: `at` must be [x, y, w, h] in map units (map_image_rect's), w and h above 0."
+    ],
+    [
+      'a map inset field the engine does not know',
+      (l) => (l.map_insets = [{ image: 'look/europe_1941.jpg', at: [328, 120, 57, 52], scale: 2 }]),
+      "look.json map_insets[0]: 'scale' is not known. Known: image, at."
     ],
     [
       'a dossier map plate that is not [x, y, w, h]',
@@ -152,6 +183,31 @@ withLook('rule 31: the rest of the checks', () => {
     expect(broken((l) => (l.metrics.oops = 1))).toEqual(["look.json metrics: 'oops' is not known. Known: radius, border, focus, pad."])
     expect(broken((l) => (l.textures.paper_frame.margin = -2))).toEqual(['look.json textures.paper_frame: margin must be a number, 0 or more.'])
     expect(broken((l) => (l.textures.desk = null))).toEqual(["look.json textures.desk: '<null>' is not a .png."])
+  })
+
+  it('map_detail: a .png or a .jpg, in any case; every other texture a .png', () => {
+    expect(broken((l) => (l.textures.map_detail = 'look/missing.JPG'))).toEqual(["look.json textures.map_detail: 'look/missing.JPG' is not in res://packs/ww2."])
+    expect(broken((l) => (l.textures.map_detail = { file: 'look/paper.png', margin: 0 }))).toEqual([])
+    expect(broken((l) => (l.textures.map_detail = null))).toEqual(["look.json textures.map_detail: '<null>' is not a .png or .jpg."])
+  })
+
+  it('map_insets: every check on an entry, in the game order; entries in list order', () => {
+    const ok = { image: 'look/europe_1941.jpg', at: [328, 120, 57, 52] }
+    expect(broken((l) => (l.map_insets = []))).toEqual([])
+    expect(broken((l) => delete l.map_insets)).toEqual([])
+    expect(broken((l) => (l.map_insets = [ok, 'x', { _note: 'n', ...ok, at: [-5, -5, 1.5, 0.5] }]))).toEqual(['look.json map_insets[1]: must be an object {image, at}.'])
+    expect(broken((l) => (l.map_insets = [{ scale: 2, zoom: 1 }]))).toEqual([
+      "look.json map_insets[0]: 'scale' is not known. Known: image, at.",
+      "look.json map_insets[0]: 'zoom' is not known. Known: image, at.",
+      "look.json map_insets[0]: image '' is not a .png or .jpg.",
+      "look.json map_insets[0]: `at` must be [x, y, w, h] in map units (map_image_rect's), w and h above 0."
+    ])
+    const bad = "`at` must be [x, y, w, h] in map units (map_image_rect's), w and h above 0."
+    for (const at of [[1, 2, 3], [1, 2, 3, '4'], [1, 2, -3, 4], 'x', null])
+      expect(broken((l) => (l.map_insets = [{ ...ok, at }]))).toEqual([`look.json map_insets[0]: ${bad}`])
+    expect(broken((l) => (l.map_insets = [{ ...ok, image: '../europe_1941.jpg' }]))).toEqual([
+      "look.json map_insets[0]: image '../europe_1941.jpg' is not in res://packs/ww2."
+    ])
   })
 
   it('dossier text', () => {
