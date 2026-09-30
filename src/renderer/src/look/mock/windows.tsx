@@ -458,7 +458,7 @@ function MapScreen() {
         <Cmd label="Display Off" />
       </Part>
       <Part name="Console" box="hud_console" style={{ position: 'absolute', left: 2, top: 812, width: 1287, height: 38, display: 'flex', alignItems: 'center', gap: 6, padding: '0 4px' }}>
-        {['Menu', 'System Finder', 'Fleet Finder', 'Troop Finder', 'Personnel Finder'].map((k, i) => (
+        {['Menu', `${env.pack.samples.terms.system ?? 'System'} Finder`, 'Fleet Finder', 'Troop Finder', 'Personnel Finder'].map((k, i) => (
           <Cmd key={k} label={k} state={i === 1 ? 'hover' : 'normal'} />
         ))}
         <VRule height={30} />
@@ -838,10 +838,10 @@ function FleetWindow() {
   const env = useEnv()
   const S = env.pack.samples
   return (
-    <Win title="System Fleets" width={640}>
+    <Win title={S.terms.system_fleets ?? 'System Fleets'} width={640}>
       <div style={{ display: 'grid', gridTemplateColumns: '200px 1fr', gap: 10 }}>
         <div style={col}>
-          <Label>Fleets in System</Label>
+          <Label>{S.terms.fleets_here ?? 'Fleets in System'}</Label>
           <ItemList
             items={['Fleet 1', 'Fleet 2', 'Fleet 3 (en route)'].map((l, i) => ({ label: l, state: i === 0 ? 'selected' : 'normal', fixed: i === 2 ? { color: GODOT.DARK_GRAY, note: N.status } : { color: sides(env)[0].color, note: N.faction } }))}
             style={{ height: 200 }}
@@ -849,7 +849,7 @@ function FleetWindow() {
         </div>
         <div style={col}>
           <Label style={{ fontSize: 18 }}>Fleet 1</Label>
-          <Tabs tabs={['Capital Ships', 'Fighters', 'Troops', 'Personnel'].map((l, i) => ({ label: l, state: i === 0 ? 'selected' : 'normal' }))}>
+          <Tabs tabs={[S.terms.capital_ships ?? 'Capital Ships', 'Fighters', 'Troops', 'Personnel'].map((l, i) => ({ label: l, state: i === 0 ? 'selected' : 'normal' }))}>
             <ItemList items={S.units.slice(0, 4).map((u, i) => ({ label: u.name, state: i === 0 ? 'hover' : 'normal' }))} style={{ height: 120 }} />
           </Tabs>
         </div>
@@ -912,7 +912,7 @@ function dispatches(env: Env): Dispatch[] {
     { title: 'Supply convoy arrived', category: 'Resources', place: '', full: '', day: 12, read: true, body: 'Raw materials delivered to the depot.' },
     { title: 'Fleet awaiting orders', category: 'Fleets', ...at, day: 12, read: true, body: 'The fleet has arrived and awaits orders.' },
     { title: `${who.name} reports`, category: 'Missions', ...at, day: 12, read: false, body: 'The mission team has reached its destination and begun work.' },
-    { title: `Battle at ${home.name}`, category: 'Conflict', ...at, day: 12, read: false, body: 'Enemy forces have engaged our fleet in orbit. Losses are being assessed.' }
+    { title: `Battle at ${home.name}`, category: 'Conflict', ...at, day: 12, read: false, body: `Enemy forces have engaged our fleet ${env.pack.samples.terms.in_orbit ?? 'in orbit'}. Losses are being assessed.` }
   ]
 }
 
@@ -1063,13 +1063,13 @@ function ComposeChat() {
 function Encyclopedia() {
   const S = useEnv().pack.samples
   return (
-    <Win title="Galactic Encyclopedia" width={620}>
+    <Win title={S.terms.encyclopedia ?? 'Galactic Encyclopedia'} width={620}>
       <div style={row}>
         <Label>Topic</Label>
         <LineEdit value={S.characters[0].name} focus style={{ flex: 1 }} />
       </div>
       <div style={row}>
-        {['Characters', 'Units', 'Facilities', 'Planets'].map((d, i) => (
+        {['Characters', 'Units', 'Facilities', S.terms.systems ?? 'Planets'].map((d, i) => (
           <Key key={d} label={d} state={i === 0 ? 'pressed' : 'normal'} />
         ))}
       </div>
@@ -1129,14 +1129,14 @@ function SystemFinder() {
   const env = useEnv()
   const [a, b] = sides(env)
   return (
-    <Win title="Planetary System Finder" width={420}>
+    <Win title={env.pack.samples.terms.system_finder ?? 'Planetary System Finder'} width={420}>
       <div style={row}>
         <Part name="Search label" color="HEADING" font="finder_search_label" style={{ flex: 'none' }}>
-          System Name
+          {`${env.pack.samples.terms.system ?? 'System'} Name`}
         </Part>
         <LineEdit placeholder={env.pack.samples.terms.search_systems ?? 'Search galaxy...'} style={{ flex: 1 }} />
       </div>
-      <Tabs tabs={['All Systems', a.shortName, b.shortName, 'Neutral', 'Unexplored'].map((t, i) => ({ label: t, state: i === 0 ? 'selected' : 'normal' }))}>
+      <Tabs tabs={[`All ${env.pack.samples.terms.systems ?? 'Systems'}`, a.shortName, b.shortName, 'Neutral', 'Unexplored'].map((t, i) => ({ label: t, state: i === 0 ? 'selected' : 'normal' }))}>
         {env.pack.samples.planets.slice(0, 7).map((p, i) => (
           <FinderRow key={i} label={p.name} factionId={i % 3 === 2 ? null : sides(env)[i % 2].id} state={i === 1 ? 'pressed' : i === 3 ? 'hover' : 'normal'} />
         ))}
@@ -1335,7 +1335,7 @@ function SaveGame() {
 function GalaxyOverview() {
   const S = useEnv().pack.samples
   return (
-    <CodeWindow frame="overview_panel" heading="overview_title" title="Galaxy Overview" width={420}>
+    <CodeWindow frame="overview_panel" heading="overview_title" title={S.terms.galaxy_overview ?? 'Galaxy Overview'} width={420}>
       {S.units.slice(0, 5).map((u, i) => (
         <div key={i} style={row}>
           <FixedText color={rgb(0.62, 0.72, 0.88)} note={N.literal} style={{ flex: 1 }}>
@@ -1539,11 +1539,12 @@ function Menus() {
 }
 
 function Tooltips() {
+  const T = useEnv().pack.samples.terms
   return (
     <Stage>
       <div style={{ display: 'grid', gap: 6, justifyItems: 'start' }}>
-        <Key label="System Finder" state="hover" />
-        <Tooltip text="Find a planetary system by name, side or state." />
+        <Key label={`${T.system ?? 'System'} Finder`} state="hover" />
+        <Tooltip text={`Find a ${T.system ? T.system.toLowerCase() : 'planetary system'} by name, side or state.`} />
       </div>
     </Stage>
   )
