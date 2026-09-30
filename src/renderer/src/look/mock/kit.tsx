@@ -47,6 +47,10 @@ export interface Env {
   /** CSS for a font role, falling back to body and then the system face. */
   face(role: string | null): CSSProperties
   tex(name: string): TexInfo | null
+  /** look.json map_insets as the game loads them (Look.MapInsets): each picture that loads, with its `at`. */
+  insets: { tex: TexInfo; at: [number, number, number, number]; file: string }[]
+  /** A sector-window corner glyph's own picture (display.json icons), or null for the engine's. */
+  icon(glyph: string): TexInfo | null
   /** A side's colour in the chrome: the look's, else factions.json's. */
   side(factionId: string): string
   overlayAlpha: number
@@ -59,6 +63,10 @@ export interface Env {
 
 export const EnvContext = createContext<Env | null>(null)
 export const useEnv = (): Env => useContext(EnvContext)!
+
+/** What the stage has picked for a mock-up that offers a choice (the Sector window's theatre). */
+export const ChoiceContext = createContext<string | null>(null)
+export const useChoice = (): string | null => useContext(ChoiceContext)
 
 // ---------------------------------------------------------------------------
 // The window dress's palette trade (look_window.gd Remap)

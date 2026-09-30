@@ -54,9 +54,15 @@ export function useAssets(pack: LookPack | null, look: LookFile | null): Assets 
   const fonts = isDict(v?.fonts) ? v!.fonts : {}
   const textures = isDict(v?.textures) ? v!.textures : {}
   const fontFiles = [...new Set(Object.values(fonts).map((f) => (isDict(f) ? String(f.file ?? '') : '')).filter(Boolean))].sort()
-  const texFiles = Object.entries(textures)
-    .filter(([k]) => !k.startsWith('_'))
-    .map(([k, t]) => [k, isDict(t) ? String(t.file ?? '') : String(t), isDict(t) && typeof t.margin === 'number' ? t.margin : 0] as const)
+  const insets = Array.isArray(v?.map_insets) ? v!.map_insets : []
+  const texFiles = [
+    ...Object.entries(textures)
+      .filter(([k]) => !k.startsWith('_'))
+      .map(([k, t]) => [k, isDict(t) ? String(t.file ?? '') : String(t), isDict(t) && typeof t.margin === 'number' ? t.margin : 0] as const),
+    // The sector plates' insets and the pack's own corner glyphs.
+    ...insets.map((m, i) => [`__inset${i}`, isDict(m) ? String(m.image ?? '') : '', 0] as const),
+    ...Object.entries(pack?.sector.icons ?? {}).map(([g, f]) => [`__icon_${g}`, f, 0] as const)
+  ]
   // Which files, and which bytes: a face replaced under the same name loads again.
   const bytesOf = (rel: string) => (pack ? pack.file(rel) : undefined)
   const sig = (rel: string) => {
@@ -159,6 +165,13 @@ export function makeEnv(pack: LookPack, look: LookFile, assets: Assets): Env {
     },
     face,
     tex: (name: string) => assets.tex[name] ?? null,
+    // Look.MapInsets: an inset whose picture is missing, or whose `at` is not four numbers, is left out.
+    insets: (Array.isArray(v.map_insets) ? v.map_insets : []).flatMap((m, i) => {
+      const t = assets.tex[`__inset${i}`]
+      const at = isDict(m) && Array.isArray(m.at) && m.at.length === 4 ? (m.at.map((x) => Number(x) || 0) as [number, number, number, number]) : null
+      return t && at ? [{ tex: t, at, file: String((m as Record<string, unknown>).image ?? '') }] : []
+    }),
+    icon: (glyph: string) => assets.tex[`__icon_${glyph}`] ?? null,
     side: (id: string) => {
       const own = look.side(id)
       if (parseHex(own)) return own!

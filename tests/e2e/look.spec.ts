@@ -274,6 +274,28 @@ test.describe('on the game’s WWII pack', () => {
     await page.getByLabel('ink hex', { exact: true }).fill('#553311')
     await expect(words).toHaveCSS('color', rgb('#553311'))
   })
+
+  test('the Sector window is a theatre plate: cut from the Europe inset or the detail map, and the theatre picker switches it', async () => {
+    await openFolder(ww2('sector'))
+    await show('Sector window')
+    const plate = page.locator('.canvas [data-plate]')
+    // British Isles, the first theatre: one of the five the Europe inset holds.
+    await expect(page.getByLabel('Theatre')).toHaveValue('british_isles')
+    await expect(plate).toHaveAttribute('data-plate', 'map')
+    await expect(plate).toHaveAttribute('data-plate-from', '0')
+    await expect(page.locator('.canvas [data-part="Window title"]')).toHaveText('British Isles')
+    await expect(page.locator('.canvas [data-part^="The theatre, cut from map inset 1"]')).toHaveCount(1)
+    await page.screenshot({ path: join(scratch, '07-sector-british-isles.png') })
+    await page.getByLabel('Theatre').selectOption({ label: 'Eastern Front' })
+    await expect(plate).toHaveAttribute('data-plate-from', 'detail')
+    await expect(page.locator('.canvas [data-part="Window title"]')).toHaveText('Eastern Front')
+    const names = page.locator('.canvas [data-system]')
+    await expect(names).toHaveCount(5)
+    // The paper colour paints the plate under it, the wash and the free squares.
+    await page.getByLabel('paper hex', { exact: true }).fill('#ffeecc')
+    await expect(page.locator('.canvas [data-part="Plate: the paper under it"]')).toHaveCSS('background-color', rgb('#ffeecc'))
+    await page.screenshot({ path: join(scratch, '08-sector-eastern-front.png') })
+  })
 })
 
 test('a new pack: start a look from a preset, Undo takes it back, and it saves with the pack', async () => {

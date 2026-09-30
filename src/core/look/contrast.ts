@@ -23,8 +23,13 @@ export function contrast(a: string | undefined, b: string | undefined): number |
   const pa = parseHex(a)
   const pb = parseHex(b)
   if (!pa || !pb) return null
-  const la = luminance(pa)
-  const lb = luminance(pb)
+  return contrastRgb(pa, pb)
+}
+
+/** The same ratio for two colours as 0-1 channels (Look.Contrast takes Colors). */
+export function contrastRgb(a: [number, number, number], b: [number, number, number]): number {
+  const la = luminance(a)
+  const lb = luminance(b)
   return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05)
 }
 
