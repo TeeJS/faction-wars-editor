@@ -43,7 +43,10 @@ describe("borrowing another pack's look", () => {
     expect(b.look.sides).toBeUndefined()
     expect(b.look.fonts).toBeUndefined()
     expect(b.look.textures).toBeUndefined()
-    expect(b.dropped).toEqual(expect.arrayContaining(['side allies', 'side axis', 'face display (look/fonts/Oswald-Variable.ttf)', 'texture paper (look/paper.png)']))
+    expect(b.look.map_insets).toBeUndefined()
+    expect(b.dropped).toEqual(
+      expect.arrayContaining(['side allies', 'side axis', 'face display (look/fonts/Oswald-Variable.ttf)', 'texture paper (look/paper.png)', 'map inset (look/europe_1941.jpg)'])
+    )
     expect(validateLook(b.look, ctx)).toEqual([])
     expect(b.look).not.toHaveProperty('dossier')
     // The dispatch words are words: they come too.
@@ -61,6 +64,13 @@ describe("borrowing another pack's look", () => {
   it.runIf(haveLook)('faces and textures the pack does ship are kept', () => {
     const b = lookFromOther(ww2Look(), swr, (rel) => rel === 'look/fonts/Oswald-Variable.ttf')
     expect(Object.keys(b.look.fonts as object)).toEqual(['display', 'display_bold'])
+  })
+
+  it('map insets whose picture the pack ships are kept; the rest are named', () => {
+    const inset = { image: 'look/europe.jpg', at: [1, 2, 3, 4] }
+    const b = lookFromOther({ colors: {}, map_insets: [inset, { image: 'look/gone.jpg', at: [0, 0, 1, 1] }, 'x'] }, swr, (rel) => rel === 'look/europe.jpg')
+    expect(b.look.map_insets).toEqual([inset])
+    expect(b.dropped).toEqual(expect.arrayContaining(['map inset (look/gone.jpg)', 'map inset']))
   })
 
   it('missing or broken colours are filled from the Map room preset, and named', () => {

@@ -1,5 +1,5 @@
 // The look's vocabulary, word for word from the game (TeeJS/faction-wars at
-// origin/main a46c63f): src/data/pack_loader.gd KNOWN_LOOK_* and the message
+// origin/main 4ad04bf): src/data/pack_loader.gd KNOWN_LOOK_* and the message
 // categories (validation rule 31), and src/ui/look.gd CONTRAST_PAIRS,
 // DEFAULT_SIZES, DEFAULT_METRICS. SCHEMA.md section 15 documents each one.
 
@@ -15,8 +15,11 @@ export type ColorToken = (typeof KNOWN_LOOK_COLORS)[number]
 export const KNOWN_LOOK_FONTS = ['display', 'display_bold', 'body', 'body_bold', 'typed', 'typed_bold'] as const
 export const KNOWN_LOOK_SIZES = ['body', 'small', 'label', 'title', 'heading', 'display'] as const
 export const KNOWN_LOOK_METRICS = ['radius', 'border', 'focus', 'pad'] as const
-export const KNOWN_LOOK_TEXTURES = ['paper', 'paper_frame', 'desk', 'grain', 'rule'] as const
+/** `map_detail` is a sharper scan of map_image for the sector windows' theatre plates (.png or .jpg). */
+export const KNOWN_LOOK_TEXTURES = ['paper', 'paper_frame', 'desk', 'grain', 'rule', 'map_detail'] as const
 export const KNOWN_DOSSIER_KEYS = ['subtitle', 'map_rect', 'map_caption'] as const
+/** A `map_insets` entry: a larger-scale map of part of the world and where it lies, in map units. */
+export const KNOWN_MAP_INSET_KEYS = ['image', 'at'] as const
 /** `messages` (the Message Index as dispatches): its keys, and the categories a stamp or
  * the urgent band can name - the game's Enums.MessageCategory less "All". */
 export const KNOWN_MESSAGES_KEYS = ['header', 'stamps', 'urgent'] as const

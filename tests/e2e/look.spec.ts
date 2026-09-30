@@ -214,6 +214,10 @@ test.describe('on the game’s WWII pack', () => {
     const dir = ww2('sizes')
     await openFolder(dir)
     await page.getByRole('tab', { name: 'Faces, sizes and corners' }).click()
+    // The map's detail copy and its insets are shown, kept as they are.
+    await expect(page.getByRole('row', { name: /map_detail/ })).toContainText('look/world_1941_detail.jpg')
+    await expect(page.getByRole('table', { name: 'Map insets' })).toContainText('look/europe_1941.jpg')
+    await expect(page.getByRole('table', { name: 'Map insets' })).toContainText('[328, 120, 57, 52]')
     await page.getByLabel('heading size').fill('22')
     await page.getByLabel('small size').fill('')
     await page.getByLabel('radius metric').fill('6')
@@ -310,6 +314,7 @@ test("a new pack: start from another pack's look.json", async () => {
   await page.getByRole('button', { name: 'Choose a look.json…' }).click()
   await expect(page.locator('.notice').last()).toContainText('Left behind')
   await expect(page.locator('.notice').last()).toContainText('side axis')
+  await expect(page.locator('.notice').last()).toContainText('map inset (look/europe_1941.jpg)')
   await expect(page.getByLabel('brass hex', { exact: true })).toHaveValue('#a88a4e')
   await expect(page.locator('.toolbar .status')).toHaveText('Valid')
 })

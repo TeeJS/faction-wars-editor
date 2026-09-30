@@ -230,7 +230,29 @@ const LOOK_CASES: [string, (l: Look) => void][] = [
   ['messages-not-object', (l) => (l.messages = 'x')],
   ['messages-unknown-key', (l) => (l.messages.banner = 'x')],
   ['messages-shapes', (l) => Object.assign(l.messages, { header: 5, stamps: [], urgent: 'Conflict' })],
-  ['messages-categories', (l) => Object.assign(l.messages, { stamps: { Loyalty: 'Intel', Weather: 'x', Fleets: '  ', Chat: 3 }, urgent: ['Conflict', 'Storms', 2] })]
+  ['messages-categories', (l) => Object.assign(l.messages, { stamps: { Loyalty: 'Intel', Weather: 'x', Fleets: '  ', Chat: 3 }, urgent: ['Conflict', 'Storms', 2] })],
+  // The map's detail copy and insets (the game's phase 8).
+  ['map-detail-gif', (l) => (l.textures.map_detail = 'look/world_1941_detail.gif')],
+  ['texture-jpg', (l) => (l.textures.paper = 'look/world_1941_detail.jpg')],
+  ['map-detail-details', (l) => Object.assign(l.textures, { map_detail: { file: 'look/missing.JPG', margin: -1 } })],
+  ['insets-not-list', (l) => (l.map_insets = { image: 'look/europe_1941.jpg' })],
+  ['inset-not-shipped', (l) => (l.map_insets = [{ image: 'look/missing.jpg', at: [0, 0, 10, 10] }])],
+  ['inset-not-picture', (l) => (l.map_insets = [{ image: 'look/fonts/Oswald-OFL.txt', at: [0, 0, 10, 10] }])],
+  ['inset-no-area', (l) => (l.map_insets = [{ image: 'look/europe_1941.jpg', at: [328, 120, 0, 52] }])],
+  ['inset-unknown-key', (l) => (l.map_insets = [{ image: 'look/europe_1941.jpg', at: [328, 120, 57, 52], scale: 2 }])],
+  [
+    'insets-details',
+    (l) =>
+      (l.map_insets = [
+        l.map_insets[0],
+        'x',
+        { scale: 2, zoom: 1 },
+        { _note: 'n', image: 'look/missing.JPG', at: [1, 2, 3, '4'] },
+        { image: '../europe_1941.jpg', at: [-5, -5, 1.5, 0.5] },
+        { image: null, at: null },
+        { image: 'look/europe_1941.jpg', at: [1, 2, 3] }
+      ])
+  ]
 ]
 
 suite('look packs for the game to check', () => {
