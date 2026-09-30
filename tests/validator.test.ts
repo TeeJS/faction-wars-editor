@@ -99,7 +99,7 @@ function pack(sectorOver: O, planetOver: O, other: O): PackDocument {
   if ('card_image' in other) manifest.card_image = other.card_image
   if ('movies' in other) manifest.movies = other.movies
   if ('music' in other) manifest.music = other.music
-  for (const k of ['advisor', 'voices', 'sounds', 'briefing', 'advice']) if (k in other) manifest[k] = other[k]
+  for (const k of ['advisor', 'voices', 'sounds', 'briefing', 'advice', 'report_backdrop']) if (k in other) manifest[k] = other[k]
   if ('victory_tips' in other) manifest.victory_tips = other.victory_tips
   const s1: O = { id: 'core', display_name: 'Core', ring: 1, starts_neutral: false, map: { x: 1, y: 1 }, min_size: 'standard', intel_tier: 'live', source_id: 1, ...sectorOver }
   const s2: O = { id: 'rim', display_name: 'Rim', ring: 2, starts_neutral: true, map: { x: 2, y: 2 }, min_size: 'large', intel_tier: 'presence', source_id: 2 }
@@ -668,6 +668,46 @@ describe('advice (rule 29), as the game checks it', () => {
     const { pack: p } = hydrate(pack({}, {}, { ...base, advice: { _comment: 'x', test_side: { _n: 1, ...good } } }))
     expect(p.manifest.adviceRaw).toEqual({ test_side: good })
     expect(p.manifest.adviceGiven).toBe(true)
+  })
+})
+
+// Rule 30 (pack_loader.gd _validate_report_backdrop). Its sides are not checked
+// against factions.json, and Godot's is_valid_hex_number takes one leading sign.
+describe('report_backdrop (rule 30), as the game checks it', () => {
+  const base = { logistics: { core_system_facilities: {}, rim_system_facilities: {}, garrison: {} } }
+  const baseline = new Set(errorsOf(pack({}, {}, base)))
+  const errs = (v: unknown) => errorsOf(pack({}, {}, { ...base, report_backdrop: v })).filter((e) => !baseline.has(e))
+  const notColour = (side: string, h: string) => `pack.json report_backdrop.${side}: '${h}' is not an "rrggbb" colour.`
+  const cases: [unknown, string[]][] = [
+    [null, []],
+    [{ alliance: ['000000', '0000FF', 'a0b1c2'], anyone: ['ffffff'] }, []],
+    [{ alliance: ['+abcde', '-00000'] }, []],
+    ['no', ['pack.json report_backdrop: must be an object of side -> colours.']],
+    [['000000'], ['pack.json report_backdrop: must be an object of side -> colours.']],
+    [{ alliance: [] }, ['pack.json report_backdrop.alliance: must be a non-empty list of "rrggbb" colours.']],
+    [{ alliance: '000000', empire: ['000000'] }, ['pack.json report_backdrop.alliance: must be a non-empty list of "rrggbb" colours.']],
+    [
+      { alliance: ['#00000', '#000000', '00000', 'ggg000', 'abcdef ', '++abcd'] },
+      [notColour('alliance', '#00000'), notColour('alliance', '#000000'), notColour('alliance', '00000'), notColour('alliance', 'ggg000'), notColour('alliance', 'abcdef '), notColour('alliance', '++abcd')]
+    ],
+    [
+      { alliance: [123456, 12345, null, true, ['a']] },
+      [notColour('alliance', '123456.0'), notColour('alliance', '12345.0'), notColour('alliance', '<null>'), notColour('alliance', 'true'), notColour('alliance', '["a"]')]
+    ]
+  ]
+  for (const [v, want] of cases)
+    it(`report_backdrop ${JSON.stringify(v)} -> ${want.length === 0 ? 'accepted' : 'refused'}`, () => {
+      expect(errs(v)).toEqual(want)
+    })
+  it('absent is not given', () => {
+    const { pack: p } = hydrate(pack({}, {}, base))
+    expect(p.manifest.reportBackdropGiven).toBe(false)
+  })
+  it('reads it as the game does: comments left out', () => {
+    const { pack: p } = hydrate(pack({}, {}, { ...base, report_backdrop: { _comment: 'x', alliance: ['000000'] } }))
+    expect(p.manifest.reportBackdropRaw).toEqual({ alliance: ['000000'] })
+    expect(p.manifest.reportBackdropGiven).toBe(true)
+    expect(errs({ _comment: ['not', 'a', 'side'], alliance: ['000000'] })).toEqual([])
   })
 })
 
