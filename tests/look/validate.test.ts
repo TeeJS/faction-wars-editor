@@ -116,6 +116,26 @@ withLook("rule 31: the game's own cases", () => {
       'a dossier field the engine does not know',
       (l) => (l.dossier.banner = 'x'),
       "look.json dossier: 'banner' is not known. Known: subtitle, map_rect, map_caption."
+    ],
+    [
+      'an objectives legend that is not an object',
+      (l) => (l.objectives_legend = [2, 722, 494, 312]),
+      'look.json: `objectives_legend` must be an object {rect, paper, ink, accent}.'
+    ],
+    [
+      'an objectives legend that is not [x, y, w, h]',
+      (l) => (l.objectives_legend = { rect: [2, 722, 494] }),
+      "look.json objectives_legend.rect: must be [x, y, w, h] in map_image's pixels, w and h above 0."
+    ],
+    [
+      'an objectives legend colour that is not #rrggbb',
+      (l) => (l.objectives_legend = { rect: [2, 722, 494, 312], accent: 'red' }),
+      "look.json objectives_legend.accent: 'red' is not a #rrggbb color."
+    ],
+    [
+      'an objectives legend field the engine does not know',
+      (l) => (l.objectives_legend = { rect: [2, 722, 494, 312], font: 'x' }),
+      "look.json objectives_legend: 'font' is not known. Known: rect, paper, ink, accent."
     ]
   ]
   for (const [what, change, message] of cases)

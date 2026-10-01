@@ -17,7 +17,8 @@ import {
   KNOWN_LOOK_TEXTURES,
   KNOWN_MAP_INSET_KEYS,
   KNOWN_MESSAGE_CATEGORIES,
-  KNOWN_MESSAGES_KEYS
+  KNOWN_MESSAGES_KEYS,
+  KNOWN_OBJECTIVES_LEGEND_KEYS
 } from './vocab'
 
 export interface LookContext {
@@ -210,6 +211,29 @@ export function validateLook(look: Record<string, unknown>, ctx: LookContext): s
         ok = ok && (arr[2] as number) > 0 && (arr[3] as number) > 0
       }
       if (!ok) errors.push("look.json dossier.map_rect: must be [x, y, w, h] in map_image's pixels, w and h above 0.")
+    }
+  }
+
+  // The objectives on the map, over the picture's own legend: where it is, in
+  // map_image's pixels, and the legend's printed colours.
+  if (dhas(look, 'objectives_legend')) {
+    const legend = look.objectives_legend
+    if (!isDict(legend)) {
+      errors.push('look.json: `objectives_legend` must be an object {rect, paper, ink, accent}.')
+    } else {
+      for (const key of dataKeys(legend))
+        if (!(KNOWN_OBJECTIVES_LEGEND_KEYS as readonly string[]).includes(key))
+          errors.push(`look.json objectives_legend: '${key}' is not known. Known: rect, paper, ink, accent.`)
+      const r = dget(legend, 'rect', null)
+      let ok = Array.isArray(r) && r.length === 4
+      if (ok) {
+        const arr = r as unknown[]
+        for (const n of arr) ok = ok && isNumber(n) && n >= 0
+        ok = ok && (arr[2] as number) > 0 && (arr[3] as number) > 0
+      }
+      if (!ok) errors.push("look.json objectives_legend.rect: must be [x, y, w, h] in map_image's pixels, w and h above 0.")
+      for (const key of ['paper', 'ink', 'accent'])
+        if (dhas(legend, key)) requireColor(gdStr(legend[key]), `look.json objectives_legend.${key}`, errors)
     }
   }
 
