@@ -952,6 +952,7 @@ function LedgerRow({ d, on, hover }: { d: Dispatch; on?: boolean; hover?: boolea
   return (
     <Part name={`Ledger row (${on ? 'picked' : hover ? 'under the pointer' : 'normal'})`} box={id} pad={0} style={{ position: 'relative', minHeight: 52, boxSizing: 'border-box', padding: '4px 8px 5px 12px', display: 'flex', alignItems: 'center', gap: 8 }}>
       {urgent && <Part name="Urgent band" color="row_band" style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 4, background: env.c(colorOf('row_band')) }} />}
+      <Part name="Rule between rows" color="row_rule" style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 1, background: env.c(colorOf('row_rule')), opacity: 0.55 }} />
       <div style={{ flex: 1, minWidth: 0, display: 'grid' }}>
         <Part name={d.read ? 'Subject (read)' : 'Subject (unread)'} color={on || !d.read ? 'row_unread' : 'row_read'} font={d.read ? 'row_read' : 'row_unread'} style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
           {d.title}

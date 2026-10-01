@@ -49,11 +49,27 @@ export interface Box {
   width: [Px, Px, Px, Px]
   radius: Px
   pad: Px
-  /** Drawn this far outside the control: left, top, right, bottom. */
+  /** Drawn this far outside the control: left, top, right, bottom (below 0: inside it). */
   expand: [number, number, number, number]
+  /** Corners set one by one (top-left, top-right, bottom-right, bottom-left), over `radius`. */
+  corners?: [Px, Px, Px, Px]
+  /** Content margins set one by one (left, top, right, bottom), over `pad`. */
+  padSides?: [Px, Px, Px, Px]
 }
 
 const S = (file: GameFile, ...lines: string[]): Source => ({ file, lines })
+/** Look._FolderTab's body after its Box(fill, "", 0, -1, 6): read as tweaks. */
+const FOLDER_TAB = [
+  'sb.border_width_left = 1',
+  'sb.border_width_right = 1',
+  'sb.border_width_bottom = 0',
+  'sb.corner_radius_top_left = 3',
+  'sb.corner_radius_top_right = 3',
+  'sb.expand_margin_left = -1',
+  'sb.expand_margin_right = -1',
+  'sb.content_margin_left = 10',
+  'sb.content_margin_right = 10'
+]
 /** The else side of a line that picks between two. */
 const Else = (file: GameFile, ...lines: string[]): Source => ({ file, lines, branch: 'else' })
 
@@ -80,10 +96,12 @@ export const BOXES = {
   item_list: S('look.gd', 't.set_stylebox("panel", "ItemList", Box("chassis_deep", "edge", -1, -1, 4))'),
   item_hover: S('look.gd', 't.set_stylebox("hovered", "ItemList", Box("chassis_hover", "", 0, -1, 2))'),
   item_selected: S('look.gd', 't.set_stylebox("selected", "ItemList", Edged("olive_deep", "brass", SIDE_LEFT, 3, 2))'),
-  tab_selected: S('look.gd', 't.set_stylebox("tab_selected", type, Edged("olive_deep", "brass", SIDE_TOP, 2, 6))'),
-  tab_unselected: S('look.gd', 't.set_stylebox("tab_unselected", type, Box("chassis_raised", "", 0, -1, 6))'),
-  tab_hovered: S('look.gd', 't.set_stylebox("tab_hovered", type, Box("chassis_hover", "", 0, -1, 6))'),
-  tab_disabled: S('look.gd', 't.set_stylebox("tab_disabled", type, Box("chassis", "", 0, -1, 6))'),
+  // Folder tabs (TeeJS/faction-wars#433): outlined on top and sides, open at the
+  // bottom, rounded top corners, 2 px apart - the body of Look._FolderTab.
+  tab_selected: S('look.gd', 't.set_stylebox("tab_selected", type, _FolderTab("olive_deep", "brass", 3))', ...FOLDER_TAB),
+  tab_unselected: S('look.gd', 't.set_stylebox("tab_unselected", type, _FolderTab("chassis_raised", "edge", 1))', ...FOLDER_TAB),
+  tab_hovered: S('look.gd', 't.set_stylebox("tab_hovered", type, _FolderTab("chassis_hover", "brass_dim", 1))', ...FOLDER_TAB),
+  tab_disabled: S('look.gd', 't.set_stylebox("tab_disabled", type, _FolderTab("chassis_deep", "edge", 1))', ...FOLDER_TAB),
   tab_panel: S('look.gd', 't.set_stylebox("panel", "TabContainer", Box("chassis", "edge"))'),
   scroll_track: S('look.gd', 't.set_stylebox("scroll", type, Box("chassis_deep", "", 0, 0, 0))'),
   scroll_grabber: S('look.gd', 't.set_stylebox("grabber", type, Box("brass_dim", "", 0, -1, 0))'),
@@ -198,6 +216,8 @@ export const COLORS = {
   row_meta_on: S('look_dispatch.gd', 'meta.add_theme_color_override("font_color", Look.C("text") if on else Look.C("text_muted"))'),
   row_meta: Else('look_dispatch.gd', 'meta.add_theme_color_override("font_color", Look.C("text") if on else Look.C("text_muted"))'),
   row_band: S('look_dispatch.gd', 'band.color = Look.C("signal")'),
+  /** The rule between ledger rows (TeeJS/faction-wars#434), at RuleAlpha. */
+  row_rule: S('look_dispatch.gd', 'rule.color = Color(Look.C("brass_dim"), RuleAlpha)', 'const RuleAlpha := 0.55'),
   stamp_ledger_on: S('look_dispatch.gd', 'var ink: Color = Look.C("text") if on else Look.C("heading")'),
   stamp_ledger: Else('look_dispatch.gd', 'var ink: Color = Look.C("text") if on else Look.C("heading")'),
   stamp_urgent_ledger_text: S('look_dispatch.gd', 'ink = Look.C("signal_text")'),
@@ -372,15 +392,26 @@ function edged(a: string[]): Box {
   return b
 }
 
-/** The Box(...) or Edged(...) call in a line, with its arguments, even when it
- * sits inside another call (set_stylebox(..., Box(...))). */
-function findCall(line: string): { name: 'Box' | 'Edged'; args: string[] } | null {
-  const m = /\b(Box|Edged)\(/.exec(line)
+/** Look._FolderTab(fill, edge, top): Box(fill, "", 0, -1, 6), `edge` along the
+ * top `top` px (the rest of its body is the source's tweak lines). */
+function folderTab(a: string[]): Box {
+  const b = box([a[0], '""', '0', '-1', '6'])
+  b.edge = tok(a[1])
+  b.width[1] = Number(a[2])
+  return b
+}
+
+type Call = 'Box' | 'Edged' | '_FolderTab'
+
+/** The Box(...), Edged(...) or _FolderTab(...) call in a line, with its
+ * arguments, even when it sits inside another call (set_stylebox(..., Box(...))). */
+function findCall(line: string): { name: Call; args: string[] } | null {
+  const m = /(?:\b|(?<![\w]))(Box|Edged|_FolderTab)\(/.exec(line)
   if (!m) return null
   let depth = 0
   for (let i = m.index + m[1].length; i < line.length; i++) {
     if (line[i] === '(') depth++
-    if (line[i] === ')' && --depth === 0) return { name: m[1] as 'Box' | 'Edged', args: args(line.slice(m.index, i + 1)) }
+    if (line[i] === ')' && --depth === 0) return { name: m[1] as Call, args: args(line.slice(m.index, i + 1)) }
   }
   return null
 }
@@ -391,7 +422,7 @@ export function readBox(src: Source): Box {
   for (const line of src.lines) {
     const call: ReturnType<typeof findCall> = b ? null : findCall(line)
     if (call) {
-      b = call.name === 'Box' ? box(call.args) : edged(call.args)
+      b = call.name === 'Box' ? box(call.args) : call.name === 'Edged' ? edged(call.args) : folderTab(call.args)
       continue
     }
     if (!b) continue
@@ -401,8 +432,20 @@ export function readBox(src: Source): Box {
     if (m) b.edge = m[1] as ColorToken
     m = /\.set_corner_radius_all\((\d+)\)/.exec(line)
     if (m) b.radius = Number(m[1])
-    m = /\.expand_margin_(left|top|right|bottom) = (\d+)/.exec(line)
+    m = /\.expand_margin_(left|top|right|bottom) = (-?\d+)/.exec(line)
     if (m) b.expand[SIDE_NAMES.indexOf(m[1])] = Number(m[2])
+    m = /\.corner_radius_(top_left|top_right|bottom_right|bottom_left) = (\d+)/.exec(line)
+    if (m) {
+      const r = b.radius
+      b.corners ??= [r, r, r, r]
+      b.corners[['top_left', 'top_right', 'bottom_right', 'bottom_left'].indexOf(m[1])] = Number(m[2])
+    }
+    m = /\.content_margin_(left|top|right|bottom) = (\d+)/.exec(line)
+    if (m) {
+      const p = b.pad
+      b.padSides ??= [p, p, p, p]
+      b.padSides[SIDE_NAMES.indexOf(m[1])] = Number(m[2])
+    }
   }
   if (!b) throw new Error(`No Box or Edged in ${src.lines.join(' | ')}`)
   return b

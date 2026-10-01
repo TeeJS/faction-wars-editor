@@ -57,7 +57,7 @@ export const PRESETS: Preset[] = [
       stamps: {
         Loyalty: 'Intelligence',
         Fleets: 'Signal',
-        Missions: 'Orders',
+        Missions: 'Secret',
         Resources: 'Ledger',
         Manufacturing: 'Ledger',
         Defense: 'Operations',

@@ -120,17 +120,22 @@ function px(env: Env, v: Px): number {
   return typeof v === 'number' ? v : env.metric(v)
 }
 
-/** A StyleBoxFlat as CSS. Godot draws the border inside the box. */
+/** A StyleBoxFlat as CSS. Godot draws the border inside the box; a negative
+ * expand margin draws it that far inside the control (a folder tab's gap). */
 export function boxCss(env: Env, b: Box, padOverride?: number): CSSProperties {
   const [l, t, r, bt] = b.width.map((w) => px(env, w))
   const pad = padOverride ?? px(env, b.pad)
+  const sides = padOverride === undefined && b.padSides ? b.padSides.map((v) => px(env, v)) : null
+  const corners = b.corners ? b.corners.map((v) => `${px(env, v)}px`).join(' ') : px(env, b.radius)
+  const inset = b.expand.map((e) => Math.max(0, -e))
   return {
     background: b.fill ? env.c(b.fill) : 'transparent',
     borderStyle: 'solid',
     borderColor: b.edge ? env.c(b.edge) : 'transparent',
     borderWidth: `${t}px ${r}px ${bt}px ${l}px`,
-    borderRadius: px(env, b.radius),
-    padding: pad,
+    borderRadius: corners,
+    padding: sides ? `${sides[1]}px ${sides[2]}px ${sides[3]}px ${sides[0]}px` : pad,
+    ...(inset.some((v) => v > 0) ? { margin: `${inset[1]}px ${inset[2]}px ${inset[3]}px ${inset[0]}px` } : {}),
     boxSizing: 'border-box'
   }
 }
