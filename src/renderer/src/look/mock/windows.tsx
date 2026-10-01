@@ -1069,7 +1069,7 @@ function Encyclopedia() {
         <LineEdit value={S.characters[0].name} focus style={{ flex: 1 }} />
       </div>
       <div style={row}>
-        {['Characters', 'Units', 'Facilities', S.terms.systems ?? 'Planets'].map((d, i) => (
+        {['All Databases', S.terms.system ?? 'System', S.terms.ship_database ?? 'Ship', 'Facilities', 'Mission', 'Troop', 'Personnel'].map((d, i) => (
           <Key key={d} label={d} state={i === 0 ? 'pressed' : 'normal'} />
         ))}
       </div>
