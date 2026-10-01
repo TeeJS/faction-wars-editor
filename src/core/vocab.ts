@@ -66,8 +66,9 @@ export const KNOWN_TERMS = [
   // the Cockpit's size choice
   'galaxy_size',
   // three windows' names: the Galaxy Overview, the System Finder, the
-  // Encyclopedia (the game 2026-09-30)
-  'galaxy_overview', 'system_finder', 'encyclopedia',
+  // Encyclopedia (the game 2026-09-30); and the Encyclopedia's ships'
+  // database, its tab and stamp (Star Wars "Ship", WWII "Units")
+  'galaxy_overview', 'system_finder', 'encyclopedia', 'ship_database',
   // the rest of the words the game said in Star Wars' own (the game
   // 2026-09-30, its tests/ww2_words.gd): a place and places, the board, a
   // warship and warships, no intelligence, an unexplored and an unknown
