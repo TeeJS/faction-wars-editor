@@ -220,6 +220,8 @@ export interface FactionDef {
 
 export interface SectorDef {
   index: number; id: string; displayName: string; ring: number; startsNeutral: boolean
+  /** map.json `starts_explored`: charted for every side at day zero, whatever the ring (the game 2026-10-03). */
+  startsExplored: boolean
   mapX: number; mapY: number; minSize: string; intelTier: string; sourceId: number
 }
 export interface PlanetDef {
@@ -511,6 +513,7 @@ export function hydrate(doc: PackDocument): { pack: LoadedPack; problems: ShapeP
       displayName: strOr(d, 'display_name'),
       ring: intOr(d, 'ring'),
       startsNeutral: boolOr(d, 'starts_neutral'),
+      startsExplored: boolOr(d, 'starts_explored'),
       mapX: isDict(m) ? intOr(m, 'x') : 0,
       mapY: isDict(m) ? intOr(m, 'y') : 0,
       minSize: strOr(d, 'min_size'),
