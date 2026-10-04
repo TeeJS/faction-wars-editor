@@ -292,6 +292,12 @@ export const sectorsPage: ListPageDef = {
     { key: 'ring', label: 'Ring', kind: 'int', help: '1 = Core, 2 or more = Rim (hidden HQs with random_rim go here).' },
     { key: 'starts_neutral', label: 'Starts neutral', kind: 'bool' },
     {
+      key: 'starts_explored',
+      label: 'Charted from the start',
+      kind: 'bool',
+      help: 'Every world here is charted for every side at day zero, as in a Core sector, whatever the ring. Charting shows facilities, never forces.'
+    },
+    {
       key: 'map',
       label: 'Position',
       kind: 'object',
