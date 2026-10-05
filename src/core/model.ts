@@ -293,6 +293,14 @@ export interface LoadedPack {
   display: DisplayDef
 }
 
+/** The pack's own word for the map's places, for the editor's page of them and
+ *  the links to it (TeeJ, 2026-10-04: a per-pack label): display.json terms
+ *  `systems` (WWII "Territories"), else "Planets". */
+export function placesLabel(pack: LoadedPack | null | undefined): string {
+  const t = (pack?.display?.terms?.systems ?? '').trim()
+  return t !== '' ? t : 'Planets'
+}
+
 function rect(v: unknown, asInt: boolean): number[] {
   if (!Array.isArray(v)) return []
   return v.map((x) => (asInt ? gdInt(x) : gdFloat(x)))

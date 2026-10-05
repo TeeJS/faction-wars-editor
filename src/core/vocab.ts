@@ -145,7 +145,24 @@ export const SINGLETON_CHARACTER_ROLES = ['pilgrim', 'heir', 'dark_lord', 'dark_
 export const KNOWN_UNIT_ROLES = ['superweapon', 'garrison_troop']
 /** The art sets the engine knows, and the side looks (skins) each has. */
 export const KNOWN_ART_SETS: Record<string, string[]> = { 'swr-original': ['alliance', 'empire'] }
-export const ART_KINDS = ['characters', 'units', 'facilities', 'missions', 'planets']
+export const ART_KINDS = ['characters', 'units', 'facilities', 'missions', 'locations']
+/** A kind's old name, still read (TeeJ, 2026-10-04: "planets" became "locations";
+ *  PackLoader.OLD_ART_KINDS). */
+export const OLD_ART_KINDS: Record<string, string> = { planets: 'locations' }
+/** A picture folder's old name, read when the new one has nothing (artwork.gd
+ *  OldFolders): the pack's own art/ and the art set alike. */
+export const OLD_ART_FOLDERS: Record<string, string> = { locations: 'planets', location_sprites: 'planet_sprites' }
+
+/** `rel` (an art-set path, or a pack path under art/) with its folder's old
+ *  name, or null when the folder was never renamed. */
+export function oldArtPath(rel: string): string | null {
+  const own = rel.startsWith('art/')
+  const body = own ? rel.slice(4) : rel
+  const slash = body.indexOf('/')
+  const folder = slash > 0 ? body.slice(0, slash) : ''
+  const old = OLD_ART_FOLDERS[folder]
+  return old ? `${own ? 'art/' : ''}${old}${body.slice(slash)}` : null
+}
 export const KNOWN_CORNER_ICONS = ['manufacturing', 'defenses', 'fleet', 'mission', 'uprising']
 
 /** Enums.MissionType members in snake_case, then the two scripted stays (mission_catalog.gd). */

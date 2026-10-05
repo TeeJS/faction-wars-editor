@@ -3,6 +3,7 @@
 
 import { useEffect, useState } from 'react'
 import { splitArtRef } from '../../../core/validate'
+import { oldArtPath } from '../../../core/vocab'
 import { store } from '../store'
 
 export interface LoadedImage {
@@ -18,13 +19,17 @@ export async function artSetPaths(): Promise<string[]> {
   return (store.art ?? (await store.loadArt())).sources.map((s) => s.path)
 }
 
-/** A file from the first art set that has it. */
+/** A file from the first art set that has it - by its folder's old name too
+ *  (planets/, planet_sprites/), for an art set exported before the rename. */
 export async function artSetFile(rel: string): Promise<Uint8Array | null> {
+  const old = oldArtPath(rel)
   for (const setPath of await artSetPaths()) {
-    const key = `${setPath}|${rel}`
-    if (!artCache.has(key)) artCache.set(key, window.api.artSetFile(setPath, rel))
-    const bytes = await artCache.get(key)!
-    if (bytes) return bytes
+    for (const r of old ? [rel, old] : [rel]) {
+      const key = `${setPath}|${r}`
+      if (!artCache.has(key)) artCache.set(key, window.api.artSetFile(setPath, r))
+      const bytes = await artCache.get(key)!
+      if (bytes) return bytes
+    }
   }
   return null
 }

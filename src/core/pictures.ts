@@ -3,14 +3,17 @@
 // then each declared art set, by the row the `art` reference names (the row
 // itself when it names none, and only that set when it names one).
 // Side pictures are keyed by the faction's skin, or its id when it has none
-// (faction.gd:40).
+// (faction.gd:40). A system's pictures are in locations/ and location_sprites/,
+// once planets/ and planet_sprites/: the old folder is read when the new one
+// has nothing (vocab.ts OLD_ART_FOLDERS), as the game does.
 
 import type { PackDocument, Editor } from './document'
 import { JsonText } from './jsontext'
 import type { LoadedPack } from './model'
 import { parseArtRef } from './validate'
+import { OLD_ART_FOLDERS } from './vocab'
 
-export type PictureKind = 'characters' | 'units' | 'facilities' | 'missions' | 'planets'
+export type PictureKind = 'characters' | 'units' | 'facilities' | 'missions' | 'locations'
 
 export interface PictureSlot {
   key: string
@@ -63,14 +66,14 @@ export function pictureSlots(pack: LoadedPack, kind: PictureKind, id: string, ar
     return out
   }
   out.push(slot('encyclopedia', 'Encyclopedia picture', '{k}/{i}.png'))
-  if (kind === 'planets') {
+  if (kind === 'locations') {
     if (artworkId > 0)
       out.push({
         key: 'sprite',
-        label: `Planet sprite #${artworkId}`,
-        own: `art/planet_sprites/${artworkId}.png`,
-        set: pack.manifest.artSets.map((s) => `${s}:planet_sprites/${artworkId}.png`),
-        note: `Shared by every planet whose sprite number is ${artworkId}.`
+        label: `Map sprite #${artworkId}`,
+        own: `art/location_sprites/${artworkId}.png`,
+        set: pack.manifest.artSets.map((s) => `${s}:location_sprites/${artworkId}.png`),
+        note: `Shared by every entry whose sprite number is ${artworkId}.`
       })
     return out
   }
@@ -86,14 +89,19 @@ export const DESCRIPTIONS = 'art/descriptions.json'
 export function readDescription(doc: PackDocument, kind: PictureKind, id: string): string {
   const bytes = doc.fileBytes(DESCRIPTIONS)
   if (!bytes) return ''
-  const v = JsonText.fromBytes(bytes).get([kind, id])
+  const t = JsonText.fromBytes(bytes)
+  let v = t.get([kind, id])
+  if (typeof v !== 'string' && OLD_ART_FOLDERS[kind]) v = t.get([OLD_ART_FOLDERS[kind], id])
   return typeof v === 'string' ? v : ''
 }
 
-/** Writes (or, for empty text, removes) a row's description with a minimal edit. */
+/** Writes (or, for empty text, removes) a row's description with a minimal edit,
+ *  under the kind's name - and takes it out of the old section's, if it was there. */
 export function writeDescription(doc: PackDocument, e: Editor, kind: PictureKind, id: string, text: string): void {
   const bytes = doc.fileBytes(DESCRIPTIONS)
   const t = bytes ? JsonText.fromBytes(bytes) : JsonText.fromValue({})
+  const old = OLD_ART_FOLDERS[kind]
+  if (old && typeof t.get([old, id]) === 'string') t.remove([old, id])
   if (text === '') t.remove([kind, id])
   else t.set([kind, id], text)
   e.setFile(DESCRIPTIONS, t.toBytes())

@@ -1,10 +1,11 @@
 import { describe, expect, it } from 'vitest'
 import { PackDocument } from '../src/core/document'
-import { hydrate } from '../src/core/model'
-import { DESCRIPTIONS, pictureSlots, pngSize, readDescription, writeDescription } from '../src/core/pictures'
+import { hydrate, placesLabel } from '../src/core/model'
+import { alias, DESCRIPTIONS, pictureSlots, pngSize, readDescription, writeDescription } from '../src/core/pictures'
 import { starfieldPng } from '../src/core/png'
 import { clonePack, createStarterPack } from '../src/core/starter'
 import { validatePack } from '../src/core/validate'
+import { oldArtPath } from '../src/core/vocab'
 import { haveGameRepo, loadShipped } from './helpers'
 
 describe('picture slots (the game artwork.gd lookup)', () => {
@@ -33,9 +34,23 @@ describe('picture slots (the game artwork.gd lookup)', () => {
     ])
   })
 
-  it('a planet: its Encyclopedia picture and, with an artwork_id, the shared sprite', () => {
-    expect(pictureSlots(pack, 'planets', 'alpha_prime', '', 0).map((s) => s.own)).toEqual(['art/planets/alpha_prime.png'])
-    expect(pictureSlots(pack, 'planets', 'alpha_prime', '', 7).map((s) => s.own)).toEqual(['art/planets/alpha_prime.png', 'art/planet_sprites/7.png'])
+  it('a planet: its Encyclopedia picture and, with an artwork_id, the shared sprite (locations/, location_sprites/)', () => {
+    expect(pictureSlots(pack, 'locations', 'alpha_prime', '', 0).map((s) => s.own)).toEqual(['art/locations/alpha_prime.png'])
+    expect(pictureSlots(pack, 'locations', 'alpha_prime', '', 7).map((s) => s.own)).toEqual(['art/locations/alpha_prime.png', 'art/location_sprites/7.png'])
+  })
+
+  it('the folders\' old names, which the game still reads (planets/, planet_sprites/)', () => {
+    expect(oldArtPath('art/locations/alpha_prime.png')).toBe('art/planets/alpha_prime.png')
+    expect(oldArtPath('art/location_sprites/7.png')).toBe('art/planet_sprites/7.png')
+    expect(oldArtPath('locations/yavin.png')).toBe('planets/yavin.png')
+    expect(oldArtPath('location_sprites/3.png')).toBe('planet_sprites/3.png')
+    expect(oldArtPath('art/characters/a_leader.png')).toBeNull()
+    expect(oldArtPath('portraits/characters/a_leader.png')).toBeNull()
+  })
+
+  it('an art reference by the old kind name reads as locations', () => {
+    expect(alias(pack, 'locations', 'alpha_prime', 'planets/beta')).toEqual(['', 'locations', 'beta'])
+    expect(alias(pack, 'locations', 'alpha_prime', 'locations/beta')).toEqual(['', 'locations', 'beta'])
   })
 
   const suite = haveGameRepo ? describe : describe.skip
@@ -48,6 +63,10 @@ describe('picture slots (the game artwork.gd lookup)', () => {
       const mission = pictureSlots(swr, 'missions', 'diplomacy').map((s) => s.set[0])
       expect(mission).toContain('swr-original:missions/diplomacy.alliance.png')
       expect(mission).toContain('swr-original:missions/diplomacy.empire.small.png')
+    })
+    it('the page of the map\'s places takes the pack\'s own word (display.json terms systems)', () => {
+      expect(placesLabel(hydrate(loadShipped('ww2')).pack)).toBe('Territories')
+      expect(placesLabel(hydrate(loadShipped('star-wars-rebellion')).pack)).toBe('Planets')
     })
     it('an art reference redirects only the art-set lookup', () => {
       const { pack: swr } = hydrate(loadShipped('star-wars-rebellion'))
@@ -74,6 +93,17 @@ describe('Encyclopedia text (art/descriptions.json)', () => {
     expect(readDescription(doc, 'units', 'a_fighter')).toBe('Fast.')
     // Pictures and text are extra files: the pack still validates.
     expect(validatePack(doc).map((i) => i.message)).toEqual([])
+  })
+
+  it('a system\'s text: the old "planets" section is read, and an edit moves it to "locations"', () => {
+    const doc = createStarterPack({ id: 'p', displayName: 'P' })
+    doc.edit('d', (e) => e.setFile(DESCRIPTIONS, new TextEncoder().encode(JSON.stringify({ planets: { alpha_prime: 'Old words.' } }))))
+    expect(readDescription(doc, 'locations', 'alpha_prime')).toBe('Old words.')
+    doc.edit('d', (e) => writeDescription(doc, e, 'locations', 'alpha_prime', 'New words.'))
+    const all = JSON.parse(new TextDecoder().decode(doc.fileBytes(DESCRIPTIONS)))
+    expect(all.locations).toEqual({ alpha_prime: 'New words.' })
+    expect(all.planets?.alpha_prime).toBeUndefined()
+    expect(readDescription(doc, 'locations', 'alpha_prime')).toBe('New words.')
   })
 })
 

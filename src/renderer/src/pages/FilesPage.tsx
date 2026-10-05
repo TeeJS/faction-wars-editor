@@ -48,12 +48,12 @@ export function FilesPage(): ReactNode {
       { kind: 'units', list: s.pack!.units },
       { kind: 'facilities', list: s.pack!.facilities },
       { kind: 'missions', list: s.pack!.missions },
-      { kind: 'planets', list: s.pack!.planets }
+      { kind: 'locations', list: s.pack!.planets }
     ]
     const v = await formDialog(
       'Add a picture for a record',
       [
-        { key: 'kind', label: 'Kind (characters, units, facilities, missions, planets)', value: 'units', validate: (t) => (kinds.some((k) => k.kind === t) ? null : 'One of the five kinds.') },
+        { key: 'kind', label: 'Kind (characters, units, facilities, missions, locations)', value: 'units', validate: (t) => (kinds.some((k) => k.kind === t) ? null : 'One of the five kinds.') },
         {
           key: 'id',
           label: 'Record id',

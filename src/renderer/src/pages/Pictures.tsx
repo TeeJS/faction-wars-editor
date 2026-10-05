@@ -9,6 +9,7 @@ import type { Ctx, Dict } from '../forms/types'
 import { store } from '../store'
 import { alertDialog, confirmDialog } from '../ui/Modal'
 import { artSetFile, useImage } from '../ui/useImage'
+import { OLD_ART_FOLDERS, oldArtPath } from '../../../core/vocab'
 
 export function PicturesPanel(props: { c: Ctx; kind: PictureKind; rec: Dict }): ReactNode {
   const { c, kind, rec } = props
@@ -37,8 +38,12 @@ export function PicturesPanel(props: { c: Ctx; kind: PictureKind; rec: Dict }): 
 }
 
 function PictureCard({ c, slot }: { c: Ctx; slot: PictureSlot }): ReactNode {
-  const own = c.doc.hasFile(slot.own)
-  const ownImg = useImage(own ? slot.own : null, c.doc.version)
+  // The pack's own picture: at slot.own, or still in the folder's old name
+  // (art/planets/ for art/locations/), which the game reads too.
+  const oldOwn = oldArtPath(slot.own)
+  const ownPath = c.doc.hasFile(slot.own) ? slot.own : oldOwn && c.doc.hasFile(oldOwn) ? oldOwn : null
+  const own = ownPath !== null
+  const ownImg = useImage(ownPath, c.doc.version)
   const setImg = useImage(!own && slot.set.length ? slot.set[0] : null, 0)
   const shown = own ? ownImg.image : setImg.image
   const noArtHere = !!store.art && store.art.sources.length === 0
@@ -60,13 +65,17 @@ function PictureCard({ c, slot }: { c: Ctx; slot: PictureSlot }): ReactNode {
       await alertDialog('Not a PNG', `The game reads ${slot.own} as a PNG image, and ${f.name} is not one. Save it as .png first.`)
       return
     }
-    c.doc.edit(`${own ? 'Replace' : 'Add'} ${slot.own}`, (e) => e.setFile(slot.own, f.bytes))
+    c.doc.edit(`${own ? 'Replace' : 'Add'} ${slot.own}`, (e) => {
+      e.setFile(slot.own, f.bytes)
+      if (ownPath && ownPath !== slot.own) e.removeFile(ownPath)
+    })
     if (slot.size && (size[0] !== slot.size[0] || size[1] !== slot.size[1]))
       store.notify('info', `${f.name} is ${size[0]}×${size[1]}; the original's are ${slot.size[0]}×${slot.size[1]}, and the game scales it to fit.`)
   }
   const remove = async () => {
-    if (!(await confirmDialog('Remove picture', `Remove ${slot.own} from the pack? The game then falls back to ${setImg.image || slot.set.length ? 'the art set\'s picture' : 'no picture'}.`, 'Remove', true))) return
-    c.doc.edit(`Remove ${slot.own}`, (e) => e.removeFile(slot.own))
+    if (!ownPath) return
+    if (!(await confirmDialog('Remove picture', `Remove ${ownPath} from the pack? The game then falls back to ${setImg.image || slot.set.length ? 'the art set\'s picture' : 'no picture'}.`, 'Remove', true))) return
+    c.doc.edit(`Remove ${ownPath}`, (e) => e.removeFile(ownPath))
   }
 
   return (
@@ -86,6 +95,7 @@ function PictureCard({ c, slot }: { c: Ctx; slot: PictureSlot }): ReactNode {
         <code className="muted" title="Where your own picture goes">
           {slot.own}
         </code>
+        {ownPath && ownPath !== slot.own && <span className="muted">Now in {ownPath}, the folder's old name; the game reads it there too. Replacing it moves it.</span>}
         <span className="row-actions">
           <button onClick={() => void choose()}>{own ? 'Replace…' : 'Add my own…'}</button>
           {own && (
@@ -114,7 +124,8 @@ function Description({ c, kind, id, artRef }: { c: Ctx; kind: PictureKind; id: s
       if (!bytes || cancelled) return
       try {
         const all = JSON.parse(new TextDecoder().decode(bytes)) as unknown
-        const t = isDict(all) && isDict(all[aKind]) ? (all[aKind] as Dict)[aId] : undefined
+        const section = isDict(all) ? (isDict(all[aKind]) ? all[aKind] : all[OLD_ART_FOLDERS[aKind] ?? '']) : undefined
+        const t = isDict(section) ? (section as Dict)[aId] : undefined
         if (!cancelled) setOriginal(typeof t === 'string' ? t : null)
       } catch {
         /* not our file to fix */
