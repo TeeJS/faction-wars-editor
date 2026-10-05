@@ -777,7 +777,7 @@ function Manufacturing() {
   const S = useEnv().pack.samples
   return (
     <Win title={`Manufacturing at ${S.planets[0].name}`} width={660}>
-      <Tabs tabs={['Manufacturing', 'Shipyards', 'Training Facilities', 'Construction Yards', 'Refineries', 'Mines'].map((l, i) => ({ label: l, state: i === 0 ? 'selected' : i === 2 ? 'hover' : 'normal' }))}>
+      <Tabs tabs={['Manufacturing', S.terms.shipyards ?? 'Shipyards', 'Training Facilities', 'Construction Yards', 'Refineries', 'Mines'].map((l, i) => ({ label: l, state: i === 0 ? 'selected' : i === 2 ? 'hover' : 'normal' }))}>
         {[0, 1, 2].map((q) => (
           <div key={q} style={col}>
             <FixedBox name="Queue header" color={rgb(0.2, 0.6, 0.2)} note={N.literal} scene style={{ padding: '2px 8px', display: 'flex' }}>

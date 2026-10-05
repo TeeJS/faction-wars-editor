@@ -80,7 +80,10 @@ export const KNOWN_TERMS = [
   'bombard_order', 'assault_order', 'destroy_order', 'system_fleets', 'fleets_here', 'bombardment_event', 'strike',
   'disabled_by', 'incoming', 'agent_role', 'messenger',
   // a message category with nothing in it
-  'no_messages'
+  'no_messages',
+  // the facility that builds ships and fighters, and its queue (TeeJ,
+  // 2026-10-04: WWII's War Plants build aircraft too)
+  'shipyard', 'shipyards', 'ship_construction', 'no_ship_construction'
 ]
 export const KNOWN_MENU_ACTIONS = [
   'difficulty', 'galaxy_size', 'start', 'load_game', 'credits', 'hq_only_victory', 'multiplayer', 'exit', 'cycle'
