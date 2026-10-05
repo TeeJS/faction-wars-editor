@@ -3,7 +3,7 @@
 // its planets together. Coordinates are travel time, so the readout shows days.
 
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
-import { ci, isDict } from '../../../core/model'
+import { ci, isDict, placesLabel } from '../../../core/model'
 import { RULE_SPACE_TRAVEL_DISTANCE_DIV } from '../../../core/vocab'
 import { FieldGroup } from '../forms/fields'
 import { planetsPage, sectorsPage } from '../forms/pages'
@@ -311,18 +311,18 @@ export function MapPage(): ReactNode {
               <h3>{planet.displayName || planet.id}</h3>
               <FieldGroup c={c} file="map.json" path={['planets', planet.index]} rec={planetRec} fields={planetsPage.fields.filter((f) => !['source_id', 'string_id'].includes(f.key))} />
               <button className="link" onClick={() => store.go('planets', planet.index)}>
-                Open on the Planets page
+                Open on the {placesLabel(pack)} page
               </button>
             </div>
           ) : sector && isDict(sectorRec) ? (
             <div className="card">
               <h3>{sector.displayName || sector.id}</h3>
               <FieldGroup c={c} file="map.json" path={['sectors', sector.index]} rec={sectorRec} fields={sectorsPage.fields.filter((f) => !['source_id', 'string_id'].includes(f.key))} />
-              <p className="muted">{pack.planets.filter((p) => p.sector === sector.id).length} planets</p>
+              <p className="muted">{pack.planets.filter((p) => p.sector === sector.id).length} {placesLabel(pack).toLowerCase()}</p>
             </div>
           ) : (
             <div className="card muted">
-              Click a planet or a sector to edit it. {pack.planets.length} planets in {pack.sectors.length} sectors.
+              Click a planet or a sector to edit it. {pack.planets.length} {placesLabel(pack).toLowerCase()} in {pack.sectors.length} sectors.
             </div>
           )}
           <div className="card legend">

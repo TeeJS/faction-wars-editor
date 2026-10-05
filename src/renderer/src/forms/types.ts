@@ -81,6 +81,8 @@ export interface FieldProps {
 export interface ListPageDef {
   page: string
   title: string
+  /** The title for this pack, when it is the pack's own word (placesLabel). */
+  titleFor?: (pack: LoadedPack) => string
   intro?: string
   file: PackJsonFile
   listPath: JSONPath

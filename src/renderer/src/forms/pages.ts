@@ -1,7 +1,7 @@
 // Every pack field, described once. Help texts come from SCHEMA.md and the
 // game's loader; where the engine depends on something, the help says so.
 
-import { ci, isDict } from '../../../core/model'
+import { ci, isDict, placesLabel } from '../../../core/model'
 import {
   FACILITY_STAT_KEYS,
   GID_KIND_ARGS,
@@ -315,8 +315,9 @@ export const sectorsPage: ListPageDef = {
 
 export const planetsPage: ListPageDef = {
   page: 'planets',
-  pictures: 'planets',
+  pictures: 'locations',
   title: 'Planets',
+  titleFor: (p) => placesLabel(p),
   intro: 'Order is load-bearing (day zero). Coordinates are travel time; drag them on the Galaxy Map.',
   file: 'map.json',
   listPath: ['planets'],
@@ -344,8 +345,8 @@ export const planetsPage: ListPageDef = {
         { key: 'y', label: 'y', kind: 'int', required: true }
       ]
     },
-    { key: 'artwork_id', label: 'Planet sprite', kind: 'int', help: 'Picks planet_sprites/<n>.png; 0 = none.' },
-    { key: 'art', label: 'Art reference', kind: 'art', artKind: 'planets' },
+    { key: 'artwork_id', label: 'Map sprite', kind: 'int', help: 'Picks location_sprites/<n>.png (or the old planet_sprites/<n>.png); 0 = none.' },
+    { key: 'art', label: 'Art reference', kind: 'art', artKind: 'locations' },
     ...provenance
   ]
 }

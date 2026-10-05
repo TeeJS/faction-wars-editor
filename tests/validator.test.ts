@@ -366,7 +366,7 @@ const cases: [string, PackDocument, string][] = [
   ['a skin the art set does not have', pack({}, {}, { art_sets: ['swr-original'], skin: 'republic' }), "skin 'republic' is not a side look of swr-original"],
   ['a skin with no art set', pack({}, {}, { skin: 'empire' }), "skin 'empire' needs pack.json art_sets"],
   ['an art reference that is not <kind>/<id>', pack({}, {}, { art_sets: ['swr-original'], skin: 'empire', char_art: 'luke_skywalker' }), 'must be [<art set>:]<kind>/<id>'],
-  ['an art reference to an art set the pack does not declare', pack({}, { art: 'other-set:planets/coruscant' }, { art_sets: ['swr-original'], skin: 'empire' }), 'must be [<art set>:]<kind>/<id>'],
+  ['an art reference to an art set the pack does not declare', pack({}, { art: 'other-set:locations/coruscant' }, { art_sets: ['swr-original'], skin: 'empire' }), 'must be [<art set>:]<kind>/<id>'],
   ['an art reference with no art set declared', pack({}, {}, { char_art: 'characters/luke_skywalker' }), "'characters/luke_skywalker' needs pack.json art_sets"],
   ['a map_image in an art set the pack does not declare', pack({}, {}, { map_image: 'swr-original:screens/galaxy.png' }), "names art set 'swr-original', which art_sets does not declare"]
 ]
@@ -377,7 +377,7 @@ describe('the game validator cases (tests/pack_validation.gd)', () => {
   it('an art-set pack: a skin, art references, art-set pictures is clean', () => {
     const doc = pack(
       {},
-      { art: 'swr-original:planets/coruscant' },
+      { art: 'swr-original:locations/coruscant' },
       { art_sets: ['swr-original'], skin: 'empire', char_art: 'characters/luke_skywalker', map_image: 'swr-original:screens/galaxy.png' }
     )
     const { pack: p } = hydrate(doc)
@@ -385,6 +385,15 @@ describe('the game validator cases (tests/pack_validation.gd)', () => {
     validateMap(p, PACK_DIR, hasFile, c)
     validateCharacters(p, c)
     validateMenu(p, PACK_DIR, hasFile, c)
+    validateArt(p, c)
+    expect(c.issues.map((i) => i.message)).toEqual([])
+  })
+
+  it('an art reference by the kind\'s old name (planets/, now locations/) is clean', () => {
+    const doc = pack({}, { art: 'swr-original:planets/coruscant' }, { art_sets: ['swr-original'], skin: 'empire', map_image: 'swr-original:screens/galaxy.png' })
+    const { pack: p } = hydrate(doc)
+    const c = new Collector()
+    validateMap(p, PACK_DIR, hasFile, c)
     validateArt(p, c)
     expect(c.issues.map((i) => i.message)).toEqual([])
   })

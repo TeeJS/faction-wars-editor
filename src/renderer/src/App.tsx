@@ -8,6 +8,7 @@ import { ListPage } from './pages/ListPage'
 import { MapPage } from './pages/MapPage'
 import { MenuPage } from './pages/MenuPage'
 import { DisplaySettingsPage, PackPage } from './pages/PackPage'
+import { placesLabel } from '../../core/model'
 import { store, useStore } from './store'
 import { DialogHost } from './ui/Modal'
 
@@ -183,7 +184,7 @@ function Nav(): ReactNode {
             const n = count(it.page)
             return (
               <button key={it.page} className={`nav-item ${s.page === it.page ? 'on' : ''}`} aria-current={s.page === it.page ? 'page' : undefined} onClick={() => store.go(it.page)}>
-                {it.label}
+                {it.page === 'planets' ? placesLabel(s.pack) : it.label}
                 {n > 0 && <span className="badge">{n}</span>}
               </button>
             )

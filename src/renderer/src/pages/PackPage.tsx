@@ -1,7 +1,7 @@
 // pack.json, plus an at-a-glance summary of the whole pack.
 
 import type { ReactNode } from 'react'
-import { isDict } from '../../../core/model'
+import { isDict, placesLabel } from '../../../core/model'
 import { chooseArtSet, makeOwnCopy } from '../actions'
 import { SHIPPED_PACK_IDS } from '../../../core/vocab'
 import { displaySettingsFields, packFields } from '../forms/pages'
@@ -20,7 +20,7 @@ export function PackPage(): ReactNode {
   const counts: [string, number, string][] = [
     ['factions', pack.factions.length, 'factions'],
     ['sectors', pack.sectors.length, 'sectors'],
-    ['planets', pack.planets.length, 'planets'],
+    [placesLabel(pack).toLowerCase(), pack.planets.length, 'planets'],
     ['characters', pack.characters.length, 'characters'],
     ['units', pack.units.length, 'units'],
     ['weapons', pack.weapons.length, 'weapons'],

@@ -24,6 +24,7 @@ export function ListPage({ def }: { def: ListPageDef }): ReactNode {
   const doc = s.doc!
   const pack = s.pack!
   const c: Ctx = { doc, pack }
+  const title = def.titleFor ? def.titleFor(pack) : def.title
   const [filter, setFilter] = useState('')
   const [tab, setTab] = useState<'form' | 'raw'>('form')
 
@@ -62,14 +63,14 @@ export function ListPage({ def }: { def: ListPageDef }): ReactNode {
   const add = async () => {
     let id = def.newId ? def.newId(c) : ''
     if (def.mode === 'map') {
-      const v = await promptDialog(`New ${def.title.replace(/s$/, '').toLowerCase()}`, 'Id', id, (t) =>
+      const v = await promptDialog(`New ${title.replace(/s$/, '').toLowerCase()}`, 'Id', id, (t) =>
         !t.trim() ? 'An id is needed.' : rows.some((r) => r.id === t) ? 'That id is taken.' : null
       )
       if (!v) return
       id = v
     }
     const item = def.newItem(c, id)
-    doc.edit(`Add ${def.title}`, (e) => {
+    doc.edit(`Add ${title}`, (e) => {
       if (def.mode === 'array') {
         e.insert(def.file, def.listPath, rows.length, item)
         if (def.page === 'factions') e.set('pack.json', ['faction_count'], rows.length + 1)
@@ -148,14 +149,14 @@ export function ListPage({ def }: { def: ListPageDef }): ReactNode {
 
   return (
     <div className="list-page">
-      <aside className="record-list" aria-label={`${def.title} list`}>
+      <aside className="record-list" aria-label={`${title} list`}>
         <div className="record-list-tools">
           <input type="search" placeholder={`Filter ${rows.length}…`} value={filter} onChange={(e) => setFilter(e.target.value)} aria-label="Filter" />
-          <button className="primary" onClick={() => void add()} title={`Add to ${def.title}`}>
+          <button className="primary" onClick={() => void add()} title={`Add to ${title}`}>
             + Add
           </button>
         </div>
-        <div className="record-list-items" role="listbox" aria-label={def.title}>
+        <div className="record-list-items" role="listbox" aria-label={title}>
           {[...groups].map(([g, list]) => (
             <div key={g}>
               {g && <div className="group-label">{g}</div>}

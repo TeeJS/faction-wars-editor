@@ -12,6 +12,7 @@ import { hydrate, isDict, ci, gdStr, type LoadedPack } from './model'
 import { normalizePath } from './document'
 import {
   ART_KINDS,
+  OLD_ART_KINDS,
   KNOWN_ART_SETS,
   KNOWN_BRIEFING_VIEW_KINDS,
   KNOWN_BRIEFING_VIEWS,
@@ -78,13 +79,16 @@ export function splitArtRef(ref: string): [string, string] {
   return [ref.slice(0, colon), ref.slice(colon + 1)]
 }
 
-/** Mirrors PackLoader.ParseArtRef: [set, kind, id], or null when malformed. */
+/** Mirrors PackLoader.ParseArtRef: [set, kind, id], or null when malformed. A
+ *  kind's old name (OLD_ART_KINDS) comes back as its new one. */
 export function parseArtRef(ref: string, sets: string[]): [string, string, string] | null {
   const [set, path] = splitArtRef(ref)
   if (set && !sets.includes(set)) return null
   const parts = path.split('/')
-  if (parts.length !== 2 || !ART_KINDS.includes(parts[0]) || blank(parts[1])) return null
-  return [set, parts[0], parts[1]]
+  if (parts.length !== 2 || blank(parts[1])) return null
+  const kind = OLD_ART_KINDS[parts[0]] ?? parts[0]
+  if (!ART_KINDS.includes(kind)) return null
+  return [set, kind, parts[1]]
 }
 
 function isHex(ch: string): boolean {
